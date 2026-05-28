@@ -2,6 +2,13 @@
 declare(strict_types=1);
 
 /** @var \Magento\Framework\Escaper $escaper */
+/** @var \Magento\Framework\View\Element\Template $block */
+
+// Magento\Catalog\Helper\Product\Compare exposes the same listing URL used by the stock
+// 'Compare Products' sidebar widget. Going through it gives us a store-scoped, route-aware
+// URL with no hardcoded path — works on any install, including ones that have moved or
+// renamed the compare route.
+$compareListUrl = $block->getUrl('catalog/product_compare/index');
 ?>
 <div x-data="{ dragIndex: null }"
      x-show="$store.compare.isVisible"
@@ -66,7 +73,8 @@ declare(strict_types=1);
     </div>
 
     <footer x-show="!$store.compare.minimized && $store.compare.count > 1" x-cloak class="p-3 border-t">
-        <a href="/compare" class="block text-center px-4 py-2 bg-black text-white text-sm font-medium rounded hover:bg-gray-800">
+        <a href="<?= $escaper->escapeUrl($compareListUrl) ?>"
+           class="block text-center px-4 py-2 bg-black text-white text-sm font-medium rounded hover:bg-gray-800">
             <?= $escaper->escapeHtml(__('Compare side-by-side')) ?>
         </a>
     </footer>

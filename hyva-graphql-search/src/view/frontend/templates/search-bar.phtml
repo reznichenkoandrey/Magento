@@ -1,14 +1,21 @@
 <?php
 declare(strict_types=1);
 
+use Scr1be\HyvaGraphqlSearch\ViewModel\SearchConfig;
+
 /** @var \Magento\Framework\Escaper $escaper */
 /** @var \Magento\Framework\View\Element\Template $block */
 
-$storeBaseUrl = $block->getUrl('', ['_secure' => true]);
-$graphqlUrl = rtrim($storeBaseUrl, '/') . '/graphql';
-$pageSize = 8;
-$debounceMs = 300;
-$cacheTtlMs = 5 * 60 * 1000;
+/** @var SearchConfig $searchConfig */
+$searchConfig = $block->getData('search_config');
+
+$graphqlUrl       = $searchConfig->getGraphqlEndpoint();
+$searchResultUrl  = $searchConfig->getSearchResultUrl();
+$productUrlSuffix = $searchConfig->getProductUrlSuffix();
+$minQuery         = $searchConfig->getMinQueryLength();
+$pageSize         = 8;
+$debounceMs       = 300;
+$cacheTtlMs       = 5 * 60 * 1000;
 ?>
 <div x-data="initInstantSearch"
      @click.outside="close()"
@@ -105,9 +112,11 @@ $cacheTtlMs = 5 * 60 * 1000;
 <script>
     'use strict';
     const SCR1BE_GRAPHQL_URL = '<?= $escaper->escapeJs($graphqlUrl) ?>';
+    const SCR1BE_SEARCH_RESULT_URL = '<?= $escaper->escapeJs($searchResultUrl) ?>';
+    const SCR1BE_PRODUCT_URL_SUFFIX = '<?= $escaper->escapeJs($productUrlSuffix) ?>';
     const SCR1BE_PAGE_SIZE = <?= (int) $pageSize ?>;
     const SCR1BE_CACHE_TTL_MS = <?= (int) $cacheTtlMs ?>;
-    const SCR1BE_MIN_QUERY = 2;
+    const SCR1BE_MIN_QUERY = <?= (int) $minQuery ?>;
 
     const SCR1BE_QUERY = `
         query InstantSearch($search: String!, $pageSize: Int!) {
@@ -223,11 +232,14 @@ $cacheTtlMs = 5 * 60 * 1000;
             },
 
             productUrl(item) {
-                return `/${item.url_key}.html`;
+                // url_key + admin-configured suffix. Both come from the server: the suffix
+                // out of catalog/seo/product_url_suffix (can be ".html", "", or anything else).
+                return `/${item.url_key}${SCR1BE_PRODUCT_URL_SUFFIX}`;
             },
 
             seeAllUrl() {
-                return `/catalogsearch/result/?q=${encodeURIComponent(this.query.trim())}`;
+                const sep = SCR1BE_SEARCH_RESULT_URL.includes('?') ? '&' : '?';
+                return SCR1BE_SEARCH_RESULT_URL + sep + 'q=' + encodeURIComponent(this.query.trim());
             },
 
             formatPrice(item) {
