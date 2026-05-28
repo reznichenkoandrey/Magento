@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="100">
+            <label>scr1be</label>
+        </tab>
+        <section id="scr1be_lazy_images" translate="label" sortOrder="10"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Lazy Images</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_HyvaLazyImages::config</resource>
+
+            <group id="cdn" translate="label" type="text" sortOrder="10"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>CDN</label>
+                <field id="cdn_base" translate="label comment" type="text" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>CDN base URL</label>
+                    <comment>Image proxy endpoint base URL. Example: https://images.example.com</comment>
+                </field>
+            </group>
+
+            <group id="output" translate="label" type="text" sortOrder="20"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Output</label>
+                <field id="lqip_size" translate="label comment" type="text" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>LQIP placeholder size (px)</label>
+                    <comment>Square pixel size of the inline base64 placeholder. Default: 32.</comment>
+                    <validate>validate-greater-than-zero validate-digits</validate>
+                </field>
+                <field id="breakpoints" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Srcset breakpoints (CSV px)</label>
+                    <comment>Comma-separated widths for srcset. Default: 480,768,1024,1440.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

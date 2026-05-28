@@ -1,24 +1,86 @@
 # Hyvä Compare Drawer
 
-A floating "compare products" drawer for Magento 2 + Hyvä — **100% client-side**. State lives in `localStorage`, persists across sessions and tabs, never touches the database, never hits an API endpoint.
+A floating "compare products" drawer for Magento 2 + Hyvä — **100% client-side**. State lives in `localStorage`, persists across sessions and tabs, never touches the database, never hits an API endpoint, never serializes through the customer session.
 
-The point of this project: show how to build genuinely useful e-commerce UX without round-tripping to PHP. Compare is mostly a UI/UX concern — the server doesn't need to care which products a guest is comparing.
+The point of this project: show how to build genuinely useful e-commerce UX without round-tripping to PHP. Compare is mostly a UI/UX concern — the server doesn't need to care which products a guest is comparing, and the guest doesn't need a server round-trip to add or remove one.
 
-## Stack
+## Why this exists
 
-- **Frontend only:** Alpine.js 3 (`$store` + `$persist` plugin), Tailwind CSS 3
-- **Storage:** `localStorage` keyed `scr1be_compare_v1`
-- **Cross-tab sync:** `window.storage` event listener — add a product in tab A, the drawer updates in tab B
-- **Backend:** Hyvä module shell only (registration, layout XML to inject the drawer)
+Both stock Magento 2 (Luma) and Hyvä's default theme already implement a compare list — server-side, using the `Magento\Catalog\Model\Product\Compare` pipeline tied to either the customer or the visitor session. That implementation is correct, complete, and slow: every add/remove is an XHR, every render goes through the layout cache, the data lives in a session table on the database server, and the comparison page is a full page reload.
 
-## Features
+This module is in the portfolio to show **the opposite design choice**: when a feature is purely about UI continuity, treat it that way. The trade-offs are explicit (no cross-device sync, no logged-in continuity unless you layer one on), but for the 80% of storefront traffic that is guest, this approach is dramatically simpler and faster.
 
-- Floating drawer pinned to bottom-right; collapses to a thumbnail strip + counter when minimized
-- Drag-and-drop reordering within the drawer (`@dragstart` / `@dragover`)
-- Maximum of 4 products (configurable via Alpine store `max` property)
-- Removing the last product hides the drawer entirely
-- Full compare table view at `/compare` route (also client-rendered — pulls items from store, fetches each product's display data via the existing Hyvä product card endpoint, no custom controller needed)
-- Respects `prefers-reduced-motion` — disables slide animations
+## What's interesting (and what's just baseline)
+
+| Choice | Why | Honest classification |
+|---|---|---|
+| State in `localStorage` keyed `scr1be_compare_v1` | Versioned key so a future v2 schema change can read+migrate v1 instead of nuking customer state | Architectural |
+| Cross-tab sync via `window.storage` event | Native browser event — fires in tab B when tab A writes the same key. Free WebSocket-style sync | Not novel, but rare in M2 codebases |
+| LRU cap at 4 items | Drag a 5th in → oldest shifts off. Mirrors how real shoppers think about compare | UX detail |
+| Drag-and-drop reorder via `@dragstart`/`@drop` | Native HTML5 DnD, no library. Order persists into storage immediately | Baseline |
+| `Alpine.store('compare', { … })` global registration | One store serves drawer + add buttons + compare page — single source of truth | Standard Hyvä |
+| Compare page is also client-rendered | No `/compare` controller. Reads the store, fetches per-item product card HTML via existing Hyvä endpoint. Trade-off documented below | Architectural, dependent on Hyvä product card endpoint existing |
+| Respects `prefers-reduced-motion` via Tailwind `motion-safe:` | Tiny but real a11y win | Baseline (often skipped) |
+
+## Architecture
+
+```mermaid
+graph LR
+    subgraph Browser[Browser — tab A]
+        BTN[Add-to-compare button<br/>add-button.phtml]
+        DRW[Drawer UI<br/>drawer.phtml]
+        ST[Alpine store<br/>store.phtml]
+        LS[(localStorage<br/>scr1be_compare_v1)]
+    end
+
+    subgraph TabB[Browser — tab B]
+        DRW2[Drawer UI]
+        ST2[Alpine store]
+    end
+
+    BTN -->|"click: add(payload)"| ST
+    ST -->|"writeStorage(items)"| LS
+    LS -->|"window.storage event"| ST2
+    ST -->|reactive| DRW
+    ST2 -->|reactive| DRW2
+
+    classDef storage fill:#fef9c3,stroke:#facc15
+    class LS storage
+```
+
+## State lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> Hidden: items.length === 0
+    Hidden --> Drawer: add(product)
+    Drawer --> Drawer: add / remove / reorder
+    Drawer --> Minimized: click chevron
+    Minimized --> Drawer: click chevron
+    Drawer --> Hidden: clear() OR remove last
+    Drawer --> ComparePage: click "Compare side-by-side"
+    ComparePage --> Drawer: navigate back
+    Hidden --> [*]
+```
+
+## UI preview
+
+```text
+Drawer (expanded)             Drawer (minimized)
+┌──────────────────────┐      ┌──────────────────────┐
+│ Compare (3/4)  ▼  ✕  │      │ Compare (3/4)  ▲  ✕  │
+├──────────────────────┤      └──────────────────────┘
+│ [img] T-shirt    $25 ╳│
+│ [img] Hoodie    $59 ╳│
+│ [img] Jeans     $79 ╳│
+├──────────────────────┤
+│ ┌──────────────────┐ │
+│ │ Compare side-by-side │
+│ └──────────────────┘ │
+└──────────────────────┘
+```
+
+Live screenshots — placeholder until a demo storefront is provisioned.
 
 ## Install
 
@@ -26,52 +88,133 @@ The point of this project: show how to build genuinely useful e-commerce UX with
 composer require scr1be/hyva-compare-drawer
 bin/magento module:enable Scr1be_HyvaCompareDrawer
 bin/magento setup:upgrade
+# no setup:di:compile needed — there's no PHP class in this module
 ```
-
-No `setup:di:compile` needed — there is no PHP class to compile.
 
 ## Usage
 
-The "Add to compare" button is auto-injected into product list items. To trigger manually:
+### Add button on product cards (auto)
+
+The module's layout XML injects the drawer + Alpine store into every page's `before.body.end`. The `add-button.phtml` template is meant to be inlined from product cards — call it from your category list template if it isn't picked up by your theme's product card hook.
+
+### Trigger from custom code
+
+Anywhere in your `.phtml` templates:
 
 ```html
-<button @click="$store.compare.add({
-    id: {{ product.id }},
-    name: '{{ product.name | escape('js') }}',
-    image: '{{ product.image_url | escape('js') }}',
-    url: '{{ product.url | escape('js') }}',
-    price: '{{ product.formatted_price | escape('js') }}'
-})">
+<button type="button"
+        @click="$store.compare.add({
+            id: <?= (int) $product->getId() ?>,
+            name: '<?= $escaper->escapeJs($product->getName()) ?>',
+            image: '<?= $escaper->escapeJs($block->getImage($product, 'product_small_image')->getImageUrl()) ?>',
+            url: '<?= $escaper->escapeJs($product->getProductUrl()) ?>',
+            price: '<?= $escaper->escapeJs($block->getProductPriceHtml($product)) ?>'
+        })">
     Compare
 </button>
 ```
 
-## Why client-only
+### Read the state from anywhere
 
-| Server-side compare | This drawer |
+```html
+<span x-text="$store.compare.count"></span>
+<template x-for="item in $store.compare.items"> … </template>
+```
+
+## API reference
+
+### Alpine store: `$store.compare`
+
+| Property | Type | Description |
+|---|---|---|
+| `items` | `Array<{id, name, image, url, price}>` | Current list |
+| `minimized` | bool | Drawer collapsed state |
+| `max` | number (4) | LRU cap — adding past this shifts oldest out |
+| `count` | getter, number | `items.length` |
+| `isVisible` | getter, bool | `items.length > 0` |
+
+| Method | Description |
 |---|---|
-| New DB table, repository, service contract, REST + GraphQL surfaces | One JS object |
-| Guest carts need session-based persistence logic | `localStorage` handles it for free |
-| Cross-tab sync needs WebSocket or polling | `window.storage` event, native |
-| Logged-in user state has to sync from session → cart → quote… | Skip the round-trip entirely |
-| Every interaction = full XHR | Every interaction = setter |
+| `init()` | Wires `window.storage` cross-tab listener — called once by Alpine |
+| `has(productId)` | Whether a product is already in the list |
+| `add(product)` | Append (or shift LRU if at cap); writes to localStorage |
+| `remove(productId)` | Remove by id; writes to localStorage |
+| `clear()` | Empty the list |
+| `reorder(fromIndex, toIndex)` | Drag-and-drop reorder; persists order |
 
-The trade-off: compare list doesn't follow the user across devices. For a guest-heavy storefront, this is a non-issue. For logged-in users who care about cross-device parity, you can layer a sync-to-server step on `$watch('items', …)` later — without rewriting any of this.
+### Storage schema
 
-## File layout
+```json
+{
+    "key": "scr1be_compare_v1",
+    "value": [
+        { "id": 42, "name": "T-shirt", "image": "/media/…", "url": "/t-shirt.html", "price": "$25.00" },
+        …
+    ]
+}
+```
+
+Versioned key (`_v1`) so a v2 schema can `JSON.parse` v1 and migrate instead of corrupting.
+
+## Trade-offs
+
+| Aspect | Server-side compare (stock) | This drawer |
+|---|---|---|
+| Add/remove latency | Full XHR + session write | `setItem` (sync, ~0ms) |
+| Cross-device sync | Yes (via customer account) | No (would need a sync layer) |
+| Survives clearing browser data | Yes | No |
+| Compare page render | Full Magento render | Client-side, per-item fetch |
+| Code surface | DB table + repo + service + REST + GraphQL + admin | One JS file |
+
+For logged-in continuity, layer a `$watch('items', syncToServer)` on top — sync runs once per change, server-side compare list becomes the canonical store for logged-in users only.
+
+## What gets shipped
 
 ```
 src/
 ├── registration.php
 ├── composer.json
-├── etc/module.xml
+├── etc/
+│   └── module.xml             # depends on Magento_Catalog + Hyva_Theme
 └── view/frontend/
-    ├── layout/default.xml
+    ├── layout/default.xml     # injects store + drawer into before.body.end
     └── templates/
-        ├── drawer.phtml          # the floating drawer
-        ├── add-button.phtml      # "Add to compare" pill
-        └── store.phtml           # Alpine store + $persist registration
+        ├── store.phtml        # Alpine.store registration + cross-tab sync
+        ├── drawer.phtml       # the floating drawer UI
+        └── add-button.phtml   # toggle button — opt-in usage from theme
 ```
+
+## Notes on Hyvä CSP compatibility
+
+`store.phtml` and `add-button.phtml` both contain inline `<script>` blocks. On CSP-strict storefronts add this after each closing `</script>`:
+
+```php
+<?php
+/** @var \Hyva\Theme\Model\ViewModelRegistry $viewModels */
+$hyvaCsp = $viewModels->require(\Hyva\Theme\ViewModel\HyvaCsp::class);
+$hyvaCsp->registerInlineScript();
+?>
+```
+
+## Compatibility
+
+| | Version |
+|---|---|
+| PHP | 8.2, 8.3, 8.4 |
+| Magento 2 | 2.4.6, 2.4.7, 2.4.8 |
+| Hyvä Theme | 1.3.x, 1.4.x |
+| Alpine.js | 3.x |
+| Browsers | Chrome/Firefox/Safari/Edge last 2 versions. HTML5 DnD = no iOS Safari before 15.4 — drag/drop falls back to read-only display there. |
+
+## Troubleshooting
+
+**Drawer never appears** → check that `before.body.end` is rendered on your page type (CMS pages sometimes omit it). Re-injecting via your theme's `default.xml` is fine.
+
+**Cross-tab sync doesn't fire** → both tabs must be on the same origin (`www.example.com` vs `example.com` is different storage scopes).
+
+**Items disappear after a deploy** → `localStorage` survives cache flushes and deploys. If users report drops, check that your storefront didn't rotate the storage key (`scr1be_compare_v1` is hardcoded; don't change it).
+
+**Conflict with another `$store.compare`** → namespaced; if another module also calls `Alpine.store('compare', …)`, last one wins. Rename our store via the `store.phtml` template if needed.
 
 ## License
 

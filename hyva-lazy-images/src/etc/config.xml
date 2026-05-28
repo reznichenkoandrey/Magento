@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scr1be_lazy_images>
+            <cdn>
+                <cdn_base></cdn_base>
+            </cdn>
+            <output>
+                <lqip_size>32</lqip_size>
+                <breakpoints>480,768,1024,1440</breakpoints>
+            </output>
+        </scr1be_lazy_images>
+    </default>
+</config>

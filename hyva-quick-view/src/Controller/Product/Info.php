@@ -35,6 +35,9 @@ class Info implements HttpGetActionInterface
                 ->setData(['error' => 'Product not found']);
         }
 
+        // Block is created at runtime (not declared in layout XML), so the
+        // ViewModel is wired here. Declarative blocks in this module receive
+        // ViewModels through <arguments> in default.xml.
         $block = $this->layoutFactory->create()
             ->createBlock(\Magento\Framework\View\Element\Template::class)
             ->setTemplate(self::BLOCK_TEMPLATE)

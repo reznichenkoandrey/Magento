@@ -11,9 +11,9 @@ use Magento\Store\Model\ScopeInterface;
 
 class LazyImage implements ArgumentInterface
 {
-    private const CONFIG_CDN_BASE     = 'scr1be_lazy_images/cdn_base';
-    private const CONFIG_LQIP_SIZE    = 'scr1be_lazy_images/lqip_size';
-    private const CONFIG_BREAKPOINTS  = 'scr1be_lazy_images/breakpoints';
+    private const CONFIG_CDN_BASE     = 'scr1be_lazy_images/cdn/cdn_base';
+    private const CONFIG_LQIP_SIZE    = 'scr1be_lazy_images/output/lqip_size';
+    private const CONFIG_BREAKPOINTS  = 'scr1be_lazy_images/output/breakpoints';
 
     private const DEFAULT_LQIP_SIZE   = 32;
     private const DEFAULT_BREAKPOINTS = '480,768,1024,1440';
