@@ -4,7 +4,11 @@
     <body>
         <referenceContainer name="before.body.end">
             <block name="hyva.quickview.modal"
-                   template="Scr1be_HyvaQuickView::modal/quick-view.phtml"/>
+                   template="Scr1be_HyvaQuickView::modal/quick-view.phtml">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Scr1be\HyvaQuickView\ViewModel\QuickView</argument>
+                </arguments>
+            </block>
         </referenceContainer>
     </body>
 </page>

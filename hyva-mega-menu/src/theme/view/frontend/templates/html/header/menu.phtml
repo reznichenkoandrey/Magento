@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use Magento\Framework\Data\Tree\Node;
+use Scr1be\MegaMenuAttributes\ViewModel\CategoryFeaturedImage;
 
 /** @var \Magento\Theme\Block\Html\Topmenu $block */
 /** @var \Magento\Framework\Escaper $escaper */
@@ -9,8 +10,11 @@ use Magento\Framework\Data\Tree\Node;
 $root = $block->getMenu();
 $level1 = $root->getChildren();
 $columnCount = (int) $block->getViewConfig()->getVarValue('Scr1be_MegaMenu', 'column_count') ?: 4;
+
+/** @var CategoryFeaturedImage|null $featuredVm */
+$featuredVm = $block->getData('featured_image_view_model');
 ?>
-<nav x-data="megaMenu()"
+<nav x-data="initMegaMenu"
      @keydown.escape.window="close()"
      @click.outside="close()"
      class="relative bg-white border-b border-gray-200"
@@ -32,6 +36,7 @@ $columnCount = (int) $block->getViewConfig()->getVarValue('Scr1be_MegaMenu', 'co
             <?php
             $nodeId = 'mega-' . (int) $node->getId();
             $hasChildren = $node->hasChildren();
+            $featuredImageUrl = $featuredVm?->getFeaturedImageUrl((int) $node->getId());
             ?>
             <li class="relative"
                 @mouseenter="<?= $hasChildren ? "open('{$nodeId}')" : '' ?>">
@@ -51,9 +56,13 @@ $columnCount = (int) $block->getViewConfig()->getVarValue('Scr1be_MegaMenu', 'co
                          class="absolute left-0 top-full z-40 w-screen max-w-5xl bg-white shadow-xl border border-gray-200 p-6">
                         <div class="grid gap-6"
                              style="grid-template-columns: repeat(<?= (int) $columnCount ?>, minmax(0, 1fr));">
-                            <?php $i = 0; ?>
+                            <?php
+                            $reservedForImage = $featuredImageUrl ? 1 : 0;
+                            $maxSubcolumns = $columnCount - $reservedForImage;
+                            $i = 0;
+                            ?>
                             <?php foreach ($node->getChildren() as $level2): ?>
-                                <?php if ($i++ >= $columnCount - 1) break; ?>
+                                <?php if ($i++ >= $maxSubcolumns) break; ?>
                                 <div>
                                     <a href="<?= $escaper->escapeUrl($level2->getUrl()) ?>"
                                        class="block mb-2 font-semibold text-gray-900 hover:text-blue-600">
@@ -74,11 +83,10 @@ $columnCount = (int) $block->getViewConfig()->getVarValue('Scr1be_MegaMenu', 'co
                                 </div>
                             <?php endforeach; ?>
 
-                            <?php $featuredImage = $node->getData('megamenu_featured_image'); ?>
-                            <?php if ($featuredImage): ?>
+                            <?php if ($featuredImageUrl): ?>
                                 <a href="<?= $escaper->escapeUrl($node->getUrl()) ?>"
                                    class="block rounded overflow-hidden bg-gray-100">
-                                    <img src="<?= $escaper->escapeUrl($featuredImage) ?>"
+                                    <img src="<?= $escaper->escapeUrl($featuredImageUrl) ?>"
                                          alt="<?= $escaper->escapeHtmlAttr($node->getName()) ?>"
                                          class="w-full h-full object-cover"
                                          loading="lazy"/>
@@ -141,7 +149,7 @@ $columnCount = (int) $block->getViewConfig()->getVarValue('Scr1be_MegaMenu', 'co
 
 <script>
     'use strict';
-    function megaMenu() {
+    function initMegaMenu() {
         return {
             activePanel: null,
             mobileOpen: false,
@@ -150,4 +158,8 @@ $columnCount = (int) $block->getViewConfig()->getVarValue('Scr1be_MegaMenu', 'co
             close() { this.activePanel = null; this.mobileOpen = false; },
         };
     }
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('initMegaMenu', initMegaMenu);
+    });
 </script>

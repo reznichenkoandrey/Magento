@@ -10,7 +10,7 @@ $pageSize = 8;
 $debounceMs = 300;
 $cacheTtlMs = 5 * 60 * 1000;
 ?>
-<div x-data="instantSearch()"
+<div x-data="initInstantSearch"
      @click.outside="close()"
      @keydown.escape.window="close()"
      class="relative w-full max-w-md mx-auto">
@@ -95,7 +95,8 @@ $cacheTtlMs = 5 * 60 * 1000;
         <template x-if="!loading && totalCount > results.length">
             <a :href="seeAllUrl()"
                class="block px-4 py-2 text-sm font-medium text-center text-blue-600 bg-gray-50 hover:bg-gray-100">
-                <?= $escaper->escapeHtml(__('See all %1 results')) ?>
+                <?= $escaper->escapeHtml(__('See all results')) ?>
+                <span x-text="`(${totalCount})`"></span>
             </a>
         </template>
     </div>
@@ -124,7 +125,7 @@ $cacheTtlMs = 5 * 60 * 1000;
         }
     `;
 
-    function instantSearch() {
+    function initInstantSearch() {
         return {
             query: '',
             results: [],
@@ -250,4 +251,8 @@ $cacheTtlMs = 5 * 60 * 1000;
             },
         };
     }
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('initInstantSearch', initInstantSearch);
+    });
 </script>
