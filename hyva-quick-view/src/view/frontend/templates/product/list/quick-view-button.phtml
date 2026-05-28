@@ -8,8 +8,11 @@ $product = $block->getProduct();
 if (!$product) return;
 ?>
 <button type="button"
-        class="absolute top-2 right-2 px-3 py-1.5 text-xs font-medium bg-white/90 border border-gray-300 rounded shadow-sm hover:bg-white transition opacity-0 group-hover:opacity-100"
+        class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium border border-gray-300 rounded hover:bg-gray-50"
         @click.prevent="$store.quickView.show(<?= (int) $product->getId() ?>)"
         aria-label="<?= $escaper->escapeHtmlAttr(__('Quick view: %1', $product->getName())) ?>">
+    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path d="M10 4C5 4 1.7 7.4 1 10c.7 2.6 4 6 9 6s8.3-3.4 9-6c-.7-2.6-4-6-9-6zm0 10a4 4 0 110-8 4 4 0 010 8zm0-2a2 2 0 100-4 2 2 0 000 4z"/>
+    </svg>
     <?= $escaper->escapeHtml(__('Quick view')) ?>
 </button>
