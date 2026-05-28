@@ -21,8 +21,10 @@ The portfolio is wired into a real Magento storefront with Magento sample data (
 | | Module | What's shown |
 |---|---|---|
 | ![Storefront](demo-screenshots/01-storefront-category.png) | hyva-graphql-search | Search input at the very top of the header — injected into Hyvä's `header.container` |
-| ![Quick view](demo-screenshots/02-quickview-modal.png) | hyva-quick-view | Modal opens with real product (Joust Duffle Bag) — full Hyvä-rendered body, focus-trapped, `aria-modal` |
+| ![Cards with buttons](demo-screenshots/04-cards-with-buttons.png) | hyva-quick-view + hyva-compare-drawer | Both modules inject a button into Hyvä's `catalog.list.item.addto` slot on every product card — Compare (scales icon) and Quick view (eye icon) |
+| ![Quick view modal](demo-screenshots/02-quickview-modal.png) | hyva-quick-view | Modal opens with real product (Joust Duffle Bag) — full Hyvä-rendered body, focus-trapped, `aria-modal`, add-to-cart URL via `Checkout\Helper\Cart` |
 | ![Compare drawer](demo-screenshots/03-compare-drawer.png) | hyva-compare-drawer | Floating drawer bottom-right, three products added, `localStorage` persistence — survives reload and cross-tab sync |
+| ![Compare side-by-side page](demo-screenshots/05-compare-page.png) | hyva-compare-drawer | Dedicated `/scr1be-compare` page rendered entirely from the same Alpine `$store.compare` the drawer reads — own route, own controller, no PHP-side data fetch |
 
 `hyva-lazy-images` is installed and visible in **Stores → Configuration → scr1be → Lazy Images** but isn't actively rendering picture elements in the demo (the CDN passthrough is left unconfigured — there's no point spinning up imgproxy for a screenshots-only demo).
 
