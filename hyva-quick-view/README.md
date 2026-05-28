@@ -18,6 +18,12 @@ Quick view is well-trodden ground — Luma had a (jQuery-heavy) one, and communi
 | `HttpGetActionInterface` directly, no `extends Action` | Magento 2.4+ modern controller style — explicit method intent | Modern, not novel |
 | Focus trap + `Esc` close + `aria-modal` + restored focus | Baseline a11y — nothing fancy, just done right | Baseline (often skipped) |
 
+## Live in the demo storefront
+
+![Quick view modal — live](../demo-screenshots/02-quickview-modal.png)
+
+Modal opens with a real Magento product (Joust Duffle Bag, id=1 from sample data) — the body HTML is rendered server-side by `Controller\Product\Info` using the actual Hyvä-themed `quick-view-body.phtml`, so prices/images/CTAs match the rest of the storefront.
+
 ## Architecture
 
 ```mermaid

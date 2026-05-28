@@ -25,6 +25,12 @@ This module makes a different argument: **Magento's GraphQL surface is already a
 | Keyboard nav (↑/↓ + Enter + Esc) with `aria-*` | Combobox a11y baseline — `role="combobox"`, `aria-autocomplete`, `aria-controls`, `aria-expanded`, `aria-selected` | Baseline (often skipped) |
 | `Alpine.data('initInstantSearch', …)` registration | Official Hyvä convention since 1.3.4 — CSP-friendly, no global `instantSearch()` factory leak | Modern Hyvä |
 
+## Live in the demo storefront
+
+![Search input injected into Hyvä header](../demo-screenshots/01-storefront-category.png)
+
+The search input is the topmost element in the header — injected via `<referenceContainer name="header.container">` with `before="-"` so it sits above Hyvä's logo + native menu. On typing, it fires the InstantSearch GraphQL query against Magento's stock `/graphql` endpoint with `AbortController` cancelling stale requests.
+
 ## Architecture
 
 ```mermaid
