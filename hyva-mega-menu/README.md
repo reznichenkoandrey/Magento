@@ -4,6 +4,22 @@ Responsive mega menu for Magento 2 + Hyvä — desktop dropdown with featured im
 
 Ships as a **theme + companion module pair**: the theme handles the rendering, a small module ships the EAV attribute and the ViewModel that exposes it. Honest pragma — a pure-theme implementation can't add EAV attributes, and the featured-image slot needs one. The split is the Magento-idiomatic way to do this.
 
+## ⚠️ Hyvä 1.4 compatibility note
+
+This module was built against **Hyvä 1.3's `Magento\Theme\Block\Html\Topmenu` API** — the menu phtml reads `$block->getMenu()` and walks the `Magento\Framework\Data\Tree\Node` recursive structure.
+
+**Hyvä 1.4 replaced that pipeline** with `Hyva\Theme\ViewModel\Navigation::getNavigation(int $depth)` returning a flat array, and split the top menu into `topmenu_desktop` / `topmenu_mobile` child blocks (was a single `catalog.topnav`). The block name `topmenu_generic` is the new entry point.
+
+**Status:** the demo storefront in the portfolio runs Magento 2.4.8 + Hyvä 1.4 with this theme **disabled** (reverted to `Hyva/default`). The companion module (`Scr1be_MegaMenuAttributes`) installs fine and the EAV attribute appears in admin — only the theme phtml is incompatible.
+
+**Migration path** (one-screen rewrite, not done yet):
+1. Update layout XML to `<referenceBlock name="topmenu_generic">` instead of `catalog.topnav`
+2. Rewrite `menu.phtml` to use `$viewModelNavigation->getNavigation(4)` returning array of menu items, instead of `$block->getMenu()->getChildren()`
+3. Either keep the single-template approach (override `topmenu_generic` template) or split into `topmenu_desktop` + `topmenu_mobile` matching Hyvä 1.4 architecture
+4. Add `<?php $hyvaCsp->registerInlineScript(); ?>` for CSP-strict storefronts
+
+The module's *design* still stands — theme + companion module split, EAV attribute via Setup Patch, ViewModel for media URL resolution. Only the menu-tree iteration code needs the API swap.
+
 ## Why this exists
 
 Mega menus are a crowded space — `tigren/mega-menu-hyva`, `magefan/menu`, `mageplaza/blog-menu-pro` all do this. This implementation is in the portfolio for three specific things:
