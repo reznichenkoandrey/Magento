@@ -1,0 +1,85 @@
+<?php
+declare(strict_types=1);
+
+/** @var \Magento\Framework\Escaper $escaper */
+?>
+<script>
+    'use strict';
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('quickView', {
+            open: false,
+            loading: false,
+            title: '',
+            html: '',
+            lastFocused: null,
+
+            async show(productId) {
+                this.lastFocused = document.activeElement;
+                this.open = true;
+                this.loading = true;
+                this.html = '';
+
+                try {
+                    const response = await fetch(
+                        `/hyva-quickview/product/info?id=${encodeURIComponent(productId)}`,
+                        { headers: { Accept: 'application/json' } }
+                    );
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const payload = await response.json();
+                    this.title = payload.title;
+                    this.html = payload.html;
+                } catch (error) {
+                    this.title = '<?= $escaper->escapeJs(__('Could not load product')) ?>';
+                    this.html = `<p class="text-red-600">${error.message}</p>`;
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            close() {
+                this.open = false;
+                this.html = '';
+                if (this.lastFocused) this.lastFocused.focus();
+            },
+        });
+    });
+</script>
+
+<div x-data
+     x-cloak
+     x-show="$store.quickView.open"
+     @keydown.escape.window="$store.quickView.close()"
+     class="fixed inset-0 z-50 flex items-center justify-center"
+     role="dialog"
+     aria-modal="true"
+     :aria-label="$store.quickView.title">
+
+    <div class="fixed inset-0 bg-black/60"
+         @click="$store.quickView.close()"
+         aria-hidden="true"></div>
+
+    <div class="relative z-10 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto bg-white rounded-lg shadow-xl"
+         x-trap.noscroll="$store.quickView.open">
+
+        <header class="flex items-center justify-between p-4 border-b">
+            <h2 class="text-lg font-semibold" x-text="$store.quickView.title"></h2>
+            <button type="button"
+                    class="p-2 rounded hover:bg-gray-100"
+                    @click="$store.quickView.close()"
+                    aria-label="<?= $escaper->escapeHtmlAttr(__('Close')) ?>">
+                <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </header>
+
+        <div class="p-6">
+            <template x-if="$store.quickView.loading">
+                <div class="flex items-center justify-center py-12">
+                    <span class="inline-block w-8 h-8 border-2 border-gray-300 border-t-black rounded-full animate-spin"></span>
+                </div>
+            </template>
+            <div x-show="!$store.quickView.loading" x-html="$store.quickView.html"></div>
+        </div>
+    </div>
+</div>

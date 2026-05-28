@@ -1,0 +1,30 @@
+<?php
+declare(strict_types=1);
+
+/** @var \Magento\Framework\Escaper $escaper */
+/** @var \Magento\Catalog\Block\Product\AbstractProduct $block */
+
+$product = $block->getProduct();
+if (!$product) return;
+
+$payload = [
+    'id'    => (int) $product->getId(),
+    'name'  => (string) $product->getName(),
+    'image' => $block->getImage($product, 'product_small_image')->getImageUrl(),
+    'url'   => $product->getProductUrl(),
+    'price' => $block->getProductPriceHtml($product, \Magento\Catalog\Pricing\Price\FinalPrice::PRICE_CODE),
+];
+?>
+<button type="button"
+        x-data
+        :class="$store.compare.has(<?= (int) $product->getId() ?>) && 'ring-2 ring-blue-500'"
+        @click="$store.compare.has(<?= (int) $product->getId() ?>)
+                    ? $store.compare.remove(<?= (int) $product->getId() ?>)
+                    : $store.compare.add(<?= /* @noEscape */ json_encode($payload, JSON_UNESCAPED_SLASHES) ?>)"
+        class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium border border-gray-300 rounded hover:bg-gray-50"
+        :aria-pressed="$store.compare.has(<?= (int) $product->getId() ?>).toString()">
+    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path d="M3 5h4v10H3zM8 3h4v14H8zM13 8h4v7h-4z"/>
+    </svg>
+    <span x-text="$store.compare.has(<?= (int) $product->getId() ?>) ? '<?= $escaper->escapeJs(__('In compare')) ?>' : '<?= $escaper->escapeJs(__('Compare')) ?>'"></span>
+</button>

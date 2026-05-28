@@ -1,0 +1,39 @@
+<?php
+declare(strict_types=1);
+
+use Scr1be\HyvaQuickView\ViewModel\QuickView;
+
+/** @var \Magento\Framework\View\Element\Template $block */
+/** @var \Magento\Framework\Escaper $escaper */
+
+/** @var \Magento\Catalog\Api\Data\ProductInterface $product */
+$product = $block->getData('product');
+/** @var QuickView $viewModel */
+$viewModel = $block->getData('view_model');
+?>
+<div class="grid gap-6 md:grid-cols-2">
+    <div>
+        <img src="<?= $escaper->escapeUrl($product->getMediaConfig()->getMediaUrl($product->getImage())) ?>"
+             alt="<?= $escaper->escapeHtmlAttr($product->getName()) ?>"
+             class="w-full h-auto rounded object-cover"
+             loading="lazy"/>
+    </div>
+    <div>
+        <p class="text-2xl font-bold mb-2">
+            <?= /* @noEscape */ $viewModel->formatPrice($product) ?>
+        </p>
+        <div class="text-sm text-gray-700 mb-4">
+            <?= $escaper->escapeHtml($product->getShortDescription(), ['p', 'br', 'strong', 'em']) ?>
+        </div>
+        <form action="<?= $escaper->escapeUrl($viewModel->getAddToCartUrl($product)) ?>"
+              method="post">
+            <input type="hidden"
+                   name="form_key"
+                   value="<?= $escaper->escapeHtmlAttr($block->getFormKey()) ?>"/>
+            <button type="submit"
+                    class="w-full px-6 py-3 bg-black text-white font-medium rounded hover:bg-gray-800 transition">
+                <?= $escaper->escapeHtml(__('Add to cart')) ?>
+            </button>
+        </form>
+    </div>
+</div>
