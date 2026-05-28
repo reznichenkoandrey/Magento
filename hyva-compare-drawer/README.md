@@ -22,6 +22,12 @@ This module is in the portfolio to show **the opposite design choice**: when a f
 | Compare page is also client-rendered | No `/compare` controller. Reads the store, fetches per-item product card HTML via existing Hyvä endpoint. Trade-off documented below | Architectural, dependent on Hyvä product card endpoint existing |
 | Respects `prefers-reduced-motion` via Tailwind `motion-safe:` | Tiny but real a11y win | Baseline (often skipped) |
 
+## Live in the demo storefront
+
+![Compare drawer — live](../demo-screenshots/03-compare-drawer.png)
+
+Three real products added to the compare list — Joust Duffle Bag ($34), Marco Lightweight Active Hoodie ($74), Ajax Full-Zip Sweatshirt ($69). State persists in `localStorage` keyed `scr1be_compare_v1`, survives reload, syncs across tabs, drag-and-drop reorder works.
+
 ## Architecture
 
 ```mermaid

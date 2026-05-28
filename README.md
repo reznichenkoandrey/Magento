@@ -14,6 +14,20 @@ The goal of this repo is not to bundle a "kitchen sink" — it's to show **how I
 | [`hyva-graphql-search/`](hyva-graphql-search/) | Headless instant search against stock Magento GraphQL | API-first frontend: debounce, `AbortController` for race-free queries, in-memory cache, keyboard nav |
 | [`hyva-lazy-images/`](hyva-lazy-images/) | Performance — `<picture>` with AVIF/WebP/LQIP + IntersectionObserver | Core Web Vitals work: CLS=0 via explicit dimensions, AVIF-first srcsets, LQIP base64 placeholders |
 
+## Live demo (Magento 2.4.8-p4 + Hyvä 1.4)
+
+The portfolio is wired into a real Magento storefront with Magento sample data (Luma catalog, 2,040 products). 4 of the 5 modules are active and verified:
+
+| | Module | What's shown |
+|---|---|---|
+| ![Storefront](demo-screenshots/01-storefront-category.png) | hyva-graphql-search | Search input at the very top of the header — injected into Hyvä's `header.container` |
+| ![Quick view](demo-screenshots/02-quickview-modal.png) | hyva-quick-view | Modal opens with real product (Joust Duffle Bag) — full Hyvä-rendered body, focus-trapped, `aria-modal` |
+| ![Compare drawer](demo-screenshots/03-compare-drawer.png) | hyva-compare-drawer | Floating drawer bottom-right, three products added, `localStorage` persistence — survives reload and cross-tab sync |
+
+`hyva-lazy-images` is installed and visible in **Stores → Configuration → scr1be → Lazy Images** but isn't actively rendering picture elements in the demo (the CDN passthrough is left unconfigured — there's no point spinning up imgproxy for a screenshots-only demo).
+
+`hyva-mega-menu` is a known compat gap on Hyvä 1.4 — see that subfolder's README for the rewrite path. The demo runs `Hyva/default` so the rest of the storefront is unaffected.
+
 ## Why this layout
 
 Each project sits in its own folder with a complete Magento module structure (`registration.php`, `composer.json`, `etc/`, `view/`, etc.). You can copy any single folder into `app/code/Scr1be/` (or `app/design/frontend/Scr1be/` for the theme inside `hyva-mega-menu/`) or `composer require` it from a local path — they don't depend on each other.
