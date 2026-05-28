@@ -1,10 +1,21 @@
 <?php
 declare(strict_types=1);
 
+use Scr1be\HyvaQuickView\ViewModel\QuickView;
+
 /** @var \Magento\Framework\Escaper $escaper */
+/** @var \Magento\Framework\View\Element\Template $block */
+
+/** @var QuickView|null $viewModel */
+$viewModel = $block->getData('view_model');
+$infoEndpoint = $viewModel
+    ? $viewModel->getInfoEndpoint()
+    : $block->getUrl(QuickView::QUICKVIEW_INFO_PATH);
 ?>
 <script>
     'use strict';
+    const SCR1BE_QUICKVIEW_INFO_URL = '<?= $escaper->escapeJs($infoEndpoint) ?>';
+
     document.addEventListener('alpine:init', () => {
         Alpine.store('quickView', {
             open: false,
@@ -20,10 +31,12 @@ declare(strict_types=1);
                 this.html = '';
 
                 try {
-                    const response = await fetch(
-                        `/hyva-quickview/product/info?id=${encodeURIComponent(productId)}`,
-                        { headers: { Accept: 'application/json' } }
-                    );
+                    const url = SCR1BE_QUICKVIEW_INFO_URL +
+                        (SCR1BE_QUICKVIEW_INFO_URL.includes('?') ? '&' : '?') +
+                        'id=' + encodeURIComponent(productId);
+                    const response = await fetch(url, {
+                        headers: { Accept: 'application/json' }
+                    });
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     const payload = await response.json();
                     this.title = payload.title;

@@ -19,6 +19,11 @@
                     <label>CDN base URL</label>
                     <comment>Image proxy endpoint base URL. Example: https://images.example.com</comment>
                 </field>
+                <field id="path_template" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>CDN path template</label>
+                    <comment>Path appended to the CDN base before the query string. Default: /img. Override for image proxies that mount the resize endpoint elsewhere.</comment>
+                </field>
             </group>
 
             <group id="output" translate="label" type="text" sortOrder="20"
@@ -34,6 +39,12 @@
                        showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Srcset breakpoints (CSV px)</label>
                     <comment>Comma-separated widths for srcset. Default: 480,768,1024,1440.</comment>
+                </field>
+                <field id="jpeg_quality" translate="label comment" type="text" sortOrder="30"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>JPEG/WebP/AVIF quality (1-100)</label>
+                    <comment>Output quality passed to the CDN as ?q=N. Default: 80. Values outside 1-100 are clamped.</comment>
+                    <validate>validate-greater-than-zero validate-digits</validate>
                 </field>
             </group>
         </section>
