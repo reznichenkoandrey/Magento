@@ -12,11 +12,15 @@ use Magento\Store\Model\ScopeInterface;
 class LazyImage implements ArgumentInterface
 {
     private const CONFIG_CDN_BASE     = 'scr1be_lazy_images/cdn/cdn_base';
+    private const CONFIG_CDN_PATH     = 'scr1be_lazy_images/cdn/path_template';
     private const CONFIG_LQIP_SIZE    = 'scr1be_lazy_images/output/lqip_size';
     private const CONFIG_BREAKPOINTS  = 'scr1be_lazy_images/output/breakpoints';
+    private const CONFIG_JPEG_QUALITY = 'scr1be_lazy_images/output/jpeg_quality';
 
+    private const DEFAULT_CDN_PATH    = '/img';
     private const DEFAULT_LQIP_SIZE   = 32;
     private const DEFAULT_BREAKPOINTS = '480,768,1024,1440';
+    private const DEFAULT_QUALITY     = 80;
     private const LQIP_CACHE_DIR      = 'lqip';
 
     private ?WriteInterface $varDir = null;
@@ -66,9 +70,9 @@ class LazyImage implements ArgumentInterface
             'src'    => $path,
             'format' => $format,
             'w'      => $width,
-            'q'      => 80,
+            'q'      => $this->getJpegQuality(),
         ]);
-        return rtrim($cdnBase, '/') . '/img?' . $query;
+        return rtrim($cdnBase, '/') . '/' . ltrim($this->getCdnPath(), '/') . '?' . $query;
     }
 
     private function getLqip(string $imagePath): string
@@ -104,6 +108,19 @@ class LazyImage implements ArgumentInterface
     private function getCdnBase(): string
     {
         return (string) $this->scopeConfig->getValue(self::CONFIG_CDN_BASE, ScopeInterface::SCOPE_STORE);
+    }
+
+    private function getCdnPath(): string
+    {
+        $raw = (string) ($this->scopeConfig->getValue(self::CONFIG_CDN_PATH, ScopeInterface::SCOPE_STORE) ?: self::DEFAULT_CDN_PATH);
+        return $raw === '' ? self::DEFAULT_CDN_PATH : $raw;
+    }
+
+    private function getJpegQuality(): int
+    {
+        $value = (int) ($this->scopeConfig->getValue(self::CONFIG_JPEG_QUALITY, ScopeInterface::SCOPE_STORE) ?: self::DEFAULT_QUALITY);
+        // Clamp to a valid encoder range so an admin typo (e.g. 200) can't break the proxy URL.
+        return max(1, min(100, $value));
     }
 
     /**

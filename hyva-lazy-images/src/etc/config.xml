@@ -5,10 +5,12 @@
         <scr1be_lazy_images>
             <cdn>
                 <cdn_base></cdn_base>
+                <path_template>/img</path_template>
             </cdn>
             <output>
                 <lqip_size>32</lqip_size>
                 <breakpoints>480,768,1024,1440</breakpoints>
+                <jpeg_quality>80</jpeg_quality>
             </output>
         </scr1be_lazy_images>
     </default>

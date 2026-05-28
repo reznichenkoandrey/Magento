@@ -5,7 +5,11 @@
         <referenceContainer name="header.container">
             <block name="scr1be.graphql.search"
                    template="Scr1be_HyvaGraphqlSearch::search-bar.phtml"
-                   before="-"/>
+                   before="-">
+                <arguments>
+                    <argument name="search_config" xsi:type="object">Scr1be\HyvaGraphqlSearch\ViewModel\SearchConfig</argument>
+                </arguments>
+            </block>
         </referenceContainer>
     </body>
 </page>
