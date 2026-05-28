@@ -19,7 +19,10 @@ class CompareButton extends AbstractProduct
 {
     protected function _beforeToHtml()
     {
-        if (!$this->getProduct() && ($parent = $this->getParentBlock()) && $parent->getProduct()) {
+        // Always pull the current product from the parent — the same block instance is
+        // reused for every product card on the page, so a previous-render product would
+        // otherwise stick and every card would render with the first product's id.
+        if (($parent = $this->getParentBlock()) && $parent->getProduct()) {
             $this->setProduct($parent->getProduct());
         }
         return parent::_beforeToHtml();
