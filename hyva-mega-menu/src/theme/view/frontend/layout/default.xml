@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="catalog.topnav" template="html/header/menu.phtml">
+            <arguments>
+                <argument name="featured_image_view_model" xsi:type="object">Scr1be\MegaMenuAttributes\ViewModel\CategoryFeaturedImage</argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>
