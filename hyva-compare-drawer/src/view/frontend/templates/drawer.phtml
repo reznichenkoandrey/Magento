@@ -4,11 +4,12 @@ declare(strict_types=1);
 /** @var \Magento\Framework\Escaper $escaper */
 /** @var \Magento\Framework\View\Element\Template $block */
 
-// Magento\Catalog\Helper\Product\Compare exposes the same listing URL used by the stock
-// 'Compare Products' sidebar widget. Going through it gives us a store-scoped, route-aware
-// URL with no hardcoded path — works on any install, including ones that have moved or
-// renamed the compare route.
-$compareListUrl = $block->getUrl('catalog/product_compare/index');
+// Our own client-side compare page (registered via etc/frontend/routes.xml). It reads the
+// same Alpine $store.compare the drawer uses, so the drawer's "Compare side-by-side" link
+// goes to a page that's actually consistent with our localStorage-backed state. The stock
+// /catalog/product_compare route is intentionally NOT used — it would render Magento's
+// session-based compare list, which is always empty for us.
+$compareListUrl = $block->getUrl('scr1be-compare');
 ?>
 <div x-data="{ dragIndex: null }"
      x-show="$store.compare.isVisible"
