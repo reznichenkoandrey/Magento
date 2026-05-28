@@ -1,0 +1,73 @@
+<?php
+declare(strict_types=1);
+
+/** @var \Magento\Framework\Escaper $escaper */
+?>
+<div x-data="{ dragIndex: null }"
+     x-show="$store.compare.isVisible"
+     x-cloak
+     x-transition:enter="motion-safe:transition motion-safe:duration-200"
+     x-transition:enter-start="translate-y-full"
+     x-transition:enter-end="translate-y-0"
+     class="fixed bottom-4 right-4 z-40 bg-white shadow-xl border border-gray-200 rounded-lg overflow-hidden w-80"
+     role="region"
+     aria-label="<?= $escaper->escapeHtmlAttr(__('Compare products')) ?>">
+
+    <header class="flex items-center justify-between px-4 py-2 bg-gray-50 border-b">
+        <div class="text-sm font-semibold">
+            <?= $escaper->escapeHtml(__('Compare')) ?>
+            <span class="ml-1 text-gray-500"
+                  x-text="`(${$store.compare.count}/${$store.compare.max})`"></span>
+        </div>
+        <div class="flex items-center gap-2">
+            <button type="button"
+                    @click="$store.compare.minimized = !$store.compare.minimized"
+                    class="p-1 text-gray-600 hover:text-black"
+                    :aria-expanded="(!$store.compare.minimized).toString()">
+                <svg class="w-4 h-4 transition-transform"
+                     :class="$store.compare.minimized && 'rotate-180'"
+                     viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M5 8l5 5 5-5z"/>
+                </svg>
+            </button>
+            <button type="button"
+                    @click="$store.compare.clear()"
+                    class="p-1 text-gray-600 hover:text-red-600"
+                    aria-label="<?= $escaper->escapeHtmlAttr(__('Clear all')) ?>">
+                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <div x-show="!$store.compare.minimized" x-cloak class="p-3 space-y-2 max-h-80 overflow-y-auto">
+        <template x-for="(item, index) in $store.compare.items" :key="item.id">
+            <div draggable="true"
+                 @dragstart="dragIndex = index"
+                 @dragover.prevent
+                 @drop="$store.compare.reorder(dragIndex, index); dragIndex = null"
+                 class="flex items-center gap-3 p-2 border border-gray-100 rounded cursor-move hover:bg-gray-50">
+                <img :src="item.image" :alt="item.name" class="w-12 h-12 object-cover rounded" loading="lazy"/>
+                <div class="flex-1 min-w-0">
+                    <a :href="item.url" class="block text-sm font-medium truncate hover:underline" x-text="item.name"></a>
+                    <p class="text-xs text-gray-500" x-text="item.price"></p>
+                </div>
+                <button type="button"
+                        @click="$store.compare.remove(item.id)"
+                        class="p-1 text-gray-400 hover:text-red-600"
+                        aria-label="<?= $escaper->escapeHtmlAttr(__('Remove')) ?>">
+                    <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+        </template>
+    </div>
+
+    <footer x-show="!$store.compare.minimized && $store.compare.count > 1" x-cloak class="p-3 border-t">
+        <a href="/compare" class="block text-center px-4 py-2 bg-black text-white text-sm font-medium rounded hover:bg-gray-800">
+            <?= $escaper->escapeHtml(__('Compare side-by-side')) ?>
+        </a>
+    </footer>
+</div>

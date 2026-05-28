@@ -1,0 +1,253 @@
+<?php
+declare(strict_types=1);
+
+/** @var \Magento\Framework\Escaper $escaper */
+/** @var \Magento\Framework\View\Element\Template $block */
+
+$storeBaseUrl = $block->getUrl('', ['_secure' => true]);
+$graphqlUrl = rtrim($storeBaseUrl, '/') . '/graphql';
+$pageSize = 8;
+$debounceMs = 300;
+$cacheTtlMs = 5 * 60 * 1000;
+?>
+<div x-data="instantSearch()"
+     @click.outside="close()"
+     @keydown.escape.window="close()"
+     class="relative w-full max-w-md mx-auto">
+
+    <label class="sr-only" for="scr1be-search-input">
+        <?= $escaper->escapeHtml(__('Search products')) ?>
+    </label>
+
+    <div class="relative">
+        <input id="scr1be-search-input"
+               type="search"
+               x-model="query"
+               @input.debounce.<?= (int) $debounceMs ?>ms="search()"
+               @focus="onFocus()"
+               @keydown.down.prevent="moveHighlight(1)"
+               @keydown.up.prevent="moveHighlight(-1)"
+               @keydown.enter.prevent="followHighlight()"
+               placeholder="<?= $escaper->escapeHtmlAttr(__('Search products…')) ?>"
+               autocomplete="off"
+               role="combobox"
+               aria-autocomplete="list"
+               aria-controls="scr1be-search-results"
+               :aria-expanded="isOpen.toString()"
+               class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+             viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd"
+                  d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l3.817 3.817a1 1 0 01-1.414 1.414l-3.817-3.817A6 6 0 012 8z"
+                  clip-rule="evenodd"/>
+        </svg>
+
+        <button x-show="query.length > 0"
+                @click="reset()"
+                type="button"
+                class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-700"
+                aria-label="<?= $escaper->escapeHtmlAttr(__('Clear search')) ?>">
+            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path d="M6 6l8 8M14 6l-8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </button>
+    </div>
+
+    <div id="scr1be-search-results"
+         x-show="isOpen"
+         x-cloak
+         x-transition.opacity
+         class="absolute left-0 right-0 top-full mt-2 bg-white border border-gray-200 rounded shadow-lg max-h-96 overflow-y-auto z-50"
+         role="listbox">
+
+        <template x-if="loading">
+            <div class="px-4 py-3 text-sm text-gray-500">
+                <?= $escaper->escapeHtml(__('Searching…')) ?>
+            </div>
+        </template>
+
+        <template x-if="!loading && error">
+            <div class="px-4 py-3 text-sm text-red-600" x-text="error"></div>
+        </template>
+
+        <template x-if="!loading && !error && results.length === 0 && query.length >= 2">
+            <div class="px-4 py-3 text-sm text-gray-500">
+                <?= $escaper->escapeHtml(__('No products match your search.')) ?>
+            </div>
+        </template>
+
+        <template x-for="(item, index) in results" :key="item.uid">
+            <a :href="productUrl(item)"
+               @mouseenter="highlightIndex = index"
+               :class="highlightIndex === index && 'bg-blue-50'"
+               class="flex items-center gap-3 px-4 py-2 hover:bg-blue-50"
+               role="option"
+               :aria-selected="(highlightIndex === index).toString()">
+                <img :src="item.small_image.url" :alt="item.small_image.label" class="w-10 h-10 object-cover rounded" loading="lazy"/>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium truncate" x-html="highlightMatch(item.name)"></p>
+                    <p class="text-xs text-gray-500" x-text="formatPrice(item)"></p>
+                </div>
+            </a>
+        </template>
+
+        <template x-if="!loading && totalCount > results.length">
+            <a :href="seeAllUrl()"
+               class="block px-4 py-2 text-sm font-medium text-center text-blue-600 bg-gray-50 hover:bg-gray-100">
+                <?= $escaper->escapeHtml(__('See all %1 results')) ?>
+            </a>
+        </template>
+    </div>
+</div>
+
+<script>
+    'use strict';
+    const SCR1BE_GRAPHQL_URL = '<?= $escaper->escapeJs($graphqlUrl) ?>';
+    const SCR1BE_PAGE_SIZE = <?= (int) $pageSize ?>;
+    const SCR1BE_CACHE_TTL_MS = <?= (int) $cacheTtlMs ?>;
+    const SCR1BE_MIN_QUERY = 2;
+
+    const SCR1BE_QUERY = `
+        query InstantSearch($search: String!, $pageSize: Int!) {
+            products(search: $search, pageSize: $pageSize) {
+                total_count
+                items {
+                    uid
+                    name
+                    sku
+                    url_key
+                    small_image { url label }
+                    price_range { minimum_price { final_price { value currency } } }
+                }
+            }
+        }
+    `;
+
+    function instantSearch() {
+        return {
+            query: '',
+            results: [],
+            totalCount: 0,
+            loading: false,
+            error: '',
+            isOpen: false,
+            highlightIndex: -1,
+            controller: null,
+            cache: new Map(),
+
+            onFocus() {
+                if (this.results.length > 0) this.isOpen = true;
+            },
+
+            close() {
+                this.isOpen = false;
+                this.highlightIndex = -1;
+            },
+
+            reset() {
+                this.query = '';
+                this.results = [];
+                this.totalCount = 0;
+                this.error = '';
+                this.close();
+            },
+
+            async search() {
+                const trimmed = this.query.trim();
+                if (trimmed.length < SCR1BE_MIN_QUERY) {
+                    this.results = [];
+                    this.totalCount = 0;
+                    this.isOpen = false;
+                    return;
+                }
+
+                const cached = this.cache.get(trimmed);
+                if (cached && Date.now() - cached.timestamp < SCR1BE_CACHE_TTL_MS) {
+                    this.applyResults(cached.items, cached.totalCount);
+                    return;
+                }
+
+                this.controller?.abort();
+                this.controller = new AbortController();
+                this.loading = true;
+                this.error = '';
+                this.isOpen = true;
+
+                try {
+                    const response = await fetch(SCR1BE_GRAPHQL_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            query: SCR1BE_QUERY,
+                            variables: { search: trimmed, pageSize: SCR1BE_PAGE_SIZE },
+                        }),
+                        signal: this.controller.signal,
+                    });
+
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const payload = await response.json();
+                    if (payload.errors?.length) throw new Error(payload.errors[0].message);
+
+                    const items = payload.data?.products?.items ?? [];
+                    const totalCount = payload.data?.products?.total_count ?? 0;
+
+                    this.cache.set(trimmed, { items, totalCount, timestamp: Date.now() });
+                    this.applyResults(items, totalCount);
+                } catch (error) {
+                    if (error.name === 'AbortError') return;
+                    this.error = error.message;
+                    this.results = [];
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            applyResults(items, totalCount) {
+                this.results = items;
+                this.totalCount = totalCount;
+                this.highlightIndex = items.length > 0 ? 0 : -1;
+            },
+
+            moveHighlight(delta) {
+                if (this.results.length === 0) return;
+                const next = (this.highlightIndex + delta + this.results.length) % this.results.length;
+                this.highlightIndex = next;
+            },
+
+            followHighlight() {
+                const item = this.results[this.highlightIndex];
+                if (item) window.location.href = this.productUrl(item);
+                else if (this.query.trim().length > 0) window.location.href = this.seeAllUrl();
+            },
+
+            productUrl(item) {
+                return `/${item.url_key}.html`;
+            },
+
+            seeAllUrl() {
+                return `/catalogsearch/result/?q=${encodeURIComponent(this.query.trim())}`;
+            },
+
+            formatPrice(item) {
+                const price = item.price_range?.minimum_price?.final_price;
+                if (!price) return '';
+                return `${price.value.toFixed(2)} ${price.currency}`;
+            },
+
+            highlightMatch(text) {
+                const trimmed = this.query.trim();
+                if (!trimmed) return this.escape(text);
+                const escaped = this.escape(text);
+                const pattern = trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                return escaped.replace(new RegExp(`(${pattern})`, 'ig'), '<mark class="bg-yellow-200">$1</mark>');
+            },
+
+            escape(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            },
+        };
+    }
+</script>

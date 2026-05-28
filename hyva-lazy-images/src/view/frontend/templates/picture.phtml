@@ -1,0 +1,60 @@
+<?php
+declare(strict_types=1);
+
+use Scr1be\HyvaLazyImages\ViewModel\LazyImage;
+
+/** @var \Magento\Framework\View\Element\Template $block */
+/** @var \Magento\Framework\Escaper $escaper */
+
+$src      = (string) $block->getData('src');
+$alt      = (string) $block->getData('alt');
+$width    = (int) $block->getData('width');
+$height   = (int) $block->getData('height');
+$sizes    = (string) ($block->getData('sizes') ?: '100vw');
+$priority = (string) $block->getData('priority');
+
+if ($src === '') {
+    return;
+}
+
+/** @var LazyImage $viewModel */
+$viewModel = $block->getData('view_model')
+    ?: $block->getLayout()->createBlock(LazyImage::class);
+
+$image = $viewModel->generate($src, $sizes);
+
+$isPriority = $priority === 'high';
+$loading    = $isPriority ? 'eager' : 'lazy';
+$decoding   = $isPriority ? 'sync' : 'async';
+$fetchAttr  = $isPriority ? ' fetchpriority="high"' : '';
+
+$srcsetAttr   = $isPriority ? 'srcset' : 'data-srcset';
+$srcAttribute = $isPriority ? 'src' : 'data-src';
+$initialSrc   = $isPriority
+    ? $escaper->escapeUrl(strtok($image['jpg_srcset'], ' '))
+    : $escaper->escapeUrl($image['lqip']);
+?>
+<picture class="scr1be-lazy-picture block">
+    <source type="image/avif"
+            <?= $srcsetAttr ?>="<?= $escaper->escapeHtmlAttr($image['avif_srcset']) ?>"
+            sizes="<?= $escaper->escapeHtmlAttr($image['sizes']) ?>"/>
+    <source type="image/webp"
+            <?= $srcsetAttr ?>="<?= $escaper->escapeHtmlAttr($image['webp_srcset']) ?>"
+            sizes="<?= $escaper->escapeHtmlAttr($image['sizes']) ?>"/>
+    <img <?= $srcAttribute ?>="<?= $initialSrc ?>"
+         <?php if (!$isPriority): ?>
+             src="<?= $escaper->escapeUrl($image['lqip']) ?>"
+             data-srcset-jpg="<?= $escaper->escapeHtmlAttr($image['jpg_srcset']) ?>"
+         <?php else: ?>
+             srcset="<?= $escaper->escapeHtmlAttr($image['jpg_srcset']) ?>"
+         <?php endif; ?>
+         sizes="<?= $escaper->escapeHtmlAttr($image['sizes']) ?>"
+         alt="<?= $escaper->escapeHtmlAttr($alt) ?>"
+         width="<?= $width ?: 'auto' ?>"
+         height="<?= $height ?: 'auto' ?>"
+         loading="<?= $loading ?>"
+         decoding="<?= $decoding ?>"<?= $fetchAttr ?>
+         class="block w-full h-auto bg-gray-100 transition-[filter] duration-300 motion-reduce:transition-none"
+         style="<?= $isPriority ? '' : 'filter: blur(8px);' ?>"
+         onload="this.style.filter='none'"/>
+</picture>

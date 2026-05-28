@@ -1,0 +1,15 @@
+<?php
+declare(strict_types=1);
+
+/** @var \Magento\Framework\Escaper $escaper */
+/** @var \Magento\Catalog\Block\Product\ListProduct $block */
+
+$product = $block->getProduct();
+if (!$product) return;
+?>
+<button type="button"
+        class="absolute top-2 right-2 px-3 py-1.5 text-xs font-medium bg-white/90 border border-gray-300 rounded shadow-sm hover:bg-white transition opacity-0 group-hover:opacity-100"
+        @click.prevent="$store.quickView.show(<?= (int) $product->getId() ?>)"
+        aria-label="<?= $escaper->escapeHtmlAttr(__('Quick view: %1', $product->getName())) ?>">
+    <?= $escaper->escapeHtml(__('Quick view')) ?>
+</button>
