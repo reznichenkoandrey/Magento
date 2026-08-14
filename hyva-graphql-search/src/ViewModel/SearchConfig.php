@@ -28,9 +28,21 @@ class SearchConfig implements ArgumentInterface
     ) {
     }
 
+    /**
+     * URL_TYPE_WEB, not URL_TYPE_LINK. A link URL runs through Store::_updatePathUseStoreView(),
+     * which appends the store code to the path whenever "Add Store Code to URLs" is on — a
+     * common setting on single-domain multistore installs. GraphQL is not part of the storefront
+     * router: Magento_GraphQl registers it as its own area with frontName "graphql", always
+     * served at <base>/graphql, never under a store-code prefix. Building it from a link URL
+     * therefore 404s every search on exactly the installs that need scoping most.
+     *
+     * The store is still selected — by the Store header the search bar sends, which is the
+     * contract GraphQL actually uses for scope.
+     */
     public function getGraphqlEndpoint(): string
     {
-        $base = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_LINK, true);
+        $base = $this->storeManager->getStore()->getBaseUrl(UrlInterface::URL_TYPE_WEB, true);
+
         return rtrim($base, '/') . '/' . self::GRAPHQL_PATH;
     }
 

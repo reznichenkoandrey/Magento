@@ -90,7 +90,7 @@ src/
 └── view/frontend/
     ├── layout/
     │   ├── default.xml           # always-injected modal shell + ViewModel argument
-    │   └── catalog_category_view.xml  # button on every product card
+    │   └── catalog_list_item.xml      # button into catalog.list.item.addto
     └── templates/
         ├── modal/
         │   ├── quick-view.phtml       # modal shell, Alpine store, focus trap
@@ -113,7 +113,7 @@ cd app/design/frontend/<Vendor>/<theme>/web/tailwind && npm run build:prod
 
 ### Auto-injection (default)
 
-After `setup:upgrade`, every product on a category page gets a "Quick view" button in the top-right corner — see `catalog_category_view.xml`. No further wiring needed.
+After `setup:upgrade`, every product card gets a "Quick view" button in its add-to-cart row — see `catalog_list_item.xml`. That handle is shared, so the button also appears in search results, on the compare page and inside product sliders. No further wiring needed.
 
 ### Manual trigger
 
@@ -179,7 +179,7 @@ $hyvaCsp->registerInlineScript();
 
 ## Troubleshooting
 
-**Button doesn't show on category page** → `catalog_category_view.xml` extends `category.products.list`. If you use a custom category template, copy that layout override into your theme.
+**Button does not show on product cards** → `catalog_list_item.xml` adds the block to Hyvä's `catalog.list.item.addto` container. If your theme renders its own card template without that container, add the block to whatever slot it uses instead.
 
 **Modal opens but renders nothing** → check the network panel for the `/hyva-quickview/product/info?id=…` response. A 404 means the product is disabled, out of stock or scoped to a different store view.
 
