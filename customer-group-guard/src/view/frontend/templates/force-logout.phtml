@@ -1,0 +1,23 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Scr1be\CustomerGroupGuard\ViewModel\ForceLogout;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+$viewModel = $block->getData('view_model');
+
+if (!$viewModel instanceof ForceLogout || !$viewModel->isEnabled()) {
+    return;
+}
+?>
+<div hidden
+     x-data="scr1beForceLogoutGuard()"
+     data-logout-url="<?= $escaper->escapeHtmlAttr($viewModel->getLogoutUrl()) ?>"></div>
+<script type="module"
+        src="<?= $escaper->escapeUrl(
+            $block->getViewFileUrl('Scr1be_CustomerGroupGuard::js/force-logout-register.js')
+        ) ?>"></script>

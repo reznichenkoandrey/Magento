@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Scr1be_FpcInspector">
+        <sequence>
+            <!--
+              Magento_PageCache supplies Model\Config, which every record consults to report which
+              caching application is actually in front of the response. Declared so the module is
+              enabled before this one rather than left to alphabetical luck.
+            -->
+            <module name="Magento_PageCache"/>
+            <module name="Magento_Store"/>
+        </sequence>
+    </module>
+</config>

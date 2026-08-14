@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scr1be_fraud_guard>
+            <general>
+                <!--
+                  On by default is safe: the module does nothing at all until an admin ticks the
+                  box on a specific customer. The switch exists to be turned *off* in a hurry when
+                  a merchant suspects a false positive is costing real orders.
+                -->
+                <enabled>1</enabled>
+                <decline_message>Your payment was declined by the issuing bank. Please contact your card issuer or try a different payment method.</decline_message>
+                <log_attempts>1</log_attempts>
+            </general>
+        </scr1be_fraud_guard>
+    </default>
+</config>

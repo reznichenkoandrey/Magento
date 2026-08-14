@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="100">
+            <label>scr1be</label>
+        </tab>
+        <section id="scr1be_fraud_guard" translate="label" sortOrder="20"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Fraud Guard</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_FraudGuard::config</resource>
+
+            <group id="general" translate="label" type="text" sortOrder="10"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable guard</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Master kill-switch. Off means flagged customers check out normally — use it if a false positive is blocking real orders while you investigate.</comment>
+                </field>
+                <field id="decline_message" translate="label comment" type="textarea" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Decline message</label>
+                    <comment>Shown to the shopper instead of a real gateway decline. Keep it identical to the wording your gateway produces — a message that reads differently is the tell this module exists to remove. Store-view scoped so multi-language stores can match each locale. Blank falls back to the built-in default.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="log_attempts" translate="label comment" type="select" sortOrder="30"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Log blocked attempts</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Writes one line per blocked attempt to var/log/fraud_guard.log with customer, quote, IP and user agent. Turning this off does not silence errors from the guard itself.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

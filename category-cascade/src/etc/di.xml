@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      `around` on load(), not on loadProductCount().
+
+      load() is the outermost public method the admin tree calls, which makes it the seam that can
+      *cancel* core's counting rather than run after it has already cost what it costs — hence
+      `around` rather than `after`. It also keeps the plugin's own fallback honest: on failure it
+      calls loadProductCount() to run exactly the counting it suppressed, and hooking that method
+      instead would have made the fallback re-enter the plugin. (A same-class `$this->` call does
+      reach the interceptor — the generator overrides every public non-final method — so the
+      alternative would have recursed rather than silently done nothing.)
+
+      The paired `before` on setLoadProductCount() exists because the flag it sets has no public
+      getter: the plugin has to observe the setter to know whether counting was asked for at all.
+    -->
+    <type name="Magento\Catalog\Model\ResourceModel\Category\Collection">
+        <plugin name="scr1be_category_cascade_indexed_product_count"
+                type="Scr1be\CategoryCascade\Plugin\Catalog\ResourceModel\Category\ProductCountFromIndex"
+                sortOrder="10"/>
+    </type>
+
+    <!-- Cascades get their own file so a merchant can tail one path instead of grepping system.log. -->
+    <virtualType name="Scr1be\CategoryCascade\Logger\CascadeHandler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/category_cascade.log</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Scr1be\CategoryCascade\Logger\CascadeLogger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="name" xsi:type="string">categoryCascade</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="cascades" xsi:type="object">Scr1be\CategoryCascade\Logger\CascadeHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Scr1be\CategoryCascade\Model\CascadeLog">
+        <arguments>
+            <argument name="logger" xsi:type="object">Scr1be\CategoryCascade\Logger\CascadeLogger</argument>
+        </arguments>
+    </type>
+</config>

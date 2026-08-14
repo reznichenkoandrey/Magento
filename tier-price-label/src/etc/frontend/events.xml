@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!--
+        Dispatched by Magento\Catalog\Block\Product\ListProduct::initializeProductCollection()
+        and by Magento\CatalogWidget\Block\Product\ProductsList::createCollection() — i.e. by
+        every block that renders a grid of product cards. That is exactly the set of
+        collections worth preloading tier prices for.
+    -->
+    <event name="catalog_block_product_list_collection">
+        <observer name="scr1be_tier_price_label_flag_listing_collection"
+                  instance="Scr1be\TierPriceLabel\Observer\FlagListingCollection"/>
+    </event>
+</config>

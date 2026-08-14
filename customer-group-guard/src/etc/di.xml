@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      Global, not area-scoped. placeOrder() is reached from the frontend (the Hyva checkout's
+      REST call), from webapi_rest (a headless client posting to /V1/carts/mine/payment-information
+      or /V1/carts/:id/order) and from graphql (the placeOrder mutation). Scoping this plugin to
+      one area would leave the other two able to write an order priced from a stale quote, which
+      is the one outcome the module exists to prevent.
+
+      `before` rather than `around`: the guard either throws or returns, so there is nothing to
+      do with a callable. A `before` plugin also cannot accidentally swallow a core exception or
+      rewrite the order id core hands back, which is a property worth having on a checkout path.
+    -->
+    <type name="Magento\Quote\Api\CartManagementInterface">
+        <plugin name="scr1be_customer_group_guard_block_stale_group_place_order"
+                type="Scr1be\CustomerGroupGuard\Plugin\Quote\BlockStaleGroupPlaceOrder"
+                sortOrder="10"/>
+    </type>
+</config>

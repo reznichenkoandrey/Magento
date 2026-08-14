@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!--
+      Dispatched by AbstractModel::afterCommitCallback() once the category's own transaction has
+      committed. Two reasons this is the right seam rather than catalog_category_save_after:
+
+      1. The parent row is already durable, so the cascade can open its own transaction and fail
+         without taking the admin's save down with it.
+      2. Everything the admin save does afterwards — url rewrites, indexer row updates — has run,
+         so the subtree writes land on a settled tree instead of racing core's own post-save work.
+
+      Global, not adminhtml: categories are also saved by REST, data patches, imports and CLI, and
+      a cascade that only fires for one of those callers is a cascade with holes in it.
+    -->
+    <event name="catalog_category_save_commit_after">
+        <observer name="scr1be_category_cascade_disable_subtree"
+                  instance="Scr1be\CategoryCascade\Observer\CascadeDisableSubtree"/>
+    </event>
+</config>

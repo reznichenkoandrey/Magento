@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      Same closure for the GraphQL area, where the customer query can expose custom attributes.
+    -->
+    <type name="Magento\Customer\Api\CustomerMetadataInterface">
+        <plugin name="scr1be_fraud_guard_hide_flag_from_api"
+                type="Scr1be\FraudGuard\Plugin\Customer\HideFlagFromApiMetadata"
+                sortOrder="10"/>
+    </type>
+</config>

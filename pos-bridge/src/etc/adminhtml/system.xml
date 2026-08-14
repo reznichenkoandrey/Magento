@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="100">
+            <label>scr1be</label>
+        </tab>
+        <!--
+          Default scope only. A REST call arrives at /rest/<store>/…, and a terminal that is not told
+          otherwise sends /rest/all/…, which resolves to the admin store — so a switch shown on a
+          store view would be one an integrator could set, see saved, and never see take effect.
+        -->
+        <section id="scr1be_pos_bridge" translate="label" sortOrder="50" showInDefault="1">
+            <label>POS Bridge</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_PosBridge::config</resource>
+
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1">
+                <label>Endpoints</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1">
+                    <label>Enable the POS bridge</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Master switch for both endpoints. Off, every call is refused before the query is looked at. Off by default: enabling the module is not the same decision as opening a customer-search endpoint.</comment>
+                </field>
+                <field id="impersonation_enabled" translate="label comment" type="select" sortOrder="20" showInDefault="1">
+                    <label>Allow acting as a customer</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>The impersonation endpoint, which mints a real customer token. Off leaves the lookup working on its own — the right setting for a shop that wants terminals to find shoppers but wants act-as-customer to stay a service-desk operation.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+
+            <group id="search" translate="label" type="text" sortOrder="20" showInDefault="1">
+                <label>Customer Lookup</label>
+                <field id="result_limit" translate="label comment" type="text" sortOrder="10" showInDefault="1">
+                    <label>Maximum matches returned</label>
+                    <validate>validate-digits validate-digits-range digits-range-1-100</validate>
+                    <comment>How many candidates a search may return. This is a safety cap, not a page size: when it is reached the response says so, and the operator is expected to type another word rather than page through the customer table. Clamped to 1–100 whatever is stored here.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
