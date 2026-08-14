@@ -1,0 +1,7 @@
+"Flagged for card testing","Flagged for card testing"
+"Silently decline this customer's orders. No payment gateway is contacted and no order is created — the shopper sees an ordinary decline message.","Silently decline this customer's orders. No payment gateway is contacted and no order is created — the shopper sees an ordinary decline message."
+"Fraud Guard","Fraud Guard"
+"Enable guard","Enable guard"
+"Decline message","Decline message"
+"Log blocked attempts","Log blocked attempts"
+"Your payment was declined by the issuing bank. Please contact your card issuer or try a different payment method.","Your payment was declined by the issuing bank. Please contact your card issuer or try a different payment method."

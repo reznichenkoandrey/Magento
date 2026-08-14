@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="100">
+            <label>scr1be</label>
+        </tab>
+        <!--
+          Default scope only. The earliest hook fires inside Kernel::load(), before an action has
+          been dispatched and therefore before the store reaches the HTTP context, so a website- or
+          store-scoped value could not be honoured truthfully. Offering the scope switches would be
+          a lie the admin cannot see through. See Model\Config for the full reasoning.
+        -->
+        <section id="scr1be_fpc_inspector" translate="label" sortOrder="30" showInDefault="1">
+            <label>FPC Inspector</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_FpcInspector::config</resource>
+
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1">
+                <label>Recording</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1">
+                    <label>Record cacheability decisions</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Off by default. On, every storefront request that passes the URI filter appends JSON lines to <code>var/log/fpc_inspector.log</code>. Turn it on, reproduce the page once, turn it off — see the runbook in the module README.]]></comment>
+                </field>
+                <field id="uri_filter" translate="label comment" type="text" sortOrder="20" showInDefault="1">
+                    <label>Only record these URIs</label>
+                    <comment><![CDATA[Comma-separated substrings matched against the request URI, e.g. <code>/gear/bags.html,/checkout</code>. Empty records every storefront request, which on a live catalogue is a lot of lines per second.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="stack_depth" translate="label comment" type="text" sortOrder="30" showInDefault="1">
+                    <label>Call stack frames per record</label>
+                    <validate>validate-digits</validate>
+                    <comment>How many caller frames to keep after the interceptor plumbing is stripped out. 12 is enough to reach the controller; raise it when the trail dies inside a framework helper. Clamped to 1-50.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="log_vary" translate="label comment" type="select" sortOrder="40" showInDefault="1">
+                    <label>Record vary-string builds</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Answers "what put a non-empty value into the vary string": each record lists the context keys that survived core's filter and the ones that did not, with the reason.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="log_no_cache" translate="label comment" type="select" sortOrder="50" showInDefault="1">
+                    <label>Record no-cache stamps</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Answers "who forced pragma: no-cache": each record carries the Cache-Control value that was about to be overwritten and the call stack of whoever overwrote it.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+    The ladder table is the reference consumer of Scr1be\TierPriceLabel\ViewModel\TierLadder,
+    not the point of the module: delete this file and the qty-aware label still works
+    everywhere. The block renders nothing when the product has no eligible tier prices, so it
+    is safe to leave enabled on a full catalogue.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="product.info.main">
+            <block class="Magento\Catalog\Block\Product\View"
+                   name="scr1be.tier.ladder"
+                   as="scr1be_tier_ladder"
+                   after="product.info.price"
+                   template="Scr1be_TierPriceLabel::product/view/tier-ladder.phtml">
+                <arguments>
+                    <argument name="tier_ladder_view_model" xsi:type="object">Scr1be\TierPriceLabel\ViewModel\TierLadder</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

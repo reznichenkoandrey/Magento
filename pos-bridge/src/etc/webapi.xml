@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!--
+  The routes sit under their own base path, `/V1/pos/`, rather than extending `/V1/customers/`.
+
+  Core already owns `GET /V1/customers/search`, and it answers a different question with different
+  semantics (SearchCriteria filter groups over customer attributes). Hanging a second, looser search
+  off the same noun would leave two endpoints whose names promise the same thing and whose results
+  differ — the kind of ambiguity an integrator discovers at the till. A separate base path also keeps
+  every operation this bridge owns greppable in one place, in the generated schema and in the access
+  log.
+
+  `/V1` is kept because it is what every REST client, and Magento's own Swagger grouping, expects —
+  the router itself compares path segments literally and would have matched anything.
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <!--
+      Two ACL resources on each route, and core's Webapi\Authorization requires *all* of them. The
+      customer-management resource is the one the brief is written against; the module's own resource
+      is what makes the two endpoints separately revocable. The consequence is deliberate: installing
+      this module grants nothing to an integration that already existed — its role has to be re-saved
+      with the new resources ticked before either endpoint answers.
+    -->
+    <route url="/V1/pos/customers/search" method="GET">
+        <service class="Scr1be\PosBridge\Api\CustomerLookupInterface" method="search"/>
+        <resources>
+            <resource ref="Magento_Customer::manage"/>
+            <resource ref="Scr1be_PosBridge::terminal"/>
+        </resources>
+    </route>
+
+    <!--
+      secure="true" makes core refuse this call over plain HTTP. It hands back a bearer credential for
+      a real shopper; a token that crossed the wire in clear is a token to treat as already leaked.
+      The lookup route is deliberately not marked secure, so a terminal on a hardened internal network
+      can still be brought up before TLS is terminated in front of it.
+    -->
+    <route url="/V1/pos/customers/:customerId/impersonation-token" method="POST" secure="true">
+        <service class="Scr1be\PosBridge\Api\CustomerImpersonationInterface" method="issueToken"/>
+        <resources>
+            <resource ref="Magento_Customer::manage"/>
+            <resource ref="Scr1be_PosBridge::impersonate"/>
+        </resources>
+    </route>
+</routes>

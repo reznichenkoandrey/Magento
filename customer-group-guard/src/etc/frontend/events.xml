@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!--
+      Frontend only, and that is not a compromise: the cookie records what a *browser* is being
+      served, so it is meaningless for a webapi token login, which has no browser and no page
+      cache to go stale.
+
+      customer_login covers both login paths. Session::setCustomerAsLoggedIn() and
+      Session::setCustomerDataAsLoggedIn() each dispatch it, so one observer catches the ordinary
+      login form, the "log in as customer" style flows and anything that authenticates through
+      the session model.
+    -->
+    <event name="customer_login">
+        <observer name="scr1be_customer_group_guard_record_group"
+                  instance="Scr1be\CustomerGroupGuard\Observer\RecordGroupOnLogin"/>
+    </event>
+
+    <event name="customer_logout">
+        <observer name="scr1be_customer_group_guard_clear_group"
+                  instance="Scr1be\CustomerGroupGuard\Observer\ClearGroupOnLogout"/>
+    </event>
+</config>

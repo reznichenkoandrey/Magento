@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <!--
+              A hidden data carrier, not a UI element: the category form is a UI component and
+              inserting a visible node into it would mean fighting its knockout template. The block
+              publishes the two facts the browser cannot work out on its own — how many enabled
+              subcategories exist, and whether this category was enabled when the page rendered.
+            -->
+            <block class="Scr1be\CategoryCascade\Block\Adminhtml\Category\CascadeConfirm"
+                   name="scr1be.category.cascade.confirm"
+                   template="Scr1be_CategoryCascade::category/cascade-confirm.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

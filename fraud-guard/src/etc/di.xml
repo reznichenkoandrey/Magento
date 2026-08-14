@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      Both hooks are global on purpose. placeOrder() runs in frontend, webapi_rest and graphql;
+      submit() also runs in adminhtml and crontab. Area scoping the plugins would only reintroduce
+      the coverage gaps the module exists to close — the one exemption that *is* wanted (admin
+      order creation) is a decision, so it lives in PlaceOrderGuard where it can be read and
+      unit tested, not in the file layout.
+    -->
+    <type name="Magento\Quote\Api\CartManagementInterface">
+        <plugin name="scr1be_fraud_guard_decline_flagged_place_order"
+                type="Scr1be\FraudGuard\Plugin\Quote\DeclineFlaggedPlaceOrder"
+                sortOrder="10"/>
+    </type>
+
+    <type name="Magento\Quote\Model\QuoteManagement">
+        <plugin name="scr1be_fraud_guard_decline_flagged_submit"
+                type="Scr1be\FraudGuard\Plugin\Quote\DeclineFlaggedSubmit"
+                sortOrder="10"/>
+    </type>
+
+    <!-- Attempts get their own file so a merchant can tail one path instead of grepping system.log. -->
+    <virtualType name="Scr1be\FraudGuard\Logger\AttemptHandler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/fraud_guard.log</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Scr1be\FraudGuard\Logger\AttemptLogger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="name" xsi:type="string">fraudGuard</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="attempts" xsi:type="object">Scr1be\FraudGuard\Logger\AttemptHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Scr1be\FraudGuard\Model\GuardLog">
+        <arguments>
+            <argument name="logger" xsi:type="object">Scr1be\FraudGuard\Logger\AttemptLogger</argument>
+        </arguments>
+    </type>
+</config>

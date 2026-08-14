@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      The service contracts. webapi.xml names the interfaces, never the implementations, so these
+      preferences are what an integrator replaces to change behaviour without touching the routes,
+      the ACL or the published schema.
+    -->
+    <preference for="Scr1be\PosBridge\Api\CustomerLookupInterface"
+                type="Scr1be\PosBridge\Model\CustomerLookup"/>
+    <preference for="Scr1be\PosBridge\Api\CustomerImpersonationInterface"
+                type="Scr1be\PosBridge\Model\CustomerImpersonation"/>
+
+    <!--
+      The DTOs. The services build them through the generated `…InterfaceFactory`s rather than with
+      `new`, so a preference declared here is a preference that is actually used — a response shape
+      can be extended by binding a different implementation, and nothing above has to change.
+    -->
+    <preference for="Scr1be\PosBridge\Api\Data\CustomerMatchInterface"
+                type="Scr1be\PosBridge\Model\Data\CustomerMatch"/>
+    <preference for="Scr1be\PosBridge\Api\Data\CustomerSearchResultInterface"
+                type="Scr1be\PosBridge\Model\Data\CustomerSearchResult"/>
+    <preference for="Scr1be\PosBridge\Api\Data\ImpersonationTokenInterface"
+                type="Scr1be\PosBridge\Model\Data\ImpersonationToken"/>
+
+    <!--
+      Impersonation gets its own log path. An audit trail that answers "who transacted as this
+      shopper, and when" has to be readable months later by someone who is not looking at Magento;
+      interleaved with cron warnings in system.log it is a trail nobody follows.
+    -->
+    <virtualType name="Scr1be\PosBridge\Logger\AuditHandler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/scr1be_pos_bridge.log</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Scr1be\PosBridge\Logger\AuditLogger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="name" xsi:type="string">posBridge</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="audit" xsi:type="object">Scr1be\PosBridge\Logger\AuditHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Scr1be\PosBridge\Model\ImpersonationLog">
+        <arguments>
+            <argument name="logger" xsi:type="object">Scr1be\PosBridge\Logger\AuditLogger</argument>
+        </arguments>
+    </type>
+</config>

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <!--
+          before.body.end, not a content container: the element is a listener, not a widget. It
+          renders nothing, it belongs to no page region, and putting it at the end of the body is
+          what keeps its script out of the critical path.
+        -->
+        <referenceContainer name="before.body.end">
+            <block name="scr1be.customer.group.guard.force.logout"
+                   class="Magento\Framework\View\Element\Template"
+                   template="Scr1be_CustomerGroupGuard::force-logout.phtml">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Scr1be\CustomerGroupGuard\ViewModel\ForceLogout</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

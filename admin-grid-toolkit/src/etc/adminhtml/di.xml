@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      Everything this module does happens in the admin application: a legacy grid export, a grid
+      pager's count, and an order created from the admin. Area-scoped configuration keeps all three
+      interceptors out of the storefront, the REST stack and the GraphQL stack, where none of these
+      types are ever instantiated.
+    -->
+
+    <!--
+      Fix 1. Declared on the abstract renderer so it binds to every legacy grid column renderer,
+      including the subclasses that override renderExport() themselves — plugin configuration is
+      inherited by descendants. `after`, because the rendered string is the input.
+    -->
+    <type name="Magento\Backend\Block\Widget\Grid\Column\Renderer\AbstractRenderer">
+        <plugin name="scr1be_admin_grid_toolkit_decode_exported_values"
+                type="Scr1be\AdminGridToolkit\Plugin\Grid\DecodeExportedValues"
+                sortOrder="10"/>
+    </type>
+
+    <!--
+      Fix 2, part one: the allowlist. Empty as shipped, and the module is inert until it is filled —
+      vanilla sales_order_grid has no LEFT JOINs, so shipping a populated list would be guessing at
+      somebody else's schema.
+
+      A correlation name belongs here when the join it names matches at most one row per order. That
+      is the assertion the module cannot verify for itself, and the reason the list is a deployment
+      decision that goes through code review rather than a textarea in the admin: a join with
+      several matching rows multiplies COUNT(*), so removing it changes the total the pager reports
+      instead of merely producing it faster.
+
+          <argument name="removableJoins" xsi:type="array">
+              <item name="delivery_eta" xsi:type="string">delivery_eta</item>
+              <item name="loyalty" xsi:type="string">loyalty</item>
+          </argument>
+
+      Alias, not table name: it is what the joining module passed to joinLeft(), and it is what the
+      select's FROM part is keyed by. One list serves every grid this plugin is wired to, because
+      each name is matched against the FROM of the select actually in hand — an alias that only
+      exists on the invoice grid can never match while counting orders.
+    -->
+    <type name="Scr1be\AdminGridToolkit\Model\Grid\CountSelectDejoiner">
+        <arguments>
+            <argument name="removableJoins" xsi:type="array"/>
+        </arguments>
+    </type>
+
+    <!--
+      Fix 2, part two: where it runs. The plugin and the de-joiner are both grid-agnostic, so
+      pointing them at the invoice, shipment or credit-memo grid collection is one more <type>
+      block and the aliases added to the list above.
+    -->
+    <type name="Magento\Sales\Model\ResourceModel\Order\Grid\Collection">
+        <plugin name="scr1be_admin_grid_toolkit_dejoin_order_grid_count"
+                type="Scr1be\AdminGridToolkit\Plugin\Grid\DejoinGridCount"
+                sortOrder="10"/>
+    </type>
+
+    <!--
+      Fix 3. `around` because the session flag has to be absent for the length of one call and back
+      in place afterwards — see the plugin's docblock for the three other readers that depend on it
+      still being there.
+    -->
+    <type name="Magento\Sales\Model\AdminOrder\Create">
+        <plugin name="scr1be_admin_grid_toolkit_reorder_increment_id"
+                type="Scr1be\AdminGridToolkit\Plugin\Sales\MintFreshIncrementIdOnReorder"
+                sortOrder="10"/>
+    </type>
+</config>

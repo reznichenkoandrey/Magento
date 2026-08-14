@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="100">
+            <label>scr1be</label>
+        </tab>
+        <section id="scr1be_admin_grid_toolkit" translate="label" sortOrder="50"
+                 showInDefault="1">
+            <label>Admin Grid Toolkit</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_AdminGridToolkit::config</resource>
+
+            <!--
+              Default scope only. All three fixes act on the admin application, and an admin request
+              resolves store scope to the admin store — a website- or store-scoped field here would
+              be editable and unreachable.
+            -->
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1">
+                <label>Back-office Fixes</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1">
+                    <label>Enable toolkit</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Master switch. Off is core behaviour for all three fixes below.</comment>
+                </field>
+                <field id="decode_exports" translate="label comment" type="select" sortOrder="20"
+                       showInDefault="1">
+                    <label>Export legacy grid values, not their HTML</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Legacy grids render their CSV and Excel exports through the same renderers as the page, so an ampersand leaves as &amp;amp; and an apostrophe as &amp;#039;. On, an exported cell carries the value. Affects the export files only — never a rendered admin page.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="dejoin_grid_count" translate="label comment" type="select" sortOrder="30"
+                       showInDefault="1">
+                    <label>Drop allowlisted joins from the order grid count</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>The pager's COUNT(*) inherits every join the grid added to render its columns. On, joins named in the module's di.xml allowlist are removed from the count when nothing in it refers to them. With an empty allowlist — the default — this does nothing.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="reorder_increment_id" translate="label comment" type="select" sortOrder="40"
+                       showInDefault="1">
+                    <label>Give an admin reorder its own increment ID</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Core treats an admin reorder like an order edit: the new order inherits the original's increment ID with a "-1" suffix and a relation back to it, and a second reorder of the same order fails on the duplicate. On, a reorder takes its increment ID from the store's order sequence. Order edits are unaffected.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

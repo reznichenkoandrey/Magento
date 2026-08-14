@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Adds the fraud flag to the backend customer form.
+  ~
+  ~ The field is declared explicitly rather than left to the data provider's attribute-derived
+  ~ metadata so the wording, the description and the placement are ours. The attribute's
+  ~ frontend_input is 'boolean', which core already maps to a checkbox, so the two descriptions
+  ~ agree and there is no fight over formElement at runtime.
+  -->
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <fieldset name="customer">
+        <field name="is_carder" formElement="checkbox" sortOrder="29">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">customer</item>
+                    <item name="default" xsi:type="number">0</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Flagged for card testing</label>
+                <dataScope>is_carder</dataScope>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <description translate="true">Silently decline this customer's orders. No payment gateway is contacted and no order is created — the shopper sees an ordinary decline message.</description>
+                        <valueMap>
+                            <map name="false" xsi:type="string">0</map>
+                            <map name="true" xsi:type="string">1</map>
+                        </valueMap>
+                        <prefer>checkbox</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+    </fieldset>
+</form>

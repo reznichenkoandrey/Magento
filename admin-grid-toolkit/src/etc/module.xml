@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Scr1be_AdminGridToolkit">
+        <sequence>
+            <!--
+              Magento_Sales and Magento_Backend own the three types this module intercepts. Loading
+              after them is not required for plugins to bind, but it keeps this module's config
+              merged on top of theirs, so an installation that already carries a plugin on the same
+              method sees a deterministic sortOrder resolution rather than a load-order dependent one.
+            -->
+            <module name="Magento_Backend"/>
+            <module name="Magento_Sales"/>
+        </sequence>
+    </module>
+</config>

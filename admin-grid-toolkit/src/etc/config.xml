@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scr1be_admin_grid_toolkit>
+            <general>
+                <!--
+                  All three fixes default to on. Each one changes a behaviour that is a defect
+                  rather than a preference, and the master switch below is what an installation
+                  reaches for when it needs core's behaviour back.
+
+                  The de-join is on and still does nothing until its allowlist is filled in
+                  di.xml — the flag governs whether the analysis runs at all.
+                -->
+                <enabled>1</enabled>
+                <decode_exports>1</decode_exports>
+                <dejoin_grid_count>1</dejoin_grid_count>
+                <reorder_increment_id>1</reorder_increment_id>
+            </general>
+        </scr1be_admin_grid_toolkit>
+    </default>
+</config>

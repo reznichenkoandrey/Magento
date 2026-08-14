@@ -1,0 +1,19 @@
+{
+    "name": "scr1be/admin-grid-toolkit",
+    "description": "Three measured back-office defects fixed in one module: legacy grid exports written as HTML entities, an order-grid COUNT(*) that drags every LEFT JOIN through it, and an admin reorder that inherits the order-edit increment id",
+    "type": "magento2-module",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "magento/framework": "^103.0",
+        "magento/module-backend": "^102.0",
+        "magento/module-sales": "^103.0",
+        "magento/module-config": "^101.2"
+    },
+    "autoload": {
+        "files": ["registration.php"],
+        "psr-4": {
+            "Scr1be\\AdminGridToolkit\\": ""
+        }
+    }
+}

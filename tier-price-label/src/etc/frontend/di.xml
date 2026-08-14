@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+    Both plugins live in the frontend area on purpose.
+
+    The minimal-amount label is storefront copy: the admin order-create screen, the REST
+    price endpoints and the CSV exports must keep rendering core's wording, and an
+    area-scoped plugin is the cheapest way to guarantee that (it is never compiled into the
+    adminhtml / webapi interceptors at all).
+
+    The collection plugin is a hot path — every product collection on the storefront runs
+    through it — so keeping it out of the admin grids, imports and cron collections matters
+    for exactly the same reason.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Catalog\Pricing\Render\FinalPriceBox">
+        <plugin name="scr1be_tier_price_label_minimal_amount"
+                type="Scr1be\TierPriceLabel\Plugin\Pricing\Render\MinimalAmountLabel"/>
+    </type>
+    <type name="Magento\Catalog\Model\ResourceModel\Product\Collection">
+        <plugin name="scr1be_tier_price_label_preload_tier_prices"
+                type="Scr1be\TierPriceLabel\Plugin\Catalog\ResourceModel\PreloadTierPrices"/>
+    </type>
+</config>

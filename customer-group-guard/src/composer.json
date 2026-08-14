@@ -1,0 +1,21 @@
+{
+    "name": "scr1be/customer-group-guard",
+    "description": "An admin group change ends the customer's stale session — a customer-data section that forces a logout, and a place-order guard that refuses to price an order from a stale quote",
+    "type": "magento2-module",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "magento/framework": "^103.0",
+        "magento/module-customer": "^103.0",
+        "magento/module-quote": "^101.2",
+        "magento/module-store": "^101.1",
+        "magento/module-config": "^101.2",
+        "magento/module-backend": "^102.0"
+    },
+    "autoload": {
+        "files": ["registration.php"],
+        "psr-4": {
+            "Scr1be\\CustomerGroupGuard\\": ""
+        }
+    }
+}
