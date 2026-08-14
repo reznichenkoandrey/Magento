@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="100">
+            <label>scr1be</label>
+        </tab>
+        <!--
+          Store-view scope throughout. A multi-store installation routinely runs one storefront
+          whose root category differs from the next, and the group map is the mechanism for
+          serving a second catalogue inside one storefront — both are store-view decisions.
+        -->
+        <section id="scr1be_mega_menu" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Mega Menu</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_HyvaMegaMenu::config</resource>
+
+            <group id="menu" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Menu source</label>
+                <field id="default_root" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Root category</label>
+                    <validate>validate-digits</validate>
+                    <comment><![CDATA[Id of the root category the menu is built from. Leave empty to use the root category this store view is already assigned to, which is what almost every installation wants. An id that is not an active root category is ignored and the store's own root is used instead.]]></comment>
+                </field>
+                <field id="group_map" translate="label comment" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Customer group overrides</label>
+                    <comment><![CDATA[One <code>customerGroupId:rootCategoryId</code> pair per line, for example <code>2:5</code> to show group 2 the tree under category 5. Leave empty unless you genuinely serve different catalogues to different groups: an empty map is what keeps the menu cached once per store view rather than once per group.]]></comment>
+                </field>
+                <field id="third_level" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Load the third level</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Third-level categories travel in a JSON island and become links only when a second-level entry is opened. Off, the menu stops at two levels and the island is not rendered at all — worth doing on a catalogue whose third level is large and rarely used.]]></comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
