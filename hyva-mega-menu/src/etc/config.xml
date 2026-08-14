@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scr1be_mega_menu>
+            <menu>
+                <!--
+                  Empty means "the root category this store view is already configured with".
+                  Shipping a hardcoded id here would silently point every fresh install at
+                  whatever id happened to be right on the machine this module was written on.
+                -->
+                <default_root></default_root>
+                <!--
+                  Empty means the menu never varies by customer group, which is what keeps the
+                  block cached once per store view instead of once per store view per group.
+                -->
+                <group_map></group_map>
+                <third_level>1</third_level>
+            </menu>
+        </scr1be_mega_menu>
+    </default>
+</config>

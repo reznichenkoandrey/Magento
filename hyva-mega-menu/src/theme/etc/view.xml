@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:noNamespaceSchemaLocation="urn:magento:framework:Config/etc/view.xsd">
-    <vars module="Scr1be_MegaMenu">
-        <var name="featured_image_attribute">megamenu_featured_image</var>
-        <var name="column_count">4</var>
-    </vars>
-</view>
