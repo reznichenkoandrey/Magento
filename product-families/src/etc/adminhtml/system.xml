@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="100">
+            <label>scr1be</label>
+        </tab>
+        <!--
+          Default scope for everything that feeds the reconcile, because catalog_product_link has no
+          store column — the same argument the scanner makes. The only store-view field in the
+          section is each family's row heading, which is a string on a page rather than an input to
+          the pipeline.
+        -->
+        <section id="scr1be_product_families" translate="label" sortOrder="45"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Product Families</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_ProductFamilies::config</resource>
+
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1">
+                <label>General</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Master switch. Off: no reconcile runs, no family row renders, and the existing links stay in the table untouched.</comment>
+                </field>
+                <field id="cron_enabled" translate="label comment" type="select" sortOrder="20" showInDefault="1">
+                    <label>Rebuild nightly</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Runs every enabled family at 02:40. The CLI works regardless of this setting.</comment>
+                </field>
+                <field id="cron_dry_run" translate="label comment" type="select" sortOrder="30" showInDefault="1">
+                    <label>Cron dry run</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Yes: the nightly run computes the whole plan and logs it to var/log/product_families.log without writing. Leave it on until the logged plan looks right, then turn it off.</comment>
+                    <depends>
+                        <field id="cron_enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+
+            <group id="other_colors" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInStore="1">
+                <label>Other colours</label>
+                <comment>Products sharing the group attribute's value, one chip per colour, ordered by the colour attribute's option sort order.</comment>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="group_attribute" translate="label comment" type="select" sortOrder="20" showInDefault="1">
+                    <label>Family attribute</label>
+                    <source_model>Scr1be\ProductFamilies\Model\Config\Source\GroupAttributes</source_model>
+                    <comment>Products sharing a non-empty value of this attribute are one family. A multiselect puts a product in every family its values name.</comment>
+                </field>
+                <field id="variant_attribute" translate="label comment" type="select" sortOrder="30" showInDefault="1">
+                    <label>Variant attribute</label>
+                    <source_model>Scr1be\ProductFamilies\Model\Config\Source\VariantAttributes</source_model>
+                    <comment>Orders the row and labels the chips. Swatch attributes render as swatches.</comment>
+                </field>
+                <field id="max_members" translate="label comment" type="text" sortOrder="40" showInDefault="1">
+                    <label>Chips per product</label>
+                    <validate>validate-digits</validate>
+                    <comment>1–50, default 12. Each product links to this many nearest family members; outside the range it falls back to 12.</comment>
+                </field>
+                <field id="distinct_variants" translate="label comment" type="select" sortOrder="50" showInDefault="1">
+                    <label>One chip per variant value</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Keeps the first member of each variant value. Products with no variant value are never collapsed together. Ignored when no variant attribute is set.</comment>
+                </field>
+                <field id="label" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInStore="1">
+                    <label>Row heading</label>
+                    <comment>Shown above the chips. Blank renders the row without a heading.</comment>
+                </field>
+            </group>
+
+            <group id="other_sizes" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInStore="1">
+                <label>Other sizes</label>
+                <comment>The same mechanism as the colour family against a different pair of attributes — the size attribute's option sort order is what makes the row read XS · S · M · L.</comment>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="group_attribute" translate="label comment" type="select" sortOrder="20" showInDefault="1">
+                    <label>Family attribute</label>
+                    <source_model>Scr1be\ProductFamilies\Model\Config\Source\GroupAttributes</source_model>
+                    <comment>Products sharing a non-empty value of this attribute are one family.</comment>
+                </field>
+                <field id="variant_attribute" translate="label comment" type="select" sortOrder="30" showInDefault="1">
+                    <label>Variant attribute</label>
+                    <source_model>Scr1be\ProductFamilies\Model\Config\Source\VariantAttributes</source_model>
+                    <comment>Orders the row and labels the chips.</comment>
+                </field>
+                <field id="max_members" translate="label comment" type="text" sortOrder="40" showInDefault="1">
+                    <label>Chips per product</label>
+                    <validate>validate-digits</validate>
+                    <comment>1–50, default 12.</comment>
+                </field>
+                <field id="distinct_variants" translate="label comment" type="select" sortOrder="50" showInDefault="1">
+                    <label>One chip per variant value</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Off is usually right here: two SKUs in size M are two different products, not a duplicate chip.</comment>
+                </field>
+                <field id="label" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInStore="1">
+                    <label>Row heading</label>
+                    <comment>Shown above the chips. Blank renders the row without a heading.</comment>
+                </field>
+            </group>
+
+            <group id="similar" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInStore="1">
+                <label>Similar products</label>
+                <comment>The degenerate family: a group attribute and no variant attribute, so the row is ordered by product id and the chips carry product names.</comment>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="group_attribute" translate="label comment" type="select" sortOrder="20" showInDefault="1">
+                    <label>Family attribute</label>
+                    <source_model>Scr1be\ProductFamilies\Model\Config\Source\GroupAttributes</source_model>
+                    <comment>A coarser attribute than the other two families use — style, collection, activity.</comment>
+                </field>
+                <field id="variant_attribute" translate="label comment" type="select" sortOrder="30" showInDefault="1">
+                    <label>Variant attribute</label>
+                    <source_model>Scr1be\ProductFamilies\Model\Config\Source\VariantAttributes</source_model>
+                    <comment>Optional. Left empty, chips are labelled with the product name.</comment>
+                </field>
+                <field id="max_members" translate="label comment" type="text" sortOrder="40" showInDefault="1">
+                    <label>Chips per product</label>
+                    <validate>validate-digits</validate>
+                    <comment>1–50, default 12. Name chips are wide, so a smaller number reads better than it does on a colour row.</comment>
+                </field>
+                <field id="label" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInStore="1">
+                    <label>Row heading</label>
+                    <comment>Shown above the chips. Blank renders the row without a heading.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

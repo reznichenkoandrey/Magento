@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+  The account navigation entry.
+
+  `Magento\Customer\Block\Account\SortLinkInterface` is an interface, and declaring a block of that
+  type is what core's own `customer_account.xml` does for every entry in this menu — the object
+  manager resolves the preference and the `sortOrder` argument places it. The number puts My Product
+  Alerts just under My Wish List, which is the neighbour it belongs to.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="customer_account_navigation">
+            <block class="Magento\Customer\Block\Account\SortLinkInterface"
+                   name="customer-account-navigation-scr1be-back-in-stock-link">
+                <arguments>
+                    <argument name="label" xsi:type="string" translate="true">My Product Alerts</argument>
+                    <argument name="path" xsi:type="string">scr1be_backinstock/account/alerts</argument>
+                    <argument name="sortOrder" xsi:type="number">145</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

@@ -1,0 +1,70 @@
+<?php
+/**
+ * Copyright (c) 2026 scr1be. MIT licensed.
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scr1be\StoreSwitcher\Block\DesktopSwitcher;
+
+/** @var DesktopSwitcher $block */
+/** @var Escaper $escaper */
+
+if (!$block->isSwitchable()) {
+    return;
+}
+
+$current = $block->getCurrentStoreOption();
+$currentFlag = $block->getCurrentFlagCode();
+$selectId = 'scr1be-store-switcher-desktop';
+?>
+<div class="hidden md:flex items-center gap-2" x-data="scr1beStoreSwitcherLinks">
+    <?php /*
+        The flag is decoration and says so. The accessible name comes from the label and the option
+        text, which are the store's own name — a flag alone would tell a visitor which market they
+        are in, not which language they are about to get.
+    */ ?>
+    <svg class="w-5 h-4 shrink-0 rounded-sm" aria-hidden="true" focusable="false">
+        <use href="#scr1be-flag-<?= $escaper->escapeHtmlAttr($currentFlag) ?>"/>
+    </svg>
+    <label class="sr-only" for="<?= $escaper->escapeHtmlAttr($selectId) ?>">
+        <?= $escaper->escapeHtml(__('Store')) ?>
+    </label>
+    <?php /*
+        A real <select>. Keyboard navigation, type-ahead, the mobile OS picker and the whole of the
+        combobox ARIA pattern arrive for free and stay correct; a div-based listbox has to
+        reimplement every one of them and usually reimplements four.
+
+        Every option value is a finished redirect URL, built server side from the current request.
+        That is only safe because DesktopSwitcher is never block-cached — see the class docblock.
+    */ ?>
+    <select id="<?= $escaper->escapeHtmlAttr($selectId) ?>"
+            x-ref="select"
+            @change="switchStore"
+            class="form-select text-sm py-1 pl-2 pr-8 border-container rounded-sm">
+        <?php foreach ($block->getStoreOptions() as $option): ?>
+            <option value="<?= $escaper->escapeUrl((string) $option->getRedirectUrl()) ?>"
+                    lang="<?= $escaper->escapeHtmlAttr(str_replace('_', '-', $option->getLocaleCode())) ?>"
+                <?= $current !== null && $option->getStoreId() === $current->getStoreId() ? 'selected' : '' ?>>
+                <?= $escaper->escapeHtml($option->getName()) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+    <?php /*
+        The one thing a <select> cannot do on its own: navigate. Without JavaScript the control is
+        still readable and still announces the current store, which is the degradation worth having.
+    */ ?>
+    <noscript>
+        <ul class="flex gap-2 text-sm">
+            <?php foreach ($block->getStoreOptions() as $option): ?>
+                <li>
+                    <a href="<?= $escaper->escapeUrl((string) $option->getRedirectUrl()) ?>"
+                       class="underline">
+                        <?= $escaper->escapeHtml($option->getName()) ?>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </noscript>
+</div>

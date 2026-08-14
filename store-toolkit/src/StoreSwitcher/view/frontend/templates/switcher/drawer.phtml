@@ -1,0 +1,54 @@
+<?php
+/**
+ * Copyright (c) 2026 scr1be. MIT licensed.
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scr1be\StoreSwitcher\Block\DrawerPayload;
+
+/** @var DrawerPayload $block */
+/** @var Escaper $escaper */
+
+if (!$block->isSwitchable()) {
+    return;
+}
+
+$current = $block->getCurrentStoreOption();
+$selectId = 'scr1be-store-switcher-drawer';
+?>
+<div class="flex md:hidden items-center gap-2" x-data="scr1beStoreSwitcherDrawer">
+    <svg class="w-5 h-4 shrink-0 rounded-sm" aria-hidden="true" focusable="false">
+        <use href="#scr1be-flag-<?= $escaper->escapeHtmlAttr($block->getCurrentFlagCode()) ?>"/>
+    </svg>
+    <label class="sr-only" for="<?= $escaper->escapeHtmlAttr($selectId) ?>">
+        <?= $escaper->escapeHtml(__('Store')) ?>
+    </label>
+    <?php /*
+        Option values are store codes, not URLs. That is what lets this block carry a cache entry
+        that is reused on every page of the store instead of one per URL — the address of the page
+        being left is added by the browser at the moment the visitor chooses, not by PHP at the
+        moment the markup was first rendered.
+    */ ?>
+    <select id="<?= $escaper->escapeHtmlAttr($selectId) ?>"
+            x-ref="select"
+            @change="switchStore"
+            class="form-select w-full text-sm py-1 pl-2 pr-8 border-container rounded-sm">
+        <?php foreach ($block->getStoreOptions() as $option): ?>
+            <option value="<?= $escaper->escapeHtmlAttr($option->getCode()) ?>"
+                    lang="<?= $escaper->escapeHtmlAttr(str_replace('_', '-', $option->getLocaleCode())) ?>"
+                <?= $current !== null && $option->getStoreId() === $current->getStoreId() ? 'selected' : '' ?>>
+                <?= $escaper->escapeHtml($option->getName()) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+</div>
+<?php /*
+    Data, not code: `application/json` is a media type no engine executes, so this element needs no
+    CSP nonce or hash. It is inside the cached block on purpose — its contents are exactly as
+    URL-independent as the markup above it.
+*/ ?>
+<script type="application/json" data-scr1be-store-switcher-config>
+<?= /* @noEscape */ $block->getPayloadJson() ?>
+</script>

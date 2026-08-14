@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!--
+  The row goes into `product.info.additional`, and that name is not a free choice.
+
+  Hyva 1.4's `Magento_Catalog::product/view/product-info.phtml` renders its children by explicit
+  name — `product.info.title`, `product.info.review`, `product.info.form`, `product.info.price` and
+  so on — so a block simply added under `product.info` renders nowhere at all. `product.info.additional`
+  is the one child the template pulls generically, with `getChildHtml("product.info.additional")` as
+  its last statement, and Hyva declares it as a `<container>` in its own
+  `Magento_Catalog/layout/catalog_product_view.xml`. Hence `referenceContainer` rather than
+  `referenceBlock`, and hence the row sitting below the price block rather than above it.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="product.info.additional">
+            <block class="Magento\Catalog\Block\Product\View"
+                   name="scr1be.product.families"
+                   template="Scr1be_ProductFamilies::product/view/families.phtml">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">
+                        Scr1be\ProductFamilies\ViewModel\ProductFamilies
+                    </argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

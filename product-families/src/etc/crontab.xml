@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+  02:40 daily. Late enough that the day's product imports have finished, early enough to be well
+  clear of the indexer schedules that start on the hour — the reconcile reads the catalogue with a
+  wide EAV join, and it has no reason to be doing that while a reindex is writing to the same tables.
+
+  The schedule is a cron *group* member rather than its own group on purpose: the run is a single
+  pass over the catalogue and there is nothing to parallelise.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <job name="scr1be_product_families_reconcile"
+             instance="Scr1be\ProductFamilies\Cron\ReconcileFamilies"
+             method="execute">
+            <schedule>40 2 * * *</schedule>
+        </job>
+    </group>
+</config>

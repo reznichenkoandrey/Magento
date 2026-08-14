@@ -1,0 +1,185 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="100">
+            <label>scr1be</label>
+        </tab>
+        <!--
+          Default scope only, on purpose. Category membership lives in catalog_category_product,
+          which has no store column, so every setting that feeds the engine is a global decision.
+          The one exception is the Coming Soon message, which is a storefront string and carries its
+          own store-view switches.
+        -->
+        <section id="scr1be_curated_categories" translate="label" sortOrder="40"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Curated Categories</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_CuratedCategories::config</resource>
+
+            <group id="engine" translate="label" type="text" sortOrder="10" showInDefault="1">
+                <label>Engine</label>
+                <field id="allow_empty_source" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1">
+                    <label>Let an empty source clear its category</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>No: a source that returns nothing is refused and logged, on the grounds that an empty feed is far more often a broken rule than a real instruction. Yes: an empty source empties the category, and the minimum floor steps aside with it.</comment>
+                </field>
+                <field id="log_runs" translate="label comment" type="select" sortOrder="20"
+                       showInDefault="1">
+                    <label>Log every reconcile</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Writes one line per run to var/log/curated_categories.log with the added, removed and floor-retained product ids. Refusals and failures are logged either way.</comment>
+                </field>
+            </group>
+
+            <group id="bestsellers" translate="label comment" type="text" sortOrder="20" showInDefault="1">
+                <label>Bestsellers</label>
+                <comment>Ranked by net quantity — ordered minus cancelled minus refunded — across paid orders in the window. Reconciled nightly, and on demand with bin/magento scr1be:curated:reconcile bestsellers.</comment>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="category" translate="label comment" type="select" sortOrder="20" showInDefault="1">
+                    <label>Category</label>
+                    <source_model>Scr1be\CuratedCategories\Model\Config\Source\CategoryOptions</source_model>
+                    <comment>The category this source owns. Its membership is replaced on every run, so point it at a category nobody curates by hand. Store root categories are deliberately not offered.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="limit" translate="label comment" type="text" sortOrder="30" showInDefault="1">
+                    <label>Products</label>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <comment>How many products the page holds. 1–1000; anything outside that falls back to 24.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="window_days" translate="label comment" type="text" sortOrder="40" showInDefault="1">
+                    <label>Sales window (days)</label>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <comment>How far back the ranking looks. 1–365; anything outside that falls back to 30.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="minimum_floor" translate="label comment" type="text" sortOrder="50" showInDefault="1">
+                    <label>Minimum products kept</label>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <comment>The SEO floor. When the ranking comes back shorter than this, the members with the lowest position stay on the page rather than leaving it empty. Minimum 1 — the guard cannot be switched off, only the source can.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+
+            <group id="new_arrivals" translate="label comment" type="text" sortOrder="30" showInDefault="1">
+                <label>New Arrivals</label>
+                <comment>Ranked by the first moment each product was observed in stock. A product joins within a request of becoming buyable; the hourly reconcile ages it out again and repairs anything the event missed.</comment>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="category" translate="label comment" type="select" sortOrder="20" showInDefault="1">
+                    <label>Category</label>
+                    <source_model>Scr1be\CuratedCategories\Model\Config\Source\CategoryOptions</source_model>
+                    <comment>The category this source owns. Its membership is replaced on every run.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="limit" translate="label comment" type="text" sortOrder="30" showInDefault="1">
+                    <label>Products</label>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <comment>1–1000; anything outside that falls back to 24.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="window_days" translate="label comment" type="text" sortOrder="40" showInDefault="1">
+                    <label>Arrival window (days)</label>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <comment>How long a product stays new. 1–365; anything outside that falls back to 30.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="minimum_floor" translate="label comment" type="text" sortOrder="50" showInDefault="1">
+                    <label>Minimum products kept</label>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <comment>The SEO floor. A quiet fortnight leaves the last few arrivals on the page instead of emptying it. Minimum 1.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="exclusion_match" translate="label comment" type="select" sortOrder="60" showInDefault="1">
+                    <label>Exclude when</label>
+                    <source_model>Scr1be\CuratedCategories\Model\Config\Source\MatchMode</source_model>
+                    <comment>Any: the rules are separate bans and one match is enough. All: the rules are one compound ban and every condition has to hold. With no rules, nothing is excluded either way.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="exclusion_rules" translate="label comment" type="text" sortOrder="70"
+                       showInDefault="1">
+                    <label>Exclusion rules</label>
+                    <frontend_model>Scr1be\CuratedCategories\Block\Adminhtml\Form\Field\ExclusionRules</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <comment>Product attribute code, comparison and value — evaluated in the default scope. "is one of" and "is none of" take a comma-separated list. A rule naming an attribute that does not exist is logged and ignored rather than breaking the run.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+
+            <group id="coming_soon" translate="label comment" type="text" sortOrder="40" showInDefault="1">
+                <label>Coming Soon</label>
+                <comment>Driven by the Expected Restock Date attribute this module installs on products. Set the date and the product joins the category and gains a dated line on its own page; when the date passes, both go away on their own.</comment>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="category" translate="label comment" type="select" sortOrder="20" showInDefault="1">
+                    <label>Category</label>
+                    <source_model>Scr1be\CuratedCategories\Model\Config\Source\CategoryOptions</source_model>
+                    <comment>The category this source owns. Its membership is replaced on every run.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="limit" translate="label comment" type="text" sortOrder="30" showInDefault="1">
+                    <label>Products</label>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <comment>Soonest restock date first. 1–1000; anything outside that falls back to 24.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="minimum_floor" translate="label comment" type="text" sortOrder="40" showInDefault="1">
+                    <label>Minimum products kept</label>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <comment>The SEO floor. Minimum 1 — a Coming Soon page with one stale item still outranks a blank one.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+
+            <!--
+              The only store-scoped group in the section: this is a sentence a shopper reads, not an
+              input to the engine, so it can legitimately differ per store view.
+            -->
+            <group id="coming_soon_display" translate="label comment" type="text" sortOrder="50"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Coming Soon — storefront message</label>
+                <field id="message" translate="label comment" type="text" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Product page notice</label>
+                    <config_path>scr1be_curated_categories/coming_soon/message</config_path>
+                    <comment><![CDATA[Shown on the detail page of any product with a future restock date. Tokens: <code>{date}</code>, <code>{days}</code> (today / in 1 day / in 12 days), <code>{weekday}</code>. Leave blank to show nothing.]]></comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

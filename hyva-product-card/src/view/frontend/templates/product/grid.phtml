@@ -1,0 +1,118 @@
+<?php
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\ProductListItem;
+use Magento\Catalog\Block\Product\ReviewRendererInterface;
+use Magento\Framework\Escaper;
+use Scr1be\HyvaProductCard\Block\Product\CardGrid;
+use Scr1be\HyvaProductCard\ViewModel\ProductCard;
+
+/** @var CardGrid $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/**
+ * Renderers two and three: the widget, and the Alpine client grid it can switch to.
+ *
+ * Server mode renders each card through `ProductListItem::getItemHtml()` — the same call Hyvä's own
+ * `list.phtml` makes — so a widget card is not a lookalike of a listing card, it is literally the
+ * same block with the same template and the same block cache.
+ *
+ * Client mode ships one JSON island and lets Alpine draw the cards. Same {@see \Scr1be\
+ * HyvaProductCard\Model\Card\CardData} either way; the difference is who renders it, not what is
+ * rendered.
+ */
+
+/** @var ProductCard $cardViewModel */
+$cardViewModel = $viewModels->require(ProductCard::class);
+/** @var ProductListItem $productListItemViewModel */
+$productListItemViewModel = $viewModels->require(ProductListItem::class);
+
+$products = $block->getProducts();
+if ($products === []) {
+    return;
+}
+
+$title = (string) $block->getData('title');
+$imageId = $block->getImageId();
+$listName = $block->getListName();
+$isClientRendered = $block->getRenderMode() === CardGrid::RENDER_MODE_CLIENT;
+$gridClasses = 'mx-auto grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+?>
+<section class="scr1be-card-grid py-6">
+    <?php if ($title !== ''): ?>
+        <h2 class="text-2xl font-semibold pb-4"><?= $escaper->escapeHtml($title) ?></h2>
+    <?php endif; ?>
+
+    <?php if ($isClientRendered): ?>
+        <?php /*
+            The payload element is not a script the browser executes — it is data with a media type
+            no engine runs. Serialised with JSON_HEX_TAG so a merchant-entered product name
+            containing a closing tag cannot break out of the element.
+        */ ?>
+        <script type="application/json" data-scr1be-card-grid>
+            <?= /* @noEscape */ $cardViewModel->getGridPayload($products, $imageId, $listName) ?>
+        </script>
+        <ul role="list" class="<?= /* @noEscape */ $gridClasses ?>" x-data="scr1beCardGrid" x-init="hydrate">
+            <template x-for="card in cards" :key="card.id">
+                <li class="flex flex-col card card-interactive relative">
+                    <?php /*
+                        Colour comes from `[data-badge]` rules in the module stylesheet rather than
+                        from a bound class expression: `:class="badgeClass(badge)"` would be a
+                        computed expression in an x-attribute, which is exactly what a strict CSP
+                        blocks. `:data-badge` is a dot path and styles just as well.
+                    */ ?>
+                    <ul role="list" class="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
+                        <template x-for="badge in card.badges" :key="badge.code">
+                            <li class="scr1be-card-badge" :data-badge="badge.code" x-text="badge.label"></li>
+                        </template>
+                    </ul>
+                    <a :href="card.url"
+                       tabindex="-1"
+                       class="block mx-auto mb-3"
+                       :data-card-id="card.id"
+                       @click="trackSelectItem"
+                    >
+                        <img :src="card.image.url"
+                             :srcset="card.image.srcset"
+                             :sizes="card.image.sizes"
+                             :width="card.image.width"
+                             :height="card.image.height"
+                             :alt="card.image.label"
+                             loading="lazy"
+                             class="w-full h-auto"
+                        >
+                    </a>
+                    <a class="product-item-link px-2 font-semibold"
+                       :href="card.url"
+                       :data-card-id="card.id"
+                       x-text="card.name"
+                       @click="trackSelectItem"
+                    ></a>
+                    <p class="px-2 pt-1 text-sm text-gray-600" x-text="card.stock.label"></p>
+                </li>
+            </template>
+        </ul>
+        <noscript>
+            <p class="text-sm text-gray-600">
+                <?= $escaper->escapeHtml(__('This product list is rendered in the browser. Switch the widget to server rendering to make it visible without JavaScript.')) ?>
+            </p>
+        </noscript>
+    <?php else: ?>
+        <ul role="list" class="<?= /* @noEscape */ $gridClasses ?>">
+            <?php foreach ($products as $product): ?>
+                <li class="flex flex-col">
+                    <?= /* @noEscape */ $productListItemViewModel->getItemHtml(
+                        $product,
+                        $block,
+                        'grid',
+                        ReviewRendererInterface::SHORT_VIEW,
+                        $imageId,
+                        false
+                    ) ?>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    <?php endif; ?>
+</section>

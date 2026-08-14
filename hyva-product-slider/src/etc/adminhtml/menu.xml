@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <!--
+            Under Content rather than Catalog: a slider does not change what is in the catalogue, it
+            decides what a page shows — the same job as a CMS block, and the place a merchandiser
+            already looks for one.
+        -->
+        <add id="Scr1be_HyvaProductSlider::sliders"
+             title="Product Sliders"
+             translate="title"
+             module="Scr1be_HyvaProductSlider"
+             sortOrder="50"
+             parent="Magento_Backend::content_elements"
+             action="scr1be_slider/slider/index"
+             resource="Scr1be_HyvaProductSlider::sliders"/>
+    </menu>
+</config>

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!--
+  The second 404 handle. Magento\Cms\Controller\Noroute\Index::execute() renders the configured
+  No-Route CMS page when it can, and forwards to `index/defaultNoRoute` when it cannot — so a
+  storefront whose no-route page is missing or unassigned serves 404s under *this* handle instead.
+  Removing from only one of the two leaves a canonical on half the 404s.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="scr1be.seo.canonical" remove="true"/>
+        <referenceBlock name="scr1be.seo.hreflang" remove="true"/>
+    </body>
+</page>

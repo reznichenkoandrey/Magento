@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!--
+  Onepage checkout. Same reasoning as the cart, plus one more: every byte in the head of a checkout
+  page is a byte on the critical path of the only page whose conversion rate anybody measures.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="scr1be.seo.canonical" remove="true"/>
+        <referenceBlock name="scr1be.seo.hreflang" remove="true"/>
+    </body>
+</page>

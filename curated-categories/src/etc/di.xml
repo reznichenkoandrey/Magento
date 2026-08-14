@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Scr1be\CuratedCategories\Api\CurationEngineInterface"
+                type="Scr1be\CuratedCategories\Model\CurationEngine"/>
+
+    <!--
+      The adapter registry. The array key is the source code — the CLI argument, the cron payload and
+      the configuration group all resolve through it, so a fourth adapter is one entry here and a
+      config group with the same name. The pool type-checks its contents on construction rather than
+      trusting this file.
+    -->
+    <type name="Scr1be\CuratedCategories\Model\SourcePool">
+        <arguments>
+            <argument name="sources" xsi:type="array">
+                <item name="bestsellers" xsi:type="object">
+                    Scr1be\CuratedCategories\Model\Source\Bestsellers
+                </item>
+                <item name="new_arrivals" xsi:type="object">
+                    Scr1be\CuratedCategories\Model\Source\NewArrivals
+                </item>
+                <item name="coming_soon" xsi:type="object">
+                    Scr1be\CuratedCategories\Model\Source\ComingSoon
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!--
+      Two schedules, one class. What differs between a nightly bestsellers rebuild and an hourly
+      arrivals sweep is the cadence and the list of codes, not the work, and three cron classes would
+      be three places to fix the failure policy.
+    -->
+    <virtualType name="Scr1be\CuratedCategories\Cron\ReconcileBestsellers"
+                 type="Scr1be\CuratedCategories\Cron\ReconcileSources">
+        <arguments>
+            <argument name="sourceCodes" xsi:type="array">
+                <item name="bestsellers" xsi:type="string">bestsellers</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Scr1be\CuratedCategories\Cron\ReconcileHourly"
+                 type="Scr1be\CuratedCategories\Cron\ReconcileSources">
+        <arguments>
+            <argument name="sourceCodes" xsi:type="array">
+                <item name="new_arrivals" xsi:type="string">new_arrivals</item>
+                <item name="coming_soon" xsi:type="string">coming_soon</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <!--
+      Curation runs get their own file. A merchandising feed changes what customers see without
+      anyone touching the admin, so "why did this product leave the page" has to be answerable by
+      tailing one path rather than grepping system.log.
+    -->
+    <virtualType name="Scr1be\CuratedCategories\Logger\CurationHandler"
+                 type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/curated_categories.log</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Scr1be\CuratedCategories\Logger\CurationLogger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="name" xsi:type="string">curatedCategories</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="curation" xsi:type="object">
+                    Scr1be\CuratedCategories\Logger\CurationHandler
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Scr1be\CuratedCategories\Model\CurationLog">
+        <arguments>
+            <argument name="logger" xsi:type="object">
+                Scr1be\CuratedCategories\Logger\CurationLogger
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="scr1be_curated_reconcile" xsi:type="object">
+                    Scr1be\CuratedCategories\Console\Command\ReconcileCommand
+                </item>
+            </argument>
+        </arguments>
+    </type>
+</config>

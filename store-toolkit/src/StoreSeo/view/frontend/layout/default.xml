@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <!--
+          `head.additional` is the block Hyvä declares in Magento_Theme/layout/default.xml and
+          Magento\Framework\View\Result\Page::render() renders into the `headAdditional` template
+          variable, i.e. inside <head>. Adding a <link> through it keeps the markup in a template
+          that can be overridden in a theme, which page-config assets cannot be.
+        -->
+        <referenceBlock name="head.additional">
+            <block name="scr1be.seo.canonical"
+                   template="Scr1be_StoreSeo::head/canonical.phtml">
+                <arguments>
+                    <argument name="canonical_view_model" xsi:type="object">Scr1be\StoreSeo\ViewModel\Canonical</argument>
+                </arguments>
+            </block>
+            <block name="scr1be.seo.hreflang"
+                   template="Scr1be_StoreSeo::head/hreflang.phtml">
+                <arguments>
+                    <argument name="hreflang_view_model" xsi:type="object">Scr1be\StoreSeo\ViewModel\Hreflang</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

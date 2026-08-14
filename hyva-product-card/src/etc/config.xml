@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scr1be_product_card>
+            <general>
+                <enabled>1</enabled>
+            </general>
+            <badges>
+                <new_enabled>1</new_enabled>
+                <sale_enabled>1</sale_enabled>
+                <sale_min_percent>5</sale_min_percent>
+                <low_stock_enabled>1</low_stock_enabled>
+                <low_stock_threshold>5</low_stock_threshold>
+            </badges>
+            <media>
+                <srcset_widths>240,320,480,640</srcset_widths>
+                <sizes>(min-width: 1280px) 20vw, (min-width: 768px) 33vw, 50vw</sizes>
+                <hover_enabled>1</hover_enabled>
+                <!--
+                    Every hover image is a second resize target: a second generated file on disk and
+                    a second request the browser makes for a picture most shoppers never see. The
+                    ceiling caps how many cards on one page are allowed to pay that; the rest render
+                    with the primary image only.
+                -->
+                <hover_max_products>12</hover_max_products>
+            </media>
+            <stock>
+                <endpoint_ttl>60</endpoint_ttl>
+            </stock>
+            <analytics>
+                <ga4_enabled>1</ga4_enabled>
+            </analytics>
+        </scr1be_product_card>
+    </default>
+</config>

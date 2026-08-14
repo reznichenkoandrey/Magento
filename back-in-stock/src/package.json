@@ -1,0 +1,14 @@
+{
+    "name": "scr1be-back-in-stock",
+    "description": "ES module scope for the storefront JavaScript. The exports map is the Node half of the import map the page ships, so the specs import exactly what the storefront imports.",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./register.js": "./view/frontend/web/js/popup-register.js",
+        "./popup.js": "./view/frontend/web/js/popup.js",
+        "./client.js": "./view/frontend/web/js/alert-client.js"
+    },
+    "scripts": {
+        "test": "node --test \"Test/Js/*.test.js\""
+    }
+}

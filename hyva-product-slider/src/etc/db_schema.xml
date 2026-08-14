@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="scr1be_slider" resource="default" engine="innodb" comment="Product Slider">
+        <column xsi:type="int" name="slider_id" unsigned="true" nullable="false" identity="true"
+                comment="Slider ID"/>
+        <column xsi:type="varchar" name="identifier" nullable="false" length="64"
+                comment="Machine name used by the widget and by layout XML"/>
+        <column xsi:type="varchar" name="title" nullable="false" length="255" comment="Heading"/>
+        <column xsi:type="smallint" name="is_active" unsigned="true" nullable="false" default="1"
+                comment="Is Active"/>
+        <column xsi:type="varchar" name="source_type" nullable="false" length="32"
+                comment="Product source code"/>
+        <column xsi:type="text" name="source_value" nullable="true"
+                comment="Source argument — category id, attribute set id or SKU list"/>
+        <column xsi:type="smallint" name="product_limit" unsigned="true" nullable="false" default="12"
+                comment="Maximum number of slides"/>
+        <column xsi:type="smallint" name="slides_mobile" unsigned="true" nullable="false" default="1"
+                comment="Visible slides below 640px"/>
+        <column xsi:type="smallint" name="slides_tablet" unsigned="true" nullable="false" default="2"
+                comment="Visible slides from 640px"/>
+        <column xsi:type="smallint" name="slides_desktop" unsigned="true" nullable="false" default="4"
+                comment="Visible slides from 1024px"/>
+        <column xsi:type="smallint" name="slides_wide" unsigned="true" nullable="false" default="5"
+                comment="Visible slides from 1280px"/>
+        <column xsi:type="smallint" name="autoplay" unsigned="true" nullable="false" default="0"
+                comment="Advance automatically"/>
+        <column xsi:type="int" name="autoplay_delay" unsigned="true" nullable="false" default="5000"
+                comment="Milliseconds between automatic advances"/>
+        <column xsi:type="smallint" name="is_loop" unsigned="true" nullable="false" default="0"
+                comment="Wrap around at both ends"/>
+        <column xsi:type="smallint" name="show_social_proof" unsigned="true" nullable="false" default="0"
+                comment="Hydrate the purchase line from the proof endpoint"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Updated At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="slider_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="SCR1BE_SLIDER_IDENTIFIER">
+            <column name="identifier"/>
+        </constraint>
+        <index referenceId="SCR1BE_SLIDER_IS_ACTIVE" indexType="btree">
+            <column name="is_active"/>
+        </index>
+    </table>
+
+    <table name="scr1be_slider_store" resource="default" engine="innodb" comment="Product Slider To Store">
+        <column xsi:type="int" name="slider_id" unsigned="true" nullable="false" comment="Slider ID"/>
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" comment="Store ID"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="slider_id"/>
+            <column name="store_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="SCR1BE_SLIDER_STORE_SLIDER_ID_SCR1BE_SLIDER_SLIDER_ID"
+                    table="scr1be_slider_store" column="slider_id" referenceTable="scr1be_slider"
+                    referenceColumn="slider_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="SCR1BE_SLIDER_STORE_STORE_ID_STORE_STORE_ID"
+                    table="scr1be_slider_store" column="store_id" referenceTable="store"
+                    referenceColumn="store_id" onDelete="CASCADE"/>
+        <index referenceId="SCR1BE_SLIDER_STORE_STORE_ID" indexType="btree">
+            <column name="store_id"/>
+        </index>
+    </table>
+
+    <!--
+        One row per (store, product) that was bought inside the index window. It answers two
+        questions that would otherwise both scan the order tables on a storefront request: which
+        products sold most recently, and who bought this one last.
+    -->
+    <table name="scr1be_slider_purchase" resource="default" engine="innodb"
+           comment="Recent Purchase Index For Sliders">
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false" comment="Store ID"/>
+        <column xsi:type="int" name="product_id" unsigned="true" nullable="false" comment="Product ID"/>
+        <column xsi:type="timestamp" name="last_ordered_at" on_update="false" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Created At of the most recent paid order"/>
+        <column xsi:type="int" name="purchases" unsigned="true" nullable="false" default="0"
+                comment="Distinct paid orders inside the window"/>
+        <column xsi:type="varchar" name="buyer_name" nullable="true" length="64"
+                comment="First name from the most recent paid order"/>
+        <column xsi:type="varchar" name="buyer_city" nullable="true" length="64"
+                comment="Billing city from the most recent paid order"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="store_id"/>
+            <column name="product_id"/>
+        </constraint>
+        <index referenceId="SCR1BE_SLIDER_PURCHASE_STORE_ID_LAST_ORDERED_AT" indexType="btree">
+            <column name="store_id"/>
+            <column name="last_ordered_at"/>
+        </index>
+    </table>
+</schema>

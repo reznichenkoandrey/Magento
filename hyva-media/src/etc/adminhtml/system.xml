@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="400">
+            <label>scr1be</label>
+        </tab>
+        <section id="scr1be_hyva_media" translate="label" type="text" sortOrder="40"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Media Derivatives</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_HyvaMedia::config</resource>
+            <group id="output" translate="label comment" type="text" sortOrder="10"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Derivatives</label>
+                <comment>
+                    Applies to images asked for by path through the Media ViewModel — CMS and
+                    wysiwyg art. Catalog images keep going through Magento's own image pipeline and
+                    are not touched.
+                </comment>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>
+                        Off: templates still get intrinsic width and height (so layout stays stable),
+                        but the payload carries only the original URL. Existing derivatives are left
+                        on disk, so switching back on is instant.
+                    </comment>
+                </field>
+                <field id="widths" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Width ladder (CSV px)</label>
+                    <comment>
+                        Sorted and de-duplicated on read; values outside 16-8192 are dropped. Rungs
+                        wider than about 90% of the source are dropped per image, so a small upload
+                        simply gets fewer rungs rather than an upscale.
+                    </comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="quality" translate="label comment" type="text" sortOrder="30"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Encoder quality</label>
+                    <comment>
+                        1-100, clamped. Applies to the source-format ladder. A derivative that lands
+                        heavier than the original is discarded in favour of the original bytes, so
+                        raising this wastes CPU long before it wastes bandwidth.
+                    </comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="webp" translate="label comment" type="text" sortOrder="20"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>WebP</label>
+                <comment>
+                    A second, parallel srcset. It is emitted only when every rung encoded
+                    successfully and came out smaller than the source — a partial WebP set would let
+                    a browser pick an under-resolution rung for a full-width slot.
+                </comment>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>
+                        Requires GD built with WebP support. Without it the payload silently carries
+                        the source-format ladder only.
+                    </comment>
+                </field>
+                <field id="quality" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>WebP quality</label>
+                    <comment>1-100, clamped.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="limits" translate="label comment" type="text" sortOrder="30"
+                   showInDefault="1" showInWebsite="1">
+                <label>Limits</label>
+                <comment>
+                    Derivatives are produced during the render that first needs them. These two
+                    fields are what keeps that from turning into an unbounded request.
+                </comment>
+                <field id="max_source_megapixels" translate="label comment" type="text" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" canRestore="1">
+                    <label>Maximum source megapixels</label>
+                    <comment>
+                        GD decodes to roughly 4 bytes per pixel before any resize happens, so this is
+                        a memory ceiling expressed in the only unit the header probe can read without
+                        decoding. Sources above it are served as-is.
+                    </comment>
+                </field>
+                <field id="max_encodes_per_request" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" canRestore="1">
+                    <label>Maximum encodes per request</label>
+                    <comment>
+                        Shared by every image on the page. Rungs are generated widest-first, so when
+                        the budget runs out the srcset that render is short of its small rungs, never
+                        its large ones. The next render continues where this one stopped.
+                    </comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

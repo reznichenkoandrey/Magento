@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::content">
+                    <resource id="Scr1be_HyvaProductSlider::sliders" title="Product Sliders" sortOrder="80">
+                        <!--
+                            Save and delete are separate resources because the two audiences differ:
+                            merchandisers curate sliders daily, while removing one silently empties
+                            whatever page or widget still points at its identifier.
+                        -->
+                        <resource id="Scr1be_HyvaProductSlider::slider_save" title="Create / Edit Slider"
+                                  sortOrder="10"/>
+                        <resource id="Scr1be_HyvaProductSlider::slider_delete" title="Delete Slider" sortOrder="20"/>
+                    </resource>
+                </resource>
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <resource id="Scr1be_HyvaProductSlider::config" title="Product Slider Section"
+                                      sortOrder="80"/>
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

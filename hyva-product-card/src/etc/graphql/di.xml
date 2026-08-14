@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+        Required, not optional. Core's AttributeProcessor walks the same selected-field list and
+        calls Collection::addAttributeToSelect() on every name it does not recognise;
+        Eav\Model\Entity\Collection\AbstractCollection::addAttributeToSelect() throws
+        "The %1 attribute requested is invalid" when the code is not an attribute. These three field
+        names are resolver-backed and are not attributes, so they are mapped here to empty arrays —
+        AttributeProcessor then iterates nothing for them, and CardAttributes stays the single place
+        that decides which real attributes each field needs.
+
+        This one belongs in the graphql area because that is the scope core declares it in
+        (Magento_CatalogGraphQl/etc/graphql/di.xml), so the two declarations merge item by item.
+        The composite's processor list is a different story — see etc/di.xml.
+    -->
+    <type name="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CollectionProcessor\AttributeProcessor">
+        <arguments>
+            <argument name="fieldToAttributeMap" xsi:type="array">
+                <item name="card_badges" xsi:type="array"/>
+                <item name="card_media" xsi:type="array"/>
+                <item name="qty_rules" xsi:type="array"/>
+            </argument>
+        </arguments>
+    </type>
+</config>

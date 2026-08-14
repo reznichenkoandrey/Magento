@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="standard">
+        <route id="scr1be_card" frontName="scr1be_card">
+            <module name="Scr1be_HyvaProductCard"/>
+        </route>
+    </router>
+</config>

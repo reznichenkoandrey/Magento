@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!--
+      Global, not adminhtml. Stock is written by the admin form, by REST, by the import module and by
+      whatever an ERP integration calls, and an arrival log that only fills in when a human clicks
+      Save is an arrival log with holes in exactly the places bulk stock updates live.
+
+      `_save_commit_after` rather than `_save_after`: the stock row is durable by the time this runs,
+      so a failure in the observer cannot roll back the write that triggered it.
+    -->
+    <event name="cataloginventory_stock_item_save_commit_after">
+        <observer name="scr1be_curated_categories_record_arrival"
+                  instance="Scr1be\CuratedCategories\Observer\RecordArrival"/>
+    </event>
+</config>

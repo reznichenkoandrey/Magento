@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="head.additional">
+            <!--
+                Deliberately on every page rather than only on pages holding a slider: the import map
+                must be installed before the first module script anywhere on the document, and layout
+                cannot know whether a CMS block three levels down contains a slider widget. Three lines
+                of markup is the price of that certainty.
+            -->
+            <block class="Scr1be\HyvaProductSlider\Block\SliderScripts"
+                   name="scr1be.slider.scripts"
+                   template="Scr1be_HyvaProductSlider::scripts.phtml"/>
+        </referenceBlock>
+    </body>
+</page>

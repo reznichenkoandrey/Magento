@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="400">
+            <label>scr1be</label>
+        </tab>
+        <section id="scr1be_store_closure" translate="label" type="text" sortOrder="20"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Store Toolkit: Closure</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_StoreClosure::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="10"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Temporary Closure</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Close this store for sales</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>
+                        Store view scope, so one market can go quiet while its siblings keep
+                        selling. Closing redirects checkout, sign-in and registration to the home
+                        page, refuses `placeOrder` from every channel including REST and GraphQL,
+                        and hides the account menu. The store switcher stays visible on purpose —
+                        a visitor who lands here needs a way to an open store.
+                    </comment>
+                </field>
+                <field id="hide_prices" translate="label comment" type="select" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Hide prices while closed</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>
+                        Separate from the closure itself: a store that has stopped taking orders
+                        but wants its catalogue to stay browsable as a lookbook is a normal request.
+                    </comment>
+                </field>
+                <field id="headline" translate="label" type="text" sortOrder="30"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Notice headline</label>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="message" translate="label comment" type="textarea" sortOrder="40"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Notice text</label>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>Plain text. Rendered escaped, so markup here appears as markup.</comment>
+                </field>
+                <field id="banner" translate="label comment" type="image" sortOrder="50"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Notice banner</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Image</backend_model>
+                    <!--
+                      scope_info stores the scope in the value (`stores/2/closed.png`), which is
+                      what keeps two store views from overwriting each other's upload.
+                    -->
+                    <upload_dir config="system/filesystem/media" scope_info="1">scr1be/closure</upload_dir>
+                    <base_url type="media" scope_info="1">scr1be/closure</base_url>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>
+                        Served from a copy whose file name is a hash of the image's own bytes, so
+                        replacing the banner changes its URL and no CDN keeps serving the old one.
+                    </comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

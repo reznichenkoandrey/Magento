@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="400">
+            <label>scr1be</label>
+        </tab>
+        <section id="scr1be_back_in_stock" translate="label" type="text" sortOrder="30"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Back In Stock</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_BackInStock::config</resource>
+            <group id="popup" translate="label" type="text" sortOrder="10"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Restock Popup</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>
+                        Off: no popup, no import map, no customer-data section. Magento's own
+                        back-in-stock emails are unaffected either way.
+                    </comment>
+                </field>
+                <field id="max_items" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Products in the popup</label>
+                    <comment>
+                        1–24; anything outside that falls back to 6. This is also how many rows the
+                        provider reads, so it is the popup's whole cost.
+                    </comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="low_stock_threshold" translate="label comment" type="text" sortOrder="30"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Low stock badge below</label>
+                    <comment>
+                        Salable quantity at or under which a card carries an "Only n left" badge.
+                        Zero switches the badge off, which is the honest way to stop making a claim
+                        about stock levels.
+                    </comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="push" translate="label comment" type="text" sortOrder="20"
+                   showInDefault="1" showInWebsite="1">
+                <label>Push Notifications</label>
+                <comment>
+                    Optional. With this off, a restock still produces an email and a popup — the push
+                    channel is a third way of reaching a customer who is not on the site.
+                </comment>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" canRestore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>
+                        Also gates the device-registration endpoint: with this off it answers 404,
+                        so no tokens accumulate for a channel nothing reads.
+                    </comment>
+                </field>
+                <field id="message_title" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Notification title</label>
+                    <comment>The body is the product name, which is data rather than copy.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="fcm_project_id" translate="label comment" type="text" sortOrder="30"
+                       showInDefault="1" showInWebsite="1">
+                    <label>Firebase project ID</label>
+                    <comment>
+                        Only read by the FCM transport. Leave blank to use the project id inside the
+                        service account below.
+                    </comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="fcm_service_account" translate="label comment" type="obscure" sortOrder="40"
+                       showInDefault="1" showInWebsite="1">
+                    <label>Firebase service account JSON</label>
+                    <!--
+                      `obscure` plus the `Encrypted` backend model is the pairing core uses for its
+                      own API credentials — Magento_NewRelicReporting's `insights_insert_key` is the
+                      closest example. The backend model encrypts the value at rest, and the obscure
+                      field renders it back as asterisks rather than printing an RSA private key into
+                      the admin form's HTML.
+
+                      The cost is that you cannot see what you pasted. That is the right trade for a
+                      private key, and pasting a multi-line key file into a single-line field is
+                      harmless: whitespace between JSON tokens is insignificant.
+                    -->
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <comment>
+                        The whole key file from Google Cloud → IAM → Service Accounts → Keys. Only
+                        `client_email` and `private_key` are required.
+                    </comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

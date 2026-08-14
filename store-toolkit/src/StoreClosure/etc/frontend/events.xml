@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!--
+      Both observers are storefront-only on purpose. `controller_action_predispatch` fires in the
+      admin too, and an administrator who has just closed a store must still be able to reach the
+      configuration that reopens it.
+    -->
+    <event name="controller_action_predispatch">
+        <observer name="scr1be_store_closure_redirect"
+                  instance="Scr1be\StoreClosure\Observer\RedirectClosedRoutes"/>
+    </event>
+    <event name="layout_generate_blocks_after">
+        <observer name="scr1be_store_closure_hide_account_links"
+                  instance="Scr1be\StoreClosure\Observer\HideAccountLinks"/>
+    </event>
+</config>

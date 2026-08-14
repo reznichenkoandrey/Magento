@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      Frontend only, unlike the placeOrder plugin. Magento\Framework\Pricing\Render is a storefront
+      block; intercepting it globally would put the closure check on the admin's price rendering
+      too, where a "closed" store view is a thing an administrator still needs to see prices for.
+    -->
+    <type name="Magento\Framework\Pricing\Render">
+        <plugin name="scr1be_store_closure_hide_prices"
+                type="Scr1be\StoreClosure\Plugin\HidePriceRender"
+                sortOrder="10"/>
+    </type>
+</config>

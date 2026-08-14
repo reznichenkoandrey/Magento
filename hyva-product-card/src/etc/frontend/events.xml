@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!--
+        Dispatched by Magento\Catalog\Model\ResourceModel\Product\Collection::_afterLoad(), i.e.
+        after pagination, with the collection under the key `collection`. Every storefront path that
+        renders cards — category listing, search, widget — loads that class, so one observer covers
+        all of them. Area-scoped so admin grids, imports and cron never enter it.
+    -->
+    <event name="catalog_product_collection_load_after">
+        <observer name="scr1be_product_card_preload_qty_rules"
+                  instance="Scr1be\HyvaProductCard\Observer\PreloadQtyRules"/>
+    </event>
+</config>

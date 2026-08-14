@@ -1,0 +1,15 @@
+{
+    "name": "scr1be-product-slider",
+    "description": "ES module scope for the storefront JavaScript. The exports map is the Node half of the import map the page ships, so the specs import exactly what the storefront imports.",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./register.js": "./view/frontend/web/js/slider-register.js",
+        "./slider.js": "./view/frontend/web/js/slider.js",
+        "./engine.js": "./view/frontend/web/js/engine-scroll-snap.js",
+        "./proof.js": "./view/frontend/web/js/social-proof.js"
+    },
+    "scripts": {
+        "test": "node --test \"Test/Js/*.test.js\""
+    }
+}

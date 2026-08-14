@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      The state machine, declared globally rather than per area.
+
+      The two writers of `product_alert_stock.status` live in different areas —
+      `Magento\ProductAlert\Controller\Add\Stock` runs in `frontend`, and
+      `Magento\ProductAlert\Model\Mailing\AlertProcessor` runs in `crontab` or in the queue consumer
+      that `Magento_ProductAlert`'s `queue_consumer.xml` declares. A plugin registered in
+      `etc/frontend/di.xml` would see the subscription and miss the send, which is the half that
+      matters.
+
+      `after` rather than `before` or `around`: the transition this plugin reacts to is produced
+      inside core's own `_beforeSave()`, which runs after any `beforeSave` plugin. See the class
+      docblock for the full argument.
+    -->
+    <type name="Magento\ProductAlert\Model\ResourceModel\Stock">
+        <plugin name="scr1be_back_in_stock_popup_state_machine"
+                type="Scr1be\BackInStock\Plugin\PopupStateMachine"
+                sortOrder="10"/>
+    </type>
+
+    <!--
+      The push transport.
+
+      A log sink by default, so the whole path from restock to notification is exercisable — and
+      demoable — without a Firebase project or a single outbound request. Swapping in
+      `Scr1be\BackInStock\Model\Push\Fcm\FcmTransport` is the one line that makes it real, and
+      swapping in a queue publisher is the one line a shop with a lot of alerts would write instead.
+    -->
+    <preference for="Scr1be\BackInStock\Api\PushTransportInterface"
+                type="Scr1be\BackInStock\Model\Push\LogSinkTransport"/>
+
+    <!--
+      Its own log file. "Was this customer notified, and on which device" is a question that gets
+      asked while somebody is on the phone; grepping system.log for it is not an answer.
+    -->
+    <virtualType name="Scr1be\BackInStock\Logger\PushHandler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/scr1be_back_in_stock_push.log</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Scr1be\BackInStock\Logger\PushLogger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="name" xsi:type="string">backInStockPush</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="push" xsi:type="object">Scr1be\BackInStock\Logger\PushHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Scr1be\BackInStock\Model\Push\LogSinkTransport">
+        <arguments>
+            <argument name="logger" xsi:type="object">Scr1be\BackInStock\Logger\PushLogger</argument>
+        </arguments>
+    </type>
+
+    <type name="Scr1be\BackInStock\Model\Push\RestockNotifier">
+        <arguments>
+            <argument name="logger" xsi:type="object">Scr1be\BackInStock\Logger\PushLogger</argument>
+        </arguments>
+    </type>
+
+    <type name="Scr1be\BackInStock\Model\Push\Fcm\FcmTransport">
+        <arguments>
+            <argument name="logger" xsi:type="object">Scr1be\BackInStock\Logger\PushLogger</argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="scr1beBackInStockReset" xsi:type="object">
+                    Scr1be\BackInStock\Console\Command\ResetPopupCommand
+                </item>
+            </argument>
+        </arguments>
+    </type>
+</config>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Config::config">
+                        <!--
+                          Its own resource because these fields are a resource budget, not a
+                          preference: the width ladder multiplies disk, the megapixel ceiling and the
+                          per-request encode cap are the only things standing between an uploaded
+                          40 MP TIFF-sized JPEG and a worker that never returns. A role that may edit
+                          store copy should not be able to raise them.
+                        -->
+                        <resource id="Scr1be_HyvaMedia::config"
+                                  title="Media Derivatives Section"
+                                  translate="title"
+                                  sortOrder="140"/>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scr1be_curated_categories>
+            <engine>
+                <!--
+                  Off: an empty feed is almost always a misconfiguration, and the cost of being wrong
+                  in this direction is a stale page for one cron cycle. The cost of being wrong in the
+                  other direction is a live category emptied by a rule nobody re-read.
+                -->
+                <allow_empty_source>0</allow_empty_source>
+                <log_runs>1</log_runs>
+            </engine>
+
+            <!--
+              Every adapter ships switched off with no category. The module cannot know which of a
+              shop's categories is meant to be a bestsellers page, and a default that guessed would
+              start rewriting a real one on the first cron run after install.
+            -->
+            <bestsellers>
+                <enabled>0</enabled>
+                <limit>24</limit>
+                <window_days>30</window_days>
+                <minimum_floor>4</minimum_floor>
+            </bestsellers>
+
+            <new_arrivals>
+                <enabled>0</enabled>
+                <limit>24</limit>
+                <window_days>30</window_days>
+                <minimum_floor>4</minimum_floor>
+                <exclusion_match>any</exclusion_match>
+            </new_arrivals>
+
+            <coming_soon>
+                <enabled>0</enabled>
+                <limit>24</limit>
+                <minimum_floor>1</minimum_floor>
+                <!-- Tokens: {date}, {days}, {weekday}. Blank the field to suppress the PDP line. -->
+                <message>Expected back in stock on {date} — {days}.</message>
+            </coming_soon>
+        </scr1be_curated_categories>
+    </default>
+</config>

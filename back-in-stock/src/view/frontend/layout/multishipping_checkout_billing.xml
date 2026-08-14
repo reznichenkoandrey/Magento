@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!-- See checkout_index_index.xml: the same two blocks, for the same two reasons. -->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="scr1be.back_in_stock.popup" remove="true"/>
+        <referenceBlock name="scr1be.back_in_stock.scripts" remove="true"/>
+    </body>
+</page>

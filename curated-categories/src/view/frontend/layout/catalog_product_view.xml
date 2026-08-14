@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <!--
+          `product.info` is the block Hyvä's own catalog_product_view.xml builds around the buy box,
+          and `product.info.stockstatus` is the availability line inside it. The notice belongs
+          immediately after that line: it is the sentence that answers the question the availability
+          line just raised.
+
+          The ViewModel arrives as a block argument rather than through Hyvä's ViewModelRegistry so
+          that the module renders on a Luma storefront too — nothing about a restock date is
+          Hyvä-specific, and the template's markup degrades to plain semantic HTML without Tailwind.
+        -->
+        <referenceBlock name="product.info">
+            <block name="scr1be.curated.arrival.notice"
+                   class="Magento\Catalog\Block\Product\View"
+                   after="product.info.stockstatus"
+                   template="Scr1be_CuratedCategories::product/view/arrival-notice.phtml">
+                <arguments>
+                    <argument name="arrival_notice" xsi:type="object">
+                        Scr1be\CuratedCategories\ViewModel\ArrivalNotice
+                    </argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

@@ -1,0 +1,52 @@
+<?php
+/**
+ * Copyright (c) 2026 scr1be. MIT licensed.
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Scr1be\StoreClosure\ViewModel\Closure;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+/** @var Closure $closure */
+$closure = $block->getData('closure_view_model');
+
+if (!$closure->isClosed()) {
+    return;
+}
+
+$headline = $closure->getHeadline();
+$message = $closure->getMessage();
+$bannerUrl = $closure->getBannerUrl();
+?>
+<?php /*
+    role="status" rather than role="alert": the notice is present on arrival rather than announced
+    by something the visitor did, and an alert would interrupt a screen reader mid-sentence on
+    every page of the store.
+*/ ?>
+<aside class="w-full bg-container-darker border-b border-container text-center px-4 py-3"
+       role="status"
+       data-scr1be-store-closure>
+    <?php if ($bannerUrl !== null): ?>
+        <?php /*
+            The src is content-addressed: the file name is a hash of the image's own bytes, so
+            replacing the image changes the URL and no CDN can keep serving the old one. That also
+            makes this URL safe to cache forever — see Model\Banner\BannerUrlProvider.
+        */ ?>
+        <img src="<?= $escaper->escapeUrl($bannerUrl) ?>"
+             alt=""
+             loading="lazy"
+             decoding="async"
+             class="mx-auto mb-3 max-w-full h-auto"/>
+    <?php endif; ?>
+    <?php if ($headline !== ''): ?>
+        <p class="font-semibold"><?= $escaper->escapeHtml($headline) ?></p>
+    <?php endif; ?>
+    <?php if ($message !== ''): ?>
+        <p class="text-sm"><?= $escaper->escapeHtml($message) ?></p>
+    <?php endif; ?>
+</aside>

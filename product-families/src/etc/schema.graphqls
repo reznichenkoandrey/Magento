@@ -1,0 +1,8 @@
+# The three families sit alongside `related_products`, `upsell_products` and `crosssell_products` on
+# ProductInterface, and are resolved by the same batch machinery — one query per field per request,
+# not one per product.
+interface ProductInterface {
+    scr1be_other_colors: [ProductInterface] @doc(description: "The same product in other colours, ordered by the colour attribute's option sort order.") @resolver(class: "Scr1be\\ProductFamilies\\Model\\Resolver\\Batch\\OtherColors")
+    scr1be_other_sizes: [ProductInterface] @doc(description: "The same product in other sizes, ordered by the size attribute's option sort order.") @resolver(class: "Scr1be\\ProductFamilies\\Model\\Resolver\\Batch\\OtherSizes")
+    scr1be_similar: [ProductInterface] @doc(description: "Products sharing this product's family attribute value.") @resolver(class: "Scr1be\\ProductFamilies\\Model\\Resolver\\Batch\\Similar")
+}

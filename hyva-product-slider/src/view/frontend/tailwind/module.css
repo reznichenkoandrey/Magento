@@ -1,0 +1,148 @@
+/**
+ * The module's half of the theme's Tailwind build.
+ *
+ * Hyvä finds this module through `app/etc/hyva-themes.json`, which `Hyva\Theme\Model\
+ * HyvaModulesConfig` regenerates on setup:upgrade and on every module:enable / module:disable, and
+ * `view/frontend/tailwind/module.css` is the conventional entry point it reads from a module.
+ */
+@source "../templates";
+@source "../web/js";
+
+/**
+ * The four slide counts.
+ *
+ * They are defined here, on `:root`, and *also* written into a `style` attribute on each slider by
+ * `Block\Slider::getBreakpointStyle()`. The duplication is the safety net: the attribute is where a
+ * slider's own configuration lands, and these are what remains if a hardened `style-src` drops it.
+ * A slider that falls back to four columns is a slider; one that falls back to `calc(100% / )` is a
+ * broken page.
+ *
+ * The media-query widths are Tailwind's own — `tailwindcss/theme.css` in Hyvä 1.4 defines
+ * `--breakpoint-sm: 40rem`, `--breakpoint-lg: 64rem` and `--breakpoint-xl: 80rem` — so a slider
+ * changes columns at the same widths as everything else on the page. They are written as literals
+ * rather than read from the variables because a `@media` condition cannot contain a `var()`.
+ */
+:root {
+    --scr1be-slides-mobile: 1;
+    --scr1be-slides-tablet: 2;
+    --scr1be-slides-desktop: 4;
+    --scr1be-slides-wide: 5;
+    --scr1be-slider-gap: 1rem;
+    --scr1be-slider-arrow-size: 2.25rem;
+    --scr1be-slider-dot-size: 0.5rem;
+    --scr1be-slider-dot-color: #cbd5e1;
+    --scr1be-slider-dot-active-color: #1f2937;
+}
+
+.scr1be-slider {
+    --scr1be-slides: var(--scr1be-slides-mobile);
+}
+
+@media (min-width: 40rem) {
+    .scr1be-slider {
+        --scr1be-slides: var(--scr1be-slides-tablet);
+    }
+}
+
+@media (min-width: 64rem) {
+    .scr1be-slider {
+        --scr1be-slides: var(--scr1be-slides-desktop);
+    }
+}
+
+@media (min-width: 80rem) {
+    .scr1be-slider {
+        --scr1be-slides: var(--scr1be-slides-wide);
+    }
+}
+
+/**
+ * The carousel itself: a flex row that snaps. The browser does the scrolling, the momentum and the
+ * snapping in the compositor; the JavaScript only ever calls `scrollTo` and reads `scrollLeft`.
+ *
+ * `overscroll-behavior-x: contain` stops a horizontal swipe that reaches the end of the track from
+ * turning into a browser back-navigation, which is the single most annoying thing a carousel can do
+ * on a touchpad.
+ */
+.scr1be-slider__track {
+    display: flex;
+    gap: var(--scr1be-slider-gap);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+}
+
+.scr1be-slider__track::-webkit-scrollbar {
+    display: none;
+}
+
+/**
+ * Each slide is one column of a row of `--scr1be-slides`, gaps included: with N slides there are
+ * N − 1 gaps inside the viewport, and forgetting that is what makes the last card of every page peek
+ * out from under the edge.
+ */
+.scr1be-slider__slide {
+    flex: 0 0 calc(
+        (100% - (var(--scr1be-slides) - 1) * var(--scr1be-slider-gap)) / var(--scr1be-slides)
+    );
+    scroll-snap-align: start;
+    min-width: 0;
+}
+
+.scr1be-slider__arrow {
+    width: var(--scr1be-slider-arrow-size);
+    height: var(--scr1be-slider-arrow-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid currentColor;
+    border-radius: 9999px;
+    line-height: 1;
+}
+
+.scr1be-slider__arrow[disabled] {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.scr1be-slider__dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+/**
+ * Keyed on a data attribute rather than a bound class, so the template needs no computed `:class`
+ * expression — the same reason `scr1be/hyva-product-card` keys its badge palette on `data-badge`.
+ */
+.scr1be-slider__dot {
+    width: var(--scr1be-slider-dot-size);
+    height: var(--scr1be-slider-dot-size);
+    border-radius: 9999px;
+    background-color: var(--scr1be-slider-dot-color);
+}
+
+.scr1be-slider__dot[data-active="true"] {
+    background-color: var(--scr1be-slider-dot-active-color);
+}
+
+.scr1be-slider__proof {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    opacity: 0.75;
+}
+
+/**
+ * Smooth scrolling is motion the visitor did not ask for. The engine already passes
+ * `behavior: 'auto'` for these visitors; this covers the swipe and the keyboard, which never go
+ * through it.
+ */
+@media (prefers-reduced-motion: reduce) {
+    .scr1be-slider__track {
+        scroll-behavior: auto;
+    }
+}

@@ -1,0 +1,37 @@
+type Query {
+    scr1beBackInStockAlerts: [Scr1beBackInStockAlert!]!
+        @resolver(class: "Scr1be\\BackInStock\\Model\\Resolver\\BackInStockAlerts")
+        @doc(description: "The signed-in customer's back-in-stock alerts on the current store, newest subscription first.")
+        @cache(cacheable: false)
+}
+
+type Scr1beBackInStockAlert @doc(description: "One back-in-stock subscription and the state it is in.") {
+    # No braces anywhere in this description, and that is not a style choice — note that this
+    # comment cannot spell the offending pattern either. Magento splits schema files with a
+    # regex rather than a parser, and the part matching a body stops at the first closing brace
+    # it meets, wherever it sits: inside a string and inside a comment alike. A description
+    # carrying a sample filter argument therefore truncates its own declaration mid-string, and
+    # schema generation then dies with "Unterminated string" on every GraphQL request in the
+    # installation, not only on queries touching this one. See GraphQlReader::parseTypes().
+    product_sku: String! @doc(description: "Look the rest of the product up with a products query filtered on these SKUs — images, prices and labels belong to that query, not to this one.")
+    product_name: String! @doc(description: "The product name in the current store's scope.")
+    product_url_key: String! @doc(description: "URL key in the current store's scope.")
+    subscribed_at: String @doc(description: "When the alert was created, in the store's timezone.")
+    restocked_at: String @doc(description: "When the alert last fired, in the store's timezone. Null while it is still waiting.")
+    state: Scr1beBackInStockAlertState! @doc(description: "Where the alert is in its lifecycle.")
+    price: Float @doc(description: "Final catalog price for the customer's group, excluding any tax adjustment the storefront would apply.")
+    is_salable: Boolean! @doc(description: "Whether the product is buyable right now, which is not the same as whether the alert has fired.")
+    requires_options: Boolean! @doc(description: "True for composites and for products with required custom options — the ones the popup links to instead of adding to the cart.")
+    badges: [Scr1beBackInStockBadge!]! @doc(description: "Short labels the storefront renders on the card.")
+}
+
+enum Scr1beBackInStockAlertState {
+    WAITING @doc(description: "Subscribed; the product has not come back yet.")
+    QUEUED @doc(description: "The product came back and the customer has not acknowledged it.")
+    SHOWN @doc(description: "The customer saw the notification or added the product to their cart.")
+}
+
+type Scr1beBackInStockBadge @doc(description: "A short label such as a low-stock warning or a discount.") {
+    code: String! @doc(description: "Stable identifier: low_stock, discount or new.")
+    label: String! @doc(description: "Translated text, ready to render.")
+}

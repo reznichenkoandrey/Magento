@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">scr1be_slider_listing.scr1be_slider_listing_data_source</item>
+        </item>
+    </argument>
+    <settings>
+        <buttons>
+            <button name="add">
+                <url path="*/*/new"/>
+                <class>primary</class>
+                <label translate="true">Add New Slider</label>
+            </button>
+        </buttons>
+        <spinner>scr1be_slider_columns</spinner>
+        <deps>
+            <dep>scr1be_slider_listing.scr1be_slider_listing_data_source</dep>
+        </deps>
+    </settings>
+    <dataSource name="scr1be_slider_listing_data_source" component="Magento_Ui/js/grid/provider">
+        <settings>
+            <storageConfig>
+                <param name="indexField" xsi:type="string">slider_id</param>
+            </storageConfig>
+            <updateUrl path="mui/index/render"/>
+        </settings>
+        <aclResource>Scr1be_HyvaProductSlider::sliders</aclResource>
+        <dataProvider class="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider"
+                      name="scr1be_slider_listing_data_source">
+            <settings>
+                <requestFieldName>slider_id</requestFieldName>
+                <primaryFieldName>slider_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+    <listingToolbar name="listing_top">
+        <settings>
+            <sticky>true</sticky>
+        </settings>
+        <bookmark name="bookmarks"/>
+        <columnsControls name="columns_controls"/>
+        <filterSearch name="fulltext"/>
+        <filters name="listing_filters">
+            <settings>
+                <templates>
+                    <filters>
+                        <select>
+                            <param name="template" xsi:type="string">ui/grid/filters/elements/ui-select</param>
+                            <param name="component" xsi:type="string">Magento_Ui/js/form/element/ui-select</param>
+                        </select>
+                    </filters>
+                </templates>
+            </settings>
+            <!--
+                Reaches the collection as `addFieldToFilter('store_id', ['eq' => N])`, which the
+                collection reroutes to the pivot — `store_id` is not a column on `scr1be_slider`.
+            -->
+            <filterSelect name="store_id" provider="${ $.parentName }">
+                <settings>
+                    <captionValue>0</captionValue>
+                    <options class="Magento\Store\Ui\Component\Listing\Column\Store\Options"/>
+                    <label translate="true">Store View</label>
+                    <dataScope>store_id</dataScope>
+                    <imports>
+                        <link name="visible">ns = ${ $.ns }, index = ${ $.index }:visible</link>
+                    </imports>
+                </settings>
+            </filterSelect>
+        </filters>
+        <massaction name="listing_massaction">
+            <action name="enable">
+                <settings>
+                    <url path="scr1be_slider/slider/massStatus">
+                        <param name="status">1</param>
+                    </url>
+                    <type>enable</type>
+                    <label translate="true">Enable</label>
+                </settings>
+            </action>
+            <action name="disable">
+                <settings>
+                    <url path="scr1be_slider/slider/massStatus">
+                        <param name="status">0</param>
+                    </url>
+                    <type>disable</type>
+                    <label translate="true">Disable</label>
+                </settings>
+            </action>
+            <action name="delete">
+                <settings>
+                    <confirm>
+                        <message translate="true">Are you sure you want to delete the selected sliders? Any page
+                            or widget pointing at their identifiers will render nothing.</message>
+                        <title translate="true">Delete sliders</title>
+                    </confirm>
+                    <url path="scr1be_slider/slider/massDelete"/>
+                    <type>delete</type>
+                    <label translate="true">Delete</label>
+                </settings>
+            </action>
+        </massaction>
+        <paging name="listing_paging"/>
+    </listingToolbar>
+    <columns name="scr1be_slider_columns">
+        <selectionsColumn name="ids">
+            <settings>
+                <indexField>slider_id</indexField>
+            </settings>
+        </selectionsColumn>
+        <column name="slider_id">
+            <settings>
+                <filter>textRange</filter>
+                <label translate="true">ID</label>
+                <sorting>asc</sorting>
+            </settings>
+        </column>
+        <column name="title">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Title</label>
+            </settings>
+        </column>
+        <column name="identifier">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Identifier</label>
+            </settings>
+        </column>
+        <column name="source_type" component="Magento_Ui/js/grid/columns/select">
+            <settings>
+                <options class="Scr1be\HyvaProductSlider\Model\Source\SourceTypes"/>
+                <filter>select</filter>
+                <dataType>select</dataType>
+                <label translate="true">Source</label>
+            </settings>
+        </column>
+        <column name="product_limit">
+            <settings>
+                <filter>textRange</filter>
+                <label translate="true">Products</label>
+            </settings>
+        </column>
+        <!--
+            Rendered by core's store column, which prints one line per assigned store view and the
+            website/store group above it — the same widget the CMS grids use, so the vocabulary a
+            merchandiser already reads elsewhere is the one they read here.
+        -->
+        <column name="store_id" class="Magento\Store\Ui\Component\Listing\Column\Store">
+            <settings>
+                <label translate="true">Store View</label>
+                <bodyTmpl>ui/grid/cells/html</bodyTmpl>
+                <sortable>false</sortable>
+            </settings>
+        </column>
+        <column name="is_active" component="Magento_Ui/js/grid/columns/select">
+            <settings>
+                <options class="Scr1be\HyvaProductSlider\Model\Source\IsActive"/>
+                <filter>select</filter>
+                <dataType>select</dataType>
+                <label translate="true">Status</label>
+            </settings>
+        </column>
+        <column name="updated_at" class="Magento\Ui\Component\Listing\Columns\Date"
+                component="Magento_Ui/js/grid/columns/date">
+            <settings>
+                <filter>dateRange</filter>
+                <dataType>date</dataType>
+                <label translate="true">Modified</label>
+            </settings>
+        </column>
+        <actionsColumn name="actions" class="Scr1be\HyvaProductSlider\Ui\Component\Listing\Column\SliderActions">
+            <settings>
+                <indexField>slider_id</indexField>
+            </settings>
+        </actionsColumn>
+    </columns>
+</listing>

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scr1be_seo>
+            <canonical>
+                <enabled>1</enabled>
+                <!--
+                  Only the pager survives into the canonical. Everything else on a Magento
+                  storefront query string (layered navigation filters, sort direction, tracking
+                  parameters) describes a view of a page rather than a page, and pointing each
+                  of those views at itself is how a 2,000 product catalog turns into 40,000
+                  indexable URLs.
+                -->
+                <query_whitelist>p</query_whitelist>
+            </canonical>
+            <hreflang>
+                <enabled>1</enabled>
+                <x_default_store/>
+            </hreflang>
+            <robots>
+                <enabled>0</enabled>
+                <content/>
+            </robots>
+        </scr1be_seo>
+    </default>
+</config>

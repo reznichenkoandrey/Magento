@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Scr1be_ProductFamilies">
+        <sequence>
+            <module name="Magento_Catalog"/>
+            <module name="Magento_Eav"/>
+            <module name="Magento_Swatches"/>
+            <module name="Magento_Backend"/>
+            <!--
+              The GraphQL fields extend ProductInterface and their resolvers extend
+              Magento_RelatedProductGraphQl's batch base class, so both schemas have to be read first.
+            -->
+            <module name="Magento_CatalogGraphQl"/>
+            <module name="Magento_RelatedProductGraphQl"/>
+        </sequence>
+    </module>
+</config>

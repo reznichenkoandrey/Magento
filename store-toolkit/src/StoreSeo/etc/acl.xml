@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <!--
+                              robots.txt is a file every crawler reads before anything else, and a
+                              Disallow typed into the wrong box takes a catalog out of the index.
+                              It gets its own resource so it can be withheld from roles that are
+                              otherwise trusted with configuration.
+                            -->
+                            <resource id="Scr1be_StoreSeo::config"
+                                      title="Store Toolkit: SEO"
+                                      translate="title"
+                                      sortOrder="200"/>
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

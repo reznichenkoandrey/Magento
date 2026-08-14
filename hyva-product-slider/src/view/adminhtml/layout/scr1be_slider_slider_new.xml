@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <!--
+        The create form is the edit form: one ui_component, one data provider, one set of validation
+        rules. A separate "new" layout that diverges by a field is the classic way a form ends up
+        accepting on create what it rejects on edit.
+    -->
+    <update handle="scr1be_slider_slider_edit"/>
+</page>

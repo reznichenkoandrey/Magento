@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="400">
+            <label>scr1be</label>
+        </tab>
+        <section id="scr1be_slider" translate="label" type="text" sortOrder="20" showInDefault="1"
+                 showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Product Slider</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_HyvaProductSlider::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Off renders nothing at all — every slider block and the widget return an empty
+                        string, and the proof endpoint answers with an empty payload.</comment>
+                </field>
+            </group>
+            <group id="sources" translate="label" type="text" sortOrder="20" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>Product Sources</label>
+                <field id="bestsellers_window_days" translate="label comment" type="text" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Bestsellers Window (days)</label>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <comment>How far back the aggregated bestsellers report is summed. The report itself is
+                        refreshed by Magento's own statistics cron, not by this module.</comment>
+                </field>
+                <field id="most_viewed_window_days" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Most Viewed Window (days)</label>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <comment>Requires Magento_Reports with Stores &gt; Configuration &gt; General &gt; Reports
+                        enabled, including "Product View". Without those the source has no rows to rank.</comment>
+                </field>
+                <field id="deals_customer_group" translate="label comment" type="select" sortOrder="30"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Deals Customer Group</label>
+                    <source_model>Magento\Customer\Model\Config\Source\Group</source_model>
+                    <comment>Which group's price index decides that a product is discounted. Leave on NOT
+                        LOGGED IN: a slider whose contents change per group cannot be cached as one block.</comment>
+                </field>
+            </group>
+            <group id="purchase_index" translate="label" type="text" sortOrder="30" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>Purchase Index</label>
+                <field id="window_days" translate="label comment" type="text" sortOrder="10" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Index Window (days)</label>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <comment>Orders older than this are dropped from the index the next time the 15-minute cron
+                        runs. It bounds both the Recently Bought source and the social-proof line.</comment>
+                </field>
+            </group>
+            <group id="social_proof" translate="label" type="text" sortOrder="40" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>Social Proof</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>A global off switch. Individual sliders still have their own toggle.</comment>
+                </field>
+                <field id="window_hours" translate="label comment" type="text" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Show Purchases From The Last (hours)</label>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <comment>Purchases older than this produce no line at all. "Bought 4 weeks ago" is not
+                        social proof.</comment>
+                </field>
+                <field id="show_name" translate="label comment" type="select" sortOrder="30" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Include Buyer First Name</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Only the first name is ever stored or shown. Turn this off to keep the line
+                        completely anonymous.</comment>
+                </field>
+                <field id="show_city" translate="label comment" type="select" sortOrder="40" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Include Buyer City</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Billing city of the most recent paid order.</comment>
+                </field>
+                <field id="endpoint_ttl" translate="label comment" type="text" sortOrder="50" showInDefault="1"
+                       showInWebsite="1" showInStore="1">
+                    <label>Endpoint Cache Lifetime (seconds)</label>
+                    <validate>validate-digits</validate>
+                    <comment>Sent as public max-age on the proof endpoint. 0 makes it no-store.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

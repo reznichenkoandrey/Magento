@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
+    <!--
+        ttl is set because the block is cacheable and its identities are real product tags (see
+        CardGrid::getIdentities()) — a shelf that never expires but does invalidate on product save
+        is the correct trade for CMS content.
+    -->
+    <widget id="scr1be_product_card_grid"
+            class="Scr1be\HyvaProductCard\Block\Product\CardGrid"
+            is_email_compatible="false"
+            ttl="86400">
+        <label translate="true">Product Card Grid (scr1be)</label>
+        <description translate="true">A grid of product cards rendered from the same ViewModel layer as the category listing — server-rendered or Alpine-hydrated.</description>
+        <parameters>
+            <parameter name="title" xsi:type="text" required="false" visible="true">
+                <label translate="true">Title</label>
+                <description translate="true">Doubles as the GA4 item_list_name for every card in this grid.</description>
+            </parameter>
+            <parameter name="skus" xsi:type="text" required="true" visible="true">
+                <label translate="true">SKUs</label>
+                <description translate="true">Comma-separated, in the order they should appear. Up to 24; products not visible in the catalogue are skipped.</description>
+            </parameter>
+            <parameter name="render_mode" xsi:type="select" required="true" visible="true">
+                <label translate="true">Rendered by</label>
+                <description translate="true">Server: cards are HTML — cacheable and indexable. Client: cards are a JSON island hydrated by Alpine — cheap to re-sort, invisible to a crawler.</description>
+                <options>
+                    <option name="server" value="server" selected="true">
+                        <label translate="true">Server (phtml)</label>
+                    </option>
+                    <option name="client" value="client">
+                        <label translate="true">Client (Alpine)</label>
+                    </option>
+                </options>
+            </parameter>
+            <parameter name="image_id" xsi:type="text" required="false" visible="true">
+                <label translate="true">Image id</label>
+                <description translate="true">A view.xml image id. Defaults to category_page_grid, which every stock theme defines.</description>
+            </parameter>
+            <parameter name="template" xsi:type="select" required="true" visible="true">
+                <label translate="true">Template</label>
+                <options>
+                    <option name="default" value="Scr1be_HyvaProductCard::product/grid.phtml" selected="true">
+                        <label translate="true">Card Grid</label>
+                    </option>
+                </options>
+            </parameter>
+        </parameters>
+    </widget>
+</widgets>

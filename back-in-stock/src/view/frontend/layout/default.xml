@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <!--
+          The import map has to be installed before the first module script starts loading, and Hyvä
+          loads Alpine as a module from `before.body.end`. `head.additional` is the only placement
+          that is reliably in front of it.
+        -->
+        <referenceContainer name="head.additional">
+            <block class="Scr1be\BackInStock\Block\PopupScripts"
+                   name="scr1be.back_in_stock.scripts"
+                   template="Scr1be_BackInStock::popup-scripts.phtml"/>
+        </referenceContainer>
+        <!--
+          The dialog markup goes last in the document so its fixed-position overlay is not trapped
+          inside a stacking context created by a header or a sticky bar further up the page.
+        -->
+        <referenceContainer name="before.body.end">
+            <block class="Scr1be\BackInStock\Block\Popup"
+                   name="scr1be.back_in_stock.popup"
+                   template="Scr1be_BackInStock::popup.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <!--
+        The card block itself is declared by Hyvä in the `catalog_list_item` handle, which Hyvä
+        includes from the pages that have listings (category, search, compare, its product slider)
+        and — when Page Builder is installed — from `default`. A widget can be dropped anywhere, so
+        the handle is pulled in globally here; layout merging makes a second include a no-op on the
+        pages that already had it.
+    -->
+    <update handle="catalog_list_item"/>
+    <body>
+        <referenceContainer name="head.additional">
+            <block class="Scr1be\HyvaProductCard\Block\CardScripts"
+                   name="scr1be.product.card.scripts"
+                   template="Scr1be_HyvaProductCard::product/card/scripts.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <!--
+            Fifteen minutes is the compromise the social-proof line is built around: long enough that
+            the rebuild is a rounding error on the database, short enough that "a few minutes ago" is
+            never a lie by more than the interval.
+        -->
+        <job name="scr1be_slider_purchase_index"
+             instance="Scr1be\HyvaProductSlider\Cron\RefreshPurchaseIndex"
+             method="execute">
+            <schedule>*/15 * * * *</schedule>
+        </job>
+    </group>
+</config>

@@ -1,0 +1,55 @@
+<?php
+/**
+ * Copyright (c) 2026 scr1be. MIT licensed.
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scr1be\StoreSwitcher\Block\FlagSpriteBlock;
+
+/** @var FlagSpriteBlock $block */
+/** @var Escaper $escaper */
+
+$flags = $block->getUsedFlags();
+
+// The 3:2 viewBox is the ratio most of these flags actually use, so a band is a whole unit and the
+// geometry below needs no fractional coordinates.
+$bandWidth = 3;
+$bandHeight = 2;
+?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     class="hidden"
+     aria-hidden="true"
+     focusable="false"
+     data-scr1be-store-switcher-flags>
+    <?php foreach ($flags as $code => $flag): ?>
+        <?php
+        $colors = $flag['colors'];
+        $count = count($colors);
+        $vertical = $block->isVertical($flag['orientation']);
+        ?>
+        <symbol id="scr1be-flag-<?= $escaper->escapeHtmlAttr((string) $code) ?>"
+                viewBox="0 0 <?= (int) $bandWidth ?> <?= (int) $bandHeight ?>">
+            <?php foreach ($colors as $index => $color): ?>
+                <rect
+                    x="<?= $escaper->escapeHtmlAttr((string) ($vertical ? $index * ($bandWidth / $count) : 0)) ?>"
+                    y="<?= $escaper->escapeHtmlAttr((string) ($vertical ? 0 : $index * ($bandHeight / $count))) ?>"
+                    width="<?= $escaper->escapeHtmlAttr((string) ($vertical ? $bandWidth / $count : $bandWidth)) ?>"
+                    height="<?= $escaper->escapeHtmlAttr((string) ($vertical ? $bandHeight : $bandHeight / $count)) ?>"
+                    fill="<?= $escaper->escapeHtmlAttr((string) $color) ?>"/>
+            <?php endforeach; ?>
+        </symbol>
+    <?php endforeach; ?>
+    <?php /*
+        The fallback. Drawn with currentColor rather than a palette entry so it inherits the text
+        colour of whatever it sits next to, in either theme.
+    */ ?>
+    <symbol id="scr1be-flag-<?= $escaper->escapeHtmlAttr($block->getFallbackCode()) ?>" viewBox="0 0 24 24">
+        <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M3 12h18"/>
+            <path d="M12 3c2.5 2.6 3.9 5.7 3.9 9s-1.4 6.4-3.9 9c-2.5-2.6-3.9-5.7-3.9-9S9.5 5.6 12 3z"/>
+        </g>
+    </symbol>
+</svg>
