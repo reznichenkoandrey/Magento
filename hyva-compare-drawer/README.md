@@ -19,7 +19,7 @@ This module is in the portfolio to show **the opposite design choice**: when a f
 | LRU cap at 4 items | Drag a 5th in → oldest shifts off. Mirrors how real shoppers think about compare | UX detail |
 | Drag-and-drop reorder via `@dragstart`/`@drop` | Native HTML5 DnD, no library. Order persists into storage immediately | Baseline |
 | `Alpine.store('compare', { … })` global registration | One store serves drawer + add buttons + compare page — single source of truth | Standard Hyvä |
-| Compare page is also client-rendered | No `/compare` controller. Reads the store, fetches per-item product card HTML via existing Hyvä endpoint. Trade-off documented below | Architectural, dependent on Hyvä product card endpoint existing |
+| Compare page is also client-rendered | Its controller and route exist only to serve an empty shell at `/scr1be-compare`; every row is rendered from the same `$store.compare` the drawer reads, so the page needs no server-side product fetch and cannot disagree with the drawer | Architectural |
 | Respects `prefers-reduced-motion` via Tailwind `motion-safe:` | Tiny but real a11y win | Baseline (often skipped) |
 
 ## Live in the demo storefront
@@ -86,22 +86,20 @@ Drawer (expanded)             Drawer (minimized)
 └──────────────────────┘
 ```
 
-Live screenshots — placeholder until a demo storefront is provisioned.
-
 ## Install
 
 ```bash
 composer require scr1be/hyva-compare-drawer
 bin/magento module:enable Scr1be_HyvaCompareDrawer
 bin/magento setup:upgrade
-# no setup:di:compile needed — there's no PHP class in this module
+bin/magento setup:di:compile
 ```
 
 ## Usage
 
 ### Add button on product cards (auto)
 
-The module's layout XML injects the drawer + Alpine store into every page's `before.body.end`. The `add-button.phtml` template is meant to be inlined from product cards — call it from your category list template if it isn't picked up by your theme's product card hook.
+Nothing to wire by hand. `default.xml` injects the store and the drawer into every page's `before.body.end`, and `catalog_list_item.xml` adds the button to Hyvä's `catalog.list.item.addto` container, so every product card gets one — on category pages, in search results, in sliders and on the compare page itself.
 
 ### Trigger from custom code
 
@@ -169,7 +167,7 @@ Versioned key (`_v1`) so a v2 schema can `JSON.parse` v1 and migrate instead of 
 | Add/remove latency | Full XHR + session write | `setItem` (sync, ~0ms) |
 | Cross-device sync | Yes (via customer account) | No (would need a sync layer) |
 | Survives clearing browser data | Yes | No |
-| Compare page render | Full Magento render | Client-side, per-item fetch |
+| Compare page render | Full Magento render | Empty shell + client-side render from the store |
 | Code surface | DB table + repo + service + REST + GraphQL + admin | One JS file |
 
 For logged-in continuity, layer a `$watch('items', syncToServer)` on top — sync runs once per change, server-side compare list becomes the canonical store for logged-in users only.
@@ -180,14 +178,22 @@ For logged-in continuity, layer a `$watch('items', syncToServer)` on top — syn
 src/
 ├── registration.php
 ├── composer.json
+├── Block/
+│   └── CompareButton.php                   # extends core's Item\Block for the addto slot
+├── Controller/Index/Index.php              # the /scr1be-compare page
 ├── etc/
-│   └── module.xml             # depends on Magento_Catalog + Hyva_Theme
+│   ├── module.xml                          # depends on Magento_Catalog + Hyva_Theme
+│   └── frontend/routes.xml                 # frontName: scr1be-compare
 └── view/frontend/
-    ├── layout/default.xml     # injects store + drawer into before.body.end
+    ├── layout/
+    │   ├── default.xml                     # injects store + drawer into before.body.end
+    │   ├── catalog_list_item.xml           # the button into catalog.list.item.addto
+    │   └── scr1be_compare_index_index.xml  # the compare page's own handle
     └── templates/
-        ├── store.phtml        # Alpine.store registration + cross-tab sync
-        ├── drawer.phtml       # the floating drawer UI
-        └── add-button.phtml   # toggle button — opt-in usage from theme
+        ├── store.phtml                     # Alpine.store registration + cross-tab sync
+        ├── drawer.phtml                    # the floating drawer UI
+        ├── add-button.phtml                # toggle button on every product card
+        └── compare-page.phtml              # side-by-side page, rendered from the store
 ```
 
 ## Notes on Hyvä CSP compatibility

@@ -78,7 +78,9 @@ $cacheTtlMs       = 5 * 60 * 1000;
             <div class="px-4 py-3 text-sm text-red-600" x-text="error"></div>
         </template>
 
-        <template x-if="!loading && !error && results.length === 0 && query.length >= 2">
+        <?php // minQuery, not a literal: Magento's own default for min_query_length is 3, so a
+              // hardcoded 2 claimed "no products match" for a query search() never ran. ?>
+        <template x-if="!loading && !error && results.length === 0 && query.length >= minQuery">
             <div class="px-4 py-3 text-sm text-gray-500">
                 <?= $escaper->escapeHtml(__('No products match your search.')) ?>
             </div>
@@ -139,6 +141,8 @@ $cacheTtlMs       = 5 * 60 * 1000;
             query: '',
             results: [],
             totalCount: 0,
+            /** Exposed so the empty state can gate on the same threshold search() enforces. */
+            minQuery: SCR1BE_MIN_QUERY,
             loading: false,
             error: '',
             isOpen: false,
