@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!--
+  `customer_account` is the shared handle every account page pulls in with
+  <update handle="customer_account"/> (see Magento_Customer's customer_account_index.xml and its
+  siblings), so removing the blocks here covers the dashboard, the address book, order history and
+  everything else behind the login in one file.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="scr1be.seo.canonical" remove="true"/>
+        <referenceBlock name="scr1be.seo.hreflang" remove="true"/>
+    </body>
+</page>

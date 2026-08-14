@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      The customer-data section.
+
+      `sectionSourceMap` is the whole registration: `Magento\Customer\CustomerData\SectionPool`
+      resolves the key to this class and `Magento\Customer\Controller\Section\Load` returns it under
+      the same key. That key is also the one the Alpine component looks for in
+      `private-content-loaded` — see `SECTION` in `view/frontend/web/js/popup.js`. Renaming it here
+      means renaming it there.
+    -->
+    <type name="Magento\Customer\CustomerData\SectionPoolInterface">
+        <arguments>
+            <argument name="sectionSourceMap" xsi:type="array">
+                <item name="scr1be-back-in-stock" xsi:type="string">
+                    Scr1be\BackInStock\CustomerData\BackInStockAlerts
+                </item>
+            </argument>
+        </arguments>
+    </type>
+</config>

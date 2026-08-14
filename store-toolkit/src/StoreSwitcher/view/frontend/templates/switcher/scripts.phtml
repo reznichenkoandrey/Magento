@@ -1,0 +1,22 @@
+<?php
+/**
+ * Copyright (c) 2026 scr1be. MIT licensed.
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scr1be\StoreSwitcher\Block\SwitcherScripts;
+
+/** @var SwitcherScripts $block */
+/** @var Escaper $escaper */
+
+if (!$block->isSwitchable()) {
+    return;
+}
+?>
+<?php /*
+    An external module, not an inline one: nothing here needs a CSP nonce or hash, and the file is
+    cacheable by the browser across the whole site.
+*/ ?>
+<script type="module" src="<?= $escaper->escapeUrl($block->getEntryScriptUrl()) ?>"></script>

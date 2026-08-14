@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!--
+  The 404 page. A canonical here is actively harmful: it is served under whatever URL the visitor
+  mistyped, and pointing that URL at itself asks a crawler to keep the broken address. Magento
+  serves this handle for every unmatched request, so the removal covers all of them at once.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="scr1be.seo.canonical" remove="true"/>
+        <referenceBlock name="scr1be.seo.hreflang" remove="true"/>
+    </body>
+</page>

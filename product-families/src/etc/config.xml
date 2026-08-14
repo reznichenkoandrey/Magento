@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!--
+  Nothing runs until a merchant switches it on and picks a group attribute. There is no shipped
+  default pairing of attributes, and that is deliberate: which attribute is the family key is a fact
+  about a catalogue, not about a module, and a wrong guess would cross-link a few thousand products
+  the first time cron ran.
+
+  The labels are here rather than in the template because they are storefront copy: "Other colours"
+  is a sentence a merchant will want to change, and it is store-view scoped so a second language can
+  change it too.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scr1be_product_families>
+            <general>
+                <enabled>0</enabled>
+                <cron_enabled>0</cron_enabled>
+                <cron_dry_run>1</cron_dry_run>
+            </general>
+            <other_colors>
+                <enabled>0</enabled>
+                <group_attribute/>
+                <variant_attribute/>
+                <max_members>12</max_members>
+                <distinct_variants>1</distinct_variants>
+                <label>Other colours</label>
+            </other_colors>
+            <other_sizes>
+                <enabled>0</enabled>
+                <group_attribute/>
+                <variant_attribute/>
+                <max_members>12</max_members>
+                <distinct_variants>1</distinct_variants>
+                <label>Other sizes</label>
+            </other_sizes>
+            <similar>
+                <enabled>0</enabled>
+                <group_attribute/>
+                <variant_attribute/>
+                <max_members>8</max_members>
+                <distinct_variants>0</distinct_variants>
+                <label>Similar products</label>
+            </similar>
+        </scr1be_product_families>
+    </default>
+</config>

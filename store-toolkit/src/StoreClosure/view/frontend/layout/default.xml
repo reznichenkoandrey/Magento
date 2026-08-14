@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <!--
+          `top.container` is declared in Magento_Theme's frontend default.xml with the label "After
+          Page Header Top", i.e. directly below the header and above the page content — the first
+          thing inside the page a visitor reads, and the container both core and Hyvä already use
+          for site-wide notices (Hyvä puts breadcrumbs in it). The block renders nothing at all
+          while the store is open, so it costs a closed storefront one config read and an open one
+          nothing.
+        -->
+        <referenceContainer name="top.container">
+            <block name="scr1be.store.closure.banner"
+                   template="Scr1be_StoreClosure::banner.phtml"
+                   before="-">
+                <arguments>
+                    <argument name="closure_view_model" xsi:type="object">Scr1be\StoreClosure\ViewModel\Closure</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

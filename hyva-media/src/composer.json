@@ -1,0 +1,23 @@
+{
+    "name": "scr1be/hyva-media",
+    "description": "On-demand resize + WebP derivatives for pub/media uploads that never pass through Magento's catalog image pipeline",
+    "type": "magento2-module",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "ext-gd": "*",
+        "magento/framework": "^103.0",
+        "magento/module-backend": "^102.0",
+        "magento/module-config": "^101.2",
+        "magento/module-store": "^101.1"
+    },
+    "suggest": {
+        "scr1be/hyva-lazy-images": "Owns the <picture> markup side; consumes the payload this module produces"
+    },
+    "autoload": {
+        "files": ["registration.php"],
+        "psr-4": {
+            "Scr1be\\HyvaMedia\\": ""
+        }
+    }
+}

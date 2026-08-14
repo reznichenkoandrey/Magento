@@ -1,0 +1,12 @@
+{
+    "name": "scr1be/store-toolkit",
+    "description": "Everything multi-store on a Magento 2 + Hyva build: an SEO cluster (canonical, entity-aware hreflang, per-website robots.txt), a same-page store switcher, and a store-scoped temporary closure. Installs the three modules of the suite.",
+    "type": "metapackage",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "scr1be/store-toolkit-seo": "self.version",
+        "scr1be/store-toolkit-switcher": "self.version",
+        "scr1be/store-toolkit-closure": "self.version"
+    }
+}

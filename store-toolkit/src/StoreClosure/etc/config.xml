@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scr1be_store_closure>
+            <general>
+                <!--
+                  A module that could stop a storefront taking money has exactly one sensible
+                  default, and this is it.
+                -->
+                <enabled>0</enabled>
+                <hide_prices>0</hide_prices>
+                <headline>This store is temporarily closed</headline>
+                <message>You can still browse the catalogue. Orders are not being taken at the moment.</message>
+                <banner/>
+            </general>
+        </scr1be_store_closure>
+    </default>
+</config>

@@ -1,0 +1,29 @@
+interface ProductInterface @doc(description: "Card fields mirrored from the storefront ViewModel layer, so a headless client renders the same card the phtml does.") {
+    card_badges: [Scr1beCardBadge] @doc(description: "Badges the product has earned, sorted by priority — the first entry is the one a single-badge layout should show.") @resolver(class: "Scr1be\\HyvaProductCard\\Model\\Resolver\\CardBadges")
+    card_media: Scr1beCardMedia @doc(description: "Responsive image ladder for a card, plus the hover image when one is available.") @resolver(class: "Scr1be\\HyvaProductCard\\Model\\Resolver\\CardMedia")
+    qty_rules: Scr1beQtyRules @doc(description: "Minimum, increment and maximum sale quantity, resolved through the stock item so the config fallbacks apply.") @resolver(class: "Scr1be\\HyvaProductCard\\Model\\Resolver\\CardQtyRules")
+}
+
+type Scr1beCardBadge @doc(description: "One card badge.") {
+    code: String! @doc(description: "Stable machine name: new, sale or low_stock. Style against this, not against the label.")
+    label: String! @doc(description: "Translated copy for the current store. May change without notice.")
+    priority: Int! @doc(description: "Lower sorts first. Stock urgency beats price, price beats novelty.")
+    value: Float @doc(description: "The number behind the badge when there is one — discount percentage for sale, remaining quantity for low_stock.")
+}
+
+type Scr1beCardMedia @doc(description: "Card image, already resolved to the attributes an img element needs.") {
+    url: String! @doc(description: "Fallback source, the narrowest rung of the ladder.")
+    width: Int! @doc(description: "Intrinsic width of the fallback source, for reserving layout space.")
+    height: Int! @doc(description: "Intrinsic height of the fallback source, for reserving layout space.")
+    label: String @doc(description: "Image label, suitable as alt text.")
+    srcset: String @doc(description: "Ready-to-emit srcset. Empty when the ladder collapsed to a single rung.")
+    sizes: String @doc(description: "The sizes attribute configured for the storefront grid.")
+    hover_url: String @doc(description: "Second image for a hover swap, or null when the product has none or the per-page ceiling was reached.")
+}
+
+type Scr1beQtyRules @doc(description: "What a quantity stepper is allowed to do.") {
+    min: Float! @doc(description: "Minimum sale quantity.")
+    step: Float! @doc(description: "Quantity increment. Falls back to 1, or 0.0001 for decimal-quantity products.")
+    max: Float @doc(description: "Maximum sale quantity, or null when there is no ceiling.")
+    is_decimal: Boolean! @doc(description: "Whether fractional quantities are legal for this product.")
+}

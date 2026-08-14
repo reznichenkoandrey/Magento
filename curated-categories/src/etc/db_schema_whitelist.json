@@ -1,0 +1,15 @@
+{
+    "scr1be_curated_arrival": {
+        "column": {
+            "product_id": true,
+            "arrived_at": true
+        },
+        "index": {
+            "SCR1BE_CURATED_ARRIVAL_ARRIVED_AT": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "SCR1BE_CURATED_ARRIVAL_PRD_ID_CAT_PRD_ENTT_ENTT_ID": true
+        }
+    }
+}

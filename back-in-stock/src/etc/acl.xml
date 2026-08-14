@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Config::config">
+                        <!--
+                          Its own resource rather than riding on Magento_Config::config, because the
+                          section holds a Firebase service-account private key. An admin role that
+                          may edit shipping methods has no reason to be able to read it.
+                        -->
+                        <resource id="Scr1be_BackInStock::config"
+                                  title="Back In Stock Section"
+                                  translate="title"
+                                  sortOrder="130"/>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

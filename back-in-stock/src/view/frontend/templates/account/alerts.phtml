@@ -1,0 +1,145 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scr1be\BackInStock\Block\Account\AlertList;
+
+/** @var AlertList $block */
+/** @var Escaper $escaper */
+
+$groups = $block->getGroupedAlerts();
+$total = count($groups['queued']) + count($groups['waiting']) + count($groups['shown']);
+
+/**
+ * Rendered entirely server side, deliberately. This is a customer account page, which
+ * `Magento_PageCache` does not cache, so the block already has the data — fetching the same list a
+ * second time over AJAX would add a round trip and a loading state to a page that needs neither.
+ */
+$sections = [
+    'queued' => [
+        'heading' => __('Back in stock now'),
+        'note' => __('These came back and are waiting for you.'),
+    ],
+    'waiting' => [
+        'heading' => __('Waiting for stock'),
+        'note' => __("We'll email you the moment these are available again."),
+    ],
+    'shown' => [
+        'heading' => __('Already seen'),
+        'note' => __('These came back and you have already been told.'),
+    ],
+];
+?>
+<div class="scr1be-back-in-stock-account">
+    <?php if ($total === 0): ?>
+        <p class="text-gray-700"><?= $escaper->escapeHtml(__('You have no product alerts yet.')) ?></p>
+        <p class="mt-2 text-sm text-gray-600">
+            <?= $escaper->escapeHtml(
+                __('Open any out-of-stock product and choose "Notify me when this product is in stock".')
+            ) ?>
+        </p>
+    <?php else: ?>
+        <?php foreach ($sections as $key => $section): ?>
+            <?php if ($groups[$key] === []) {
+                continue;
+            } ?>
+            <section class="mb-8">
+                <h2 class="text-lg font-semibold text-gray-900">
+                    <?= $escaper->escapeHtml($section['heading']) ?>
+                </h2>
+                <p class="mb-4 text-sm text-gray-600"><?= $escaper->escapeHtml($section['note']) ?></p>
+
+                <ul role="list" class="divide-y divide-gray-200 border-y border-gray-200">
+                    <?php foreach ($groups[$key] as $item): ?>
+                        <li class="flex gap-x-4 py-4">
+                            <a href="<?= $escaper->escapeUrl($item['url']) ?>" class="shrink-0"
+                               tabindex="-1" aria-hidden="true">
+                                <img src="<?= $escaper->escapeUrl($item['image']['src']) ?>"
+                                     width="<?= (int)$item['image']['width'] ?>"
+                                     height="<?= (int)$item['image']['height'] ?>"
+                                     alt=""
+                                     loading="lazy"
+                                     class="h-20 w-20 rounded object-cover">
+                            </a>
+
+                            <div class="min-w-0 flex-1">
+                                <a href="<?= $escaper->escapeUrl($item['url']) ?>"
+                                   class="text-sm font-medium text-gray-900 hover:underline">
+                                    <?= $escaper->escapeHtml($item['name']) ?>
+                                </a>
+                                <p class="text-xs text-gray-500"><?= $escaper->escapeHtml($item['sku']) ?></p>
+
+                                <div class="mt-1 flex flex-wrap items-baseline gap-x-2">
+                                    <span class="font-semibold text-gray-900">
+                                        <?= $escaper->escapeHtml($item['price']) ?>
+                                    </span>
+                                    <?php if ($item['regular_price'] !== null): ?>
+                                        <span class="text-sm text-gray-500 line-through">
+                                            <?= $escaper->escapeHtml($item['regular_price']) ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
+
+                                <?php if ($item['badges'] !== []): ?>
+                                    <ul role="list" class="mt-2 flex flex-wrap gap-1">
+                                        <?php foreach ($item['badges'] as $badge): ?>
+                                            <li class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700">
+                                                <?= $escaper->escapeHtml($badge['label']) ?>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php endif; ?>
+
+                                <dl class="mt-2 text-xs text-gray-600">
+                                    <?php if ($item['subscribed_at'] !== null): ?>
+                                        <div class="flex gap-x-1">
+                                            <dt><?= $escaper->escapeHtml(__('Subscribed:')) ?></dt>
+                                            <dd><?= $escaper->escapeHtml(
+                                                $block->formatDate($item['subscribed_at'], \IntlDateFormatter::MEDIUM)
+                                            ) ?></dd>
+                                        </div>
+                                    <?php endif; ?>
+                                    <?php if ($item['restocked_at'] !== null): ?>
+                                        <div class="flex gap-x-1">
+                                            <dt><?= $escaper->escapeHtml(__('Back in stock:')) ?></dt>
+                                            <dd><?= $escaper->escapeHtml(
+                                                $block->formatDate($item['restocked_at'], \IntlDateFormatter::MEDIUM)
+                                            ) ?></dd>
+                                        </div>
+                                    <?php endif; ?>
+                                </dl>
+                            </div>
+
+                            <?php /*
+                                A form rather than a link, because `Magento\ProductAlert\Controller\Unsubscribe\Stock`
+                                is an `HttpPostActionInterface`. Reusing core's controller rather than
+                                writing one keeps the delete on the single code path — `Magento\ProductAlert\Model\Stock::deleteCustomer()`
+                                — that a future core change to the alert row would keep working.
+                            */ ?>
+                            <form action="<?= $escaper->escapeUrl($block->getUnsubscribeUrl()) ?>"
+                                  method="post" class="shrink-0 self-start">
+                                <?= $block->getBlockHtml('formkey') ?>
+                                <input type="hidden" name="product" value="<?= (int)$item['product_id'] ?>">
+                                <button type="submit" class="text-xs text-gray-500 underline hover:text-gray-900">
+                                    <?= $escaper->escapeHtml(__('Stop watching')) ?>
+                                </button>
+                            </form>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </section>
+        <?php endforeach; ?>
+
+        <?php /*
+            `StockAll` does not implement `HttpPostActionInterface`, so core would accept this as a
+            link. It is a form anyway: a GET that deletes every alert a customer holds is one
+            prefetching browser extension away from being a bug report.
+        */ ?>
+        <form action="<?= $escaper->escapeUrl($block->getUnsubscribeAllUrl()) ?>" method="post" class="mt-4">
+            <?= $block->getBlockHtml('formkey') ?>
+            <button type="submit" class="btn btn-secondary text-sm">
+                <?= $escaper->escapeHtml(__('Stop watching everything')) ?>
+            </button>
+        </form>
+    <?php endif; ?>
+</div>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!--
+      Global rather than adminhtml-only: `admin_system_config_changed_section_*` is dispatched by
+      Magento\Config\Model\Config::save(), and that is also the model `bin/magento config:set`
+      builds and saves (Magento\Config\Console\Command\ConfigSet\DefaultProcessor::process()).
+      Scoping the observer to the admin area would leave the file stale after every CLI change.
+    -->
+    <event name="admin_system_config_changed_section_scr1be_seo">
+        <observer name="scr1be_store_seo_publish_robots" instance="Scr1be\StoreSeo\Observer\PublishRobotsFile"/>
+    </event>
+</config>

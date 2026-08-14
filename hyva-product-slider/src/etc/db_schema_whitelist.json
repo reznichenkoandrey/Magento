@@ -1,0 +1,60 @@
+{
+    "scr1be_slider": {
+        "column": {
+            "slider_id": true,
+            "identifier": true,
+            "title": true,
+            "is_active": true,
+            "source_type": true,
+            "source_value": true,
+            "product_limit": true,
+            "slides_mobile": true,
+            "slides_tablet": true,
+            "slides_desktop": true,
+            "slides_wide": true,
+            "autoplay": true,
+            "autoplay_delay": true,
+            "is_loop": true,
+            "show_social_proof": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {
+            "SCR1BE_SLIDER_IS_ACTIVE": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "SCR1BE_SLIDER_IDENTIFIER": true
+        }
+    },
+    "scr1be_slider_store": {
+        "column": {
+            "slider_id": true,
+            "store_id": true
+        },
+        "index": {
+            "SCR1BE_SLIDER_STORE_STORE_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "SCR1BE_SLIDER_STORE_SLIDER_ID_SCR1BE_SLIDER_SLIDER_ID": true,
+            "SCR1BE_SLIDER_STORE_STORE_ID_STORE_STORE_ID": true
+        }
+    },
+    "scr1be_slider_purchase": {
+        "column": {
+            "store_id": true,
+            "product_id": true,
+            "last_ordered_at": true,
+            "purchases": true,
+            "buyer_name": true,
+            "buyer_city": true
+        },
+        "index": {
+            "SCR1BE_SLIDER_PURCHASE_STORE_ID_LAST_ORDERED_AT": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    }
+}

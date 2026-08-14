@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Scr1be_HyvaProductSlider">
+        <sequence>
+            <module name="Magento_Catalog"/>
+            <module name="Magento_CatalogInventory"/>
+            <module name="Magento_Sales"/>
+            <module name="Magento_Widget"/>
+            <module name="Magento_Ui"/>
+            <!--
+                Reports backs one source out of nine. It is sequenced rather than required so that a
+                storefront which disabled it still installs; Model\Source\SourceTypes drops the
+                Most Viewed option when the module is off.
+            -->
+            <module name="Magento_Reports"/>
+            <module name="Hyva_Theme"/>
+        </sequence>
+    </module>
+</config>
