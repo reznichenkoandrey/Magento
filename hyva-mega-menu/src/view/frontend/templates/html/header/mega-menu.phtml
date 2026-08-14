@@ -1,0 +1,197 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scr1be\HyvaMegaMenu\Block\MegaMenu;
+use Scr1be\HyvaMegaMenu\Model\Icon\Icon;
+use Scr1be\HyvaMegaMenu\Model\Icon\SpriteRegistry;
+
+/** @var MegaMenu $block */
+/** @var Escaper $escaper */
+
+if (!$block->hasMenuItems()) {
+    return;
+}
+
+$items = $block->getMenuItems();
+$islandJson = $block->getIslandJson();
+
+/**
+ * One icon, four shapes. The same four are built in JavaScript for the third level, and the two
+ * have to agree on class names and on the sprite id prefix — the specs pin the JavaScript half.
+ *
+ * The colour swatch is the only value that reaches an attribute rather than an element: it is
+ * written into a CSS custom property, which is why `IconResolver` accepts nothing but a hex
+ * colour and drops anything else out of the ladder rather than escaping it.
+ */
+$renderIcon = static function (Icon $icon) use ($escaper): string {
+    if (!$icon->isPresent()) {
+        return '';
+    }
+
+    switch ($icon->type) {
+        case Icon::TYPE_SPRITE:
+            return '<svg class="scr1be-menu__icon" width="20" height="20" aria-hidden="true">'
+                . '<use href="#scr1be-menu-icon-' . $escaper->escapeHtmlAttr($icon->value) . '"/></svg>';
+        case Icon::TYPE_IMAGE:
+            return '<img class="scr1be-menu__icon" src="' . $escaper->escapeUrl($icon->value)
+                . '" alt="" loading="lazy" width="20" height="20"/>';
+        case Icon::TYPE_CLASS:
+            return '<span class="scr1be-menu__icon ' . $escaper->escapeHtmlAttr($icon->value)
+                . '" aria-hidden="true"></span>';
+        case Icon::TYPE_COLOR:
+            return '<span class="scr1be-menu__icon scr1be-menu__icon--swatch" aria-hidden="true"'
+                . ' style="--scr1be-mega-menu-icon-color: ' . $escaper->escapeHtmlAttr($icon->value) . '"></span>';
+        default:
+            return '';
+    }
+};
+
+$chevron = static function (string $key) use ($escaper): string {
+    return '<svg class="scr1be-menu__chevron" width="20" height="20" aria-hidden="true">'
+        . '<use href="#scr1be-menu-icon-' . $escaper->escapeHtmlAttr($key) . '"/></svg>';
+};
+?>
+<div class="scr1be-menu"
+     data-mega-menu
+     x-data="scr1beMegaMenu"
+     @click="onClick"
+     @pointerover="onPointerOver"
+     @click.outside="onOutside"
+     @keydown.escape.window="onEscape"
+>
+    <?php /* Injected once per page, and only the symbols this menu actually referenced. The path
+             data is a constant in SpriteRegistry — never merchant or shopper input — which is why
+             it is printed as markup; the key is escaped regardless, because it is the half that
+             could one day come from somewhere else. Each symbol carries no colour of its own, so
+             `stroke="currentColor"` is what tints every icon from the text beside it. */ ?>
+    <svg class="scr1be-menu__sprite" aria-hidden="true" focusable="false" width="0" height="0">
+        <?php foreach ($block->getSpriteSymbols() as $spriteKey => $spriteMarkup): ?>
+            <symbol id="scr1be-menu-icon-<?= $escaper->escapeHtmlAttr($spriteKey) ?>"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"><?= /* @noEscape */ $spriteMarkup ?></symbol>
+        <?php endforeach; ?>
+    </svg>
+
+    <button type="button"
+            class="scr1be-menu__burger"
+            data-menu-control="drawer-open"
+            aria-controls="scr1be-menu-drawer"
+            aria-expanded="false"
+            aria-label="<?= $escaper->escapeHtmlAttr(__('Open menu')) ?>"
+    >
+        <?= /* @noEscape */ $chevron(SpriteRegistry::MENU) ?>
+    </button>
+
+    <?php /* The tree is server-rendered here, in the desktop dock. The component moves it into
+             the drawer below the breakpoint, and moves it back on the way up. */ ?>
+    <div class="scr1be-menu__dock scr1be-menu__dock--desktop" data-menu-dock="desktop">
+        <nav class="scr1be-menu__tree"
+             data-menu-tree
+             aria-label="<?= $escaper->escapeHtmlAttr(__('Main menu')) ?>"
+        >
+            <ul class="scr1be-menu__level scr1be-menu__level--top">
+                <?php foreach ($items as $item): ?>
+                    <?php $hasPanel = $item['children'] !== []; ?>
+                    <li class="scr1be-menu__item"
+                        data-menu-item
+                        data-menu-key="<?= $escaper->escapeHtmlAttr($item['key']) ?>"
+                    >
+                        <div class="scr1be-menu__row">
+                            <a class="scr1be-menu__link scr1be-menu__link--top"
+                               href="<?= $escaper->escapeUrl($item['url']) ?>"
+                            >
+                                <?= /* @noEscape */ $renderIcon($item['icon']) ?>
+                                <span class="scr1be-menu__label"><?= $escaper->escapeHtml($item['name']) ?></span>
+                            </a>
+                            <?php if ($hasPanel): ?>
+                                <button type="button"
+                                        class="scr1be-menu__toggle"
+                                        data-menu-control="top"
+                                        data-menu-key="<?= $escaper->escapeHtmlAttr($item['key']) ?>"
+                                        aria-controls="scr1be-menu-panel-<?= $escaper->escapeHtmlAttr($item['key']) ?>"
+                                        aria-expanded="false"
+                                >
+                                    <?= /* @noEscape */ $chevron(SpriteRegistry::CHEVRON_DOWN) ?>
+                                    <span class="sr-only">
+                                        <?= $escaper->escapeHtml(__('Show submenu for %1', $item['name'])) ?>
+                                    </span>
+                                </button>
+                            <?php endif; ?>
+                        </div>
+
+                        <?php if ($hasPanel): ?>
+                            <div class="scr1be-menu__panel"
+                                 id="scr1be-menu-panel-<?= $escaper->escapeHtmlAttr($item['key']) ?>"
+                                 data-menu-panel
+                                 data-menu-key="<?= $escaper->escapeHtmlAttr($item['key']) ?>"
+                            >
+                                <ul class="scr1be-menu__level scr1be-menu__level--second">
+                                    <?php foreach ($item['children'] as $child): ?>
+                                        <li class="scr1be-menu__entry"
+                                            data-menu-branch-item
+                                            data-menu-key="<?= $escaper->escapeHtmlAttr($child['key']) ?>"
+                                        >
+                                            <a class="scr1be-menu__link"
+                                               href="<?= $escaper->escapeUrl($child['url']) ?>"
+                                            >
+                                                <?= /* @noEscape */ $renderIcon($child['icon']) ?>
+                                                <span class="scr1be-menu__label"><?= $escaper->escapeHtml($child['name']) ?></span>
+                                            </a>
+                                            <?php if (!empty($child['has_children'])): ?>
+                                                <button type="button"
+                                                        class="scr1be-menu__toggle scr1be-menu__toggle--branch"
+                                                        data-menu-control="branch"
+                                                        data-menu-key="<?= $escaper->escapeHtmlAttr($child['key']) ?>"
+                                                        aria-controls="scr1be-menu-branch-<?= $escaper->escapeHtmlAttr($child['key']) ?>"
+                                                        aria-expanded="false"
+                                                >
+                                                    <?= /* @noEscape */ $chevron(SpriteRegistry::CHEVRON_RIGHT) ?>
+                                                    <span class="sr-only">
+                                                        <?= $escaper->escapeHtml(__('Show submenu for %1', $child['name'])) ?>
+                                                    </span>
+                                                </button>
+                                                <?php /* Filled from the island the first time this
+                                                         branch is opened, and never again. */ ?>
+                                                <ul class="scr1be-menu__level scr1be-menu__level--third"
+                                                    id="scr1be-menu-branch-<?= $escaper->escapeHtmlAttr($child['key']) ?>"
+                                                    data-menu-branch-panel
+                                                    data-menu-key="<?= $escaper->escapeHtmlAttr($child['key']) ?>"
+                                                ></ul>
+                                            <?php endif; ?>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="scr1be-menu__drawer" id="scr1be-menu-drawer">
+        <div class="scr1be-menu__drawer-head">
+            <span class="scr1be-menu__drawer-title"><?= $escaper->escapeHtml(__('Menu')) ?></span>
+            <button type="button"
+                    class="scr1be-menu__close"
+                    data-menu-control="drawer-close"
+                    aria-label="<?= $escaper->escapeHtmlAttr(__('Close menu')) ?>"
+            >
+                <?= /* @noEscape */ $chevron(SpriteRegistry::CLOSE) ?>
+            </button>
+        </div>
+        <div class="scr1be-menu__dock scr1be-menu__dock--mobile" data-menu-dock="mobile"></div>
+    </div>
+
+    <?php if ($islandJson !== ''): ?>
+        <?php /* A data block, not a script: the browser hands the contents over as text and never
+                 executes them, so there is no inline-script hash to register. The payload is
+                 serialised with JSON_HEX_TAG, so no category name can close the element. */ ?>
+        <script type="application/json" data-menu-island><?= /* @noEscape */ $islandJson ?></script>
+    <?php endif; ?>
+</div>

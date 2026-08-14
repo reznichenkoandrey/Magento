@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Scr1be_HyvaMegaMenu">
+        <sequence>
+            <module name="Magento_Catalog"/>
+            <module name="Magento_Eav"/>
+            <module name="Magento_Store"/>
+            <module name="Magento_Theme"/>
+            <!--
+              Not a code dependency: nothing here calls into Hyva_Theme. It is a load-order
+              statement so that this module's layout instructions are read after the theme
+              module's, which keeps the merged document readable when someone dumps it. The
+              block removals themselves do not need it — Magento applies remove="true" after
+              every layout file has been read, in GeneratorPool::buildStructure().
+            -->
+            <module name="Hyva_Theme"/>
+        </sequence>
+    </module>
+</config>

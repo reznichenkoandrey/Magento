@@ -1,0 +1,14 @@
+{
+    "name": "scr1be-mega-menu",
+    "description": "ES module scope for the storefront JavaScript. The exports map is the Node half of the import map the page ships, so the specs import exactly what the storefront imports.",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./register.js": "./view/frontend/web/js/mega-menu-register.js",
+        "./component.js": "./view/frontend/web/js/mega-menu.js",
+        "./state.js": "./view/frontend/web/js/menu-state.js"
+    },
+    "scripts": {
+        "test": "node --test \"Test/Js/*.test.js\""
+    }
+}

@@ -1,0 +1,281 @@
+/**
+ * Hyvä picks this file up automatically.
+ *
+ * `npx hyva-sources` walks the modules listed in app/etc/hyva-themes.json and in the theme's
+ * hyva.config.json, and for each one it emits an `@import` of `view/frontend/tailwind/module.css`
+ * when that file exists — otherwise it emits an `@source` of the module directory. Shipping this
+ * file therefore does two jobs at once: it puts the component CSS into the theme's build, and the
+ * `@source` lines below tell Tailwind where to look for utility classes.
+ *
+ * The `@source` on the JavaScript matters as much as the one on the templates. Third-level
+ * entries are built in the browser and carry classes that appear in no .phtml, so without it
+ * Tailwind would compile a stylesheet that is correct for everything a shopper sees before they
+ * open a branch.
+ */
+@source "../templates";
+@source "../web/js";
+
+/**
+ * Presentation lives here in full — the component only ever toggles `is-open` and
+ * `is-drawer-open`, and sets one column count. That is what makes a single DOM tree able to be a
+ * dropdown in one dock and an accordion in the other: the two docks are two stylesheets over the
+ * same markup, and the state machine never learns which one is in force.
+ */
+:root {
+    /**
+     * The breakpoint, in the form matchMedia wants it. The JavaScript reads this property rather
+     * than carrying a number of its own, so the dock that is visible and the dock the tree was
+     * moved into cannot disagree.
+     *
+     * It is written twice in this file — here and in the @media below — because a media query
+     * condition cannot read a custom property. Three lines apart and in one file is as close to
+     * one source as CSS allows; change them together. The value mirrors Tailwind's `lg`.
+     */
+    --scr1be-mega-menu-desktop-media: (min-width: 64rem);
+    --scr1be-mega-menu-column-width: 16rem;
+    --scr1be-mega-menu-columns: 1;
+    --scr1be-mega-menu-panel-max-height: 28rem;
+}
+
+.scr1be-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Present in the document, absent from layout: the symbols are referenced, never displayed. */
+.scr1be-menu__sprite {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
+
+.scr1be-menu__link {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    border-radius: var(--radius-md);
+    color: var(--color-fg);
+    text-decoration: none;
+}
+
+.scr1be-menu__link:hover,
+.scr1be-menu__link:focus-visible {
+    color: var(--color-primary);
+}
+
+.scr1be-menu__toggle,
+.scr1be-menu__burger,
+.scr1be-menu__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: calc(var(--spacing) * 1.5);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.scr1be-menu__chevron {
+    transition: transform 150ms ease;
+}
+
+.scr1be-menu__icon {
+    flex: none;
+    width: calc(var(--spacing) * 5);
+    height: calc(var(--spacing) * 5);
+}
+
+/* The one place a merchant-supplied value reaches the stylesheet, and it is a validated hex. */
+.scr1be-menu__icon--swatch {
+    border-radius: var(--radius-sm);
+    background-color: var(--scr1be-mega-menu-icon-color, transparent);
+}
+
+.scr1be-menu__level {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* ---------------------------------------------------------------- desktop dock */
+
+.scr1be-menu__dock--desktop {
+    display: none;
+}
+
+@media (min-width: 64rem) {
+    .scr1be-menu__burger,
+    .scr1be-menu__drawer {
+        display: none;
+    }
+
+    .scr1be-menu__dock--desktop {
+        display: block;
+    }
+}
+
+.scr1be-menu__dock--desktop .scr1be-menu__level--top {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+}
+
+.scr1be-menu__dock--desktop .scr1be-menu__row {
+    display: flex;
+    align-items: center;
+}
+
+/* The positioning context for both columns: the third-level list resolves against this box. */
+.scr1be-menu__dock--desktop .scr1be-menu__item {
+    position: relative;
+}
+
+.scr1be-menu__dock--desktop .scr1be-menu__panel {
+    position: absolute;
+    top: 100%;
+    inset-inline-start: 0;
+    z-index: 10;
+    display: none;
+    /* The column count is the only geometry the component sets, and it sets it as a number. */
+    width: calc(var(--scr1be-mega-menu-columns, 1) * var(--scr1be-mega-menu-column-width));
+    min-height: calc(var(--spacing) * 12);
+    padding: calc(var(--spacing) * 2);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-lg);
+    transition: width 150ms ease;
+}
+
+.scr1be-menu__dock--desktop .scr1be-menu__item.is-open > .scr1be-menu__panel {
+    display: block;
+}
+
+.scr1be-menu__dock--desktop .scr1be-menu__item.is-open > .scr1be-menu__row .scr1be-menu__chevron {
+    transform: rotate(180deg);
+}
+
+.scr1be-menu__dock--desktop .scr1be-menu__level--second {
+    width: calc(var(--scr1be-mega-menu-column-width) - var(--spacing) * 4);
+    max-height: var(--scr1be-mega-menu-panel-max-height);
+    overflow-y: auto;
+}
+
+.scr1be-menu__dock--desktop .scr1be-menu__entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.scr1be-menu__dock--desktop .scr1be-menu__entry > .scr1be-menu__link {
+    flex: 1 1 auto;
+}
+
+.scr1be-menu__dock--desktop .scr1be-menu__level--third {
+    position: absolute;
+    top: calc(var(--spacing) * 2);
+    inset-inline-start: var(--scr1be-mega-menu-column-width);
+    display: none;
+    width: calc(var(--scr1be-mega-menu-column-width) - var(--spacing) * 4);
+    max-height: var(--scr1be-mega-menu-panel-max-height);
+    overflow-y: auto;
+    border-inline-start: 1px solid var(--color-slate-200);
+    padding-inline-start: calc(var(--spacing) * 2);
+}
+
+.scr1be-menu__dock--desktop .scr1be-menu__entry.is-open > .scr1be-menu__level--third {
+    display: block;
+}
+
+.scr1be-menu__dock--desktop .scr1be-menu__entry.is-open > .scr1be-menu__toggle {
+    color: var(--color-primary);
+}
+
+/* ---------------------------------------------------------------- mobile drawer */
+
+.scr1be-menu__drawer {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    width: min(22rem, 100%);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-lg);
+    /* Off-screen rather than display:none, so the drawer can slide instead of appearing. */
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform 200ms ease, visibility 200ms;
+}
+
+.scr1be-menu.is-drawer-open .scr1be-menu__drawer {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+.scr1be-menu__drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: calc(var(--spacing) * 3);
+    border-block-end: 1px solid var(--color-slate-200);
+}
+
+.scr1be-menu__drawer-title {
+    font-weight: 600;
+}
+
+.scr1be-menu__dock--mobile {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: calc(var(--spacing) * 2);
+}
+
+.scr1be-menu__dock--mobile .scr1be-menu__row,
+.scr1be-menu__dock--mobile .scr1be-menu__entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-block-end: 1px solid var(--color-slate-200);
+}
+
+.scr1be-menu__dock--mobile .scr1be-menu__row > .scr1be-menu__link,
+.scr1be-menu__dock--mobile .scr1be-menu__entry > .scr1be-menu__link {
+    flex: 1 1 auto;
+}
+
+/*
+ * The accordion. Same `is-open` class, same element, no second component: only the box the panel
+ * is drawn in has changed, so the rules that made it an absolutely positioned dropdown are simply
+ * not the ones that apply here.
+ */
+.scr1be-menu__dock--mobile .scr1be-menu__panel,
+.scr1be-menu__dock--mobile .scr1be-menu__level--third {
+    display: none;
+    padding-inline-start: calc(var(--spacing) * 4);
+}
+
+.scr1be-menu__dock--mobile .scr1be-menu__item.is-open > .scr1be-menu__panel,
+.scr1be-menu__dock--mobile .scr1be-menu__entry.is-open > .scr1be-menu__level--third {
+    display: block;
+}
+
+.scr1be-menu__dock--mobile .scr1be-menu__item.is-open > .scr1be-menu__row .scr1be-menu__chevron {
+    transform: rotate(180deg);
+}
+
+.scr1be-menu__dock--mobile .scr1be-menu__entry.is-open > .scr1be-menu__toggle .scr1be-menu__chevron {
+    transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scr1be-menu__drawer,
+    .scr1be-menu__panel,
+    .scr1be-menu__chevron {
+        transition: none;
+    }
+}

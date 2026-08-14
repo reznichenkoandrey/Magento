@@ -1,0 +1,32 @@
+<?php
+declare(strict_types=1);
+
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Magento\Framework\Escaper;
+use Scr1be\HyvaMegaMenu\Block\MenuScripts;
+
+/** @var MenuScripts $block */
+/** @var Escaper $escaper */
+
+/**
+ * @var HyvaCsp|null $hyvaCsp Hyvä's template engine plugin assigns this variable only when the
+ *      current theme is a Hyvä theme, so it is checked rather than assumed. The menu block itself
+ *      is not added outside a Hyvä theme — it hangs off `header-content`, which Hyvä declares —
+ *      but this block lives in `head.additional`, which every theme has.
+ */
+?>
+<?php /* Serialised with JSON_HEX_TAG, so no url in it can close the element it travels in. */ ?>
+<script type="importmap">
+<?= /* @noEscape */ $block->getImportMapJson() ?>
+</script>
+<?php
+/**
+ * Immediately after the element, because registerInlineScript() acts on the *last* script in the
+ * output buffer — hashing it when the full page cache is on and the layout is cacheable, adding a
+ * nonce otherwise. An import map is an inline script and is subject to script-src like any other.
+ */
+if (isset($hyvaCsp)) {
+    $hyvaCsp->registerInlineScript();
+}
+?>
+<script type="module" src="<?= $escaper->escapeUrl($block->getEntryScriptUrl()) ?>"></script>

@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!--
+  The module replaces the contents of the theme's header menu, not the menu block itself.
+
+  Hyvä declares `topmenu_generic` in `header-content` under the alias `topmenu` — the name
+  `Magento_Theme::html/header.phtml` renders the navigation slot from. Its template is one line,
+  `echo $block->getChildHtml()`, plus a copy of its children's cache tags onto itself; the actual
+  navigation lives in two children, `topmenu_mobile` and `topmenu_desktop`, one server-rendered
+  tree each. Two trees is the thing this module exists to stop doing.
+
+  So the wrapper is left alone, its two children are removed, and this module's single tree is
+  added in their place. Two earlier approaches were tried and both are wrong in ways worth
+  recording, because each fails differently:
+
+  1. Remove `topmenu_generic` and add a fresh block under the alias `topmenu`. Fatal on every
+     page. `GeneratorPool::buildStructure()` schedules every element into the structure first and
+     walks the remove list afterwards, so the alias is still held by the stock wrapper when the
+     replacement claims it, and `Data\Structure::setAsChild()` throws "already has a child with
+     alias topmenu". Scheduled removal makes the instruction independent of merge order; it does
+     not free the alias.
+
+  2. Keep the node and override its `class`/`template` with `referenceBlock`. Silently reverted.
+     `Reader\Block::mergeBlockAttributes()` does copy those attributes over an existing element,
+     but layout files are read modules-first and themes last, so Hyvä's own `<block
+     name="topmenu_generic">` is processed after this module and puts its class and template back.
+     Combined with the child removals below, the result is a wrapper that renders nothing at all —
+     an empty header with no error anywhere.
+
+  Being a child is also the arrangement the wrapper is built for: its cache-tag collection picks
+  up this block's identities, so a category edit invalidates the header the same way it does for
+  the stock menu.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <!--
+          The import map goes in the head because the browser only accepts one before the first
+          module script starts loading, and Hyvä loads Alpine as a module from before.body.end.
+          No cache_lifetime here: the map is an inline script whose CSP hash is registered while
+          this template runs.
+        -->
+        <referenceContainer name="head.additional">
+            <block class="Scr1be\HyvaMegaMenu\Block\MenuScripts"
+                   name="scr1be.mega-menu.scripts"
+                   template="Scr1be_HyvaMegaMenu::html/header/menu-scripts.phtml"/>
+        </referenceContainer>
+
+        <referenceBlock name="topmenu_generic">
+            <block class="Scr1be\HyvaMegaMenu\Block\MegaMenu"
+                   name="scr1be.mega-menu"
+                   as="scr1be.mega-menu"
+                   template="Scr1be_HyvaMegaMenu::html/header/mega-menu.phtml">
+                <arguments>
+                    <!--
+                      A block_html lifetime. Removing it makes the menu rebuild on every
+                      full-page-cache miss:
+                      <argument name="cache_lifetime" xsi:type="null"/>
+                    -->
+                    <argument name="cache_lifetime" xsi:type="string">3600</argument>
+                    <!--
+                      Pins the menu to one root category for this handle. Left unset, resolution
+                      falls to the customer-group map, then the store's root category, then the
+                      first active root.
+                      <argument name="menu_root" xsi:type="number">5</argument>
+                    -->
+                </arguments>
+            </block>
+        </referenceBlock>
+
+        <!--
+          The stock trees. Removal is safe here precisely because it is scheduled and nothing
+          re-adds these names.
+        -->
+        <referenceBlock name="topmenu_mobile" remove="true"/>
+        <referenceBlock name="topmenu_desktop" remove="true"/>
+    </body>
+</page>
