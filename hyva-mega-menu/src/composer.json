@@ -1,0 +1,27 @@
+{
+    "name": "scr1be/hyva-mega-menu",
+    "description": "Mega menu for Magento 2 + Hyvä 1.4 — one server-rendered menu tree relocated between a desktop Miller-column dropdown and a mobile drawer accordion",
+    "type": "magento2-module",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "magento/framework": "^103.0",
+        "magento/module-backend": "^102.0",
+        "magento/module-catalog": "^104.0",
+        "magento/module-config": "^101.2",
+        "magento/module-customer": "^103.0",
+        "magento/module-eav": "^102.1",
+        "magento/module-store": "^101.1",
+        "magento/module-theme": "^101.1",
+        "magento/module-ui": "^101.2"
+    },
+    "suggest": {
+        "hyva-themes/magento2-default-theme": "The module replaces this theme's header menu blocks; without a Hyvä theme the menu renders but inherits no Tailwind build"
+    },
+    "autoload": {
+        "files": ["registration.php"],
+        "psr-4": {
+            "Scr1be\\HyvaMegaMenu\\": ""
+        }
+    }
+}

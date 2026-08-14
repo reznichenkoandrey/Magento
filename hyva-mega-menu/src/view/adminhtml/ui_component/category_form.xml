@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  A fieldset of its own rather than four fields dropped into General Information.
+
+  The four attributes are one decision made in four places — they are a fallback ladder, and the
+  merchant filling the third one needs to see that the first two are empty. Splitting them across
+  the form would hide exactly the relationship that explains why the third one is not being drawn.
+
+  The fieldset is collapsed by default: on most categories the answer is "no icon", and a section
+  nobody opens should not push Display Settings further down the page.
+-->
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <fieldset name="scr1be_mega_menu" sortOrder="45">
+        <settings>
+            <collapsible>true</collapsible>
+            <opened>false</opened>
+            <label translate="true">Mega Menu</label>
+        </settings>
+
+        <field name="megamenu_icon_key" sortOrder="10" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Icon (sprite key)</label>
+                <notice translate="true">A key from the module sprite, for example tag, bag, gift, shirt, truck, percent, sparkle or home. Highest priority of the four, because a sprite icon takes the colour of the text next to it. An unknown key falls through to the next field.</notice>
+            </settings>
+        </field>
+
+        <!--
+          The uploader posts to core's own category image endpoint, which reads the field name
+          from the `param_name` request parameter and writes into the category media tmp folder.
+          Pointing at it rather than shipping a controller means this field goes through exactly
+          the same validation and the same storage as the stock Category Image field.
+        -->
+        <field name="megamenu_icon_image" sortOrder="20" formElement="imageUploader">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">category</item>
+                </item>
+            </argument>
+            <settings>
+                <elementTmpl>ui/form/element/uploader/image</elementTmpl>
+                <dataType>string</dataType>
+                <label translate="true">Icon (image)</label>
+                <visible>true</visible>
+                <required>false</required>
+                <notice translate="true">Used when no sprite key is set. Rendered in the same box as a sprite icon, so a small square reads best.</notice>
+            </settings>
+            <formElements>
+                <imageUploader>
+                    <settings>
+                        <required>false</required>
+                        <uploaderConfig>
+                            <param xsi:type="url" name="url" path="catalog/category_image/upload"/>
+                        </uploaderConfig>
+                        <previewTmpl>Magento_Catalog/image-preview</previewTmpl>
+                        <openDialogTitle>Media Gallery</openDialogTitle>
+                        <initialMediaGalleryOpenSubpath>catalog/category</initialMediaGalleryOpenSubpath>
+                        <!--
+                          The same four extensions the endpoint accepts. The server side of this
+                          field is core's `Magento\Catalog\CategoryImageUpload` virtual type, whose
+                          `allowedExtensions` argument lists jpg, jpeg, gif and png — offering the
+                          merchant a fifth one here would only move the rejection from the file
+                          picker to an upload that fails.
+                        -->
+                        <allowedExtensions>jpg jpeg gif png</allowedExtensions>
+                        <maxFileSize>1048576</maxFileSize>
+                    </settings>
+                </imageUploader>
+            </formElements>
+        </field>
+
+        <field name="megamenu_icon_class" sortOrder="30" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Icon (CSS class)</label>
+                <notice translate="true">For an icon font or icon set the theme already ships. Letters, digits and - _ . : / only — anything else is ignored rather than escaped.</notice>
+            </settings>
+        </field>
+
+        <field name="megamenu_icon_color" sortOrder="40" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Icon (colour)</label>
+                <notice translate="true">Last resort: a coloured square. #abc or #aabbcc only, because the value ends up inside a CSS custom property.</notice>
+            </settings>
+        </field>
+    </fieldset>
+</form>
