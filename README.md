@@ -38,9 +38,9 @@ Earlier screenshots of the same three storefront modules, taken on the previous 
 
 ## Why this layout
 
-Each project sits in its own folder with a complete Magento module structure (`registration.php`, `composer.json`, `etc/`, `view/`, etc.). You can copy any single folder into `app/code/Scr1be/` (or `app/design/frontend/Scr1be/` for the theme inside `hyva-mega-menu/`) or `composer require` it from a local path — they don't depend on each other.
+Each project sits in its own folder with a complete Magento module structure (`registration.php`, `composer.json`, `etc/`, `view/`, etc.). You can copy `src/` into `app/code/Scr1be/<Module>/` or `composer require` it from a local path — no project depends on another.
 
-The `hyva-mega-menu/src/` folder contains both a `theme/` and a `module/` — they ship together as one repo because the theme depends on the module's ViewModel.
+Three of them ship more than one module, because the parts have different blast radii: `headless-api-suite/` (six), `store-toolkit/` (three) and `content-as-code/` (two). There each module is its own directory under `src/` with its own `composer.json`, and `src/composer.json` is a metapackage that pulls in the whole set. Every one of them installs on its own; the single intra-suite dependency is `coupon-ticket`, which registers a porter into `content-transfer`'s engine.
 
 ## Install any one of them
 
@@ -52,7 +52,7 @@ bin/magento module:enable Scr1be_HyvaQuickView
 bin/magento setup:upgrade
 ```
 
-(Replace `hyva-quick-view` with whichever folder you want. For `hyva-mega-menu/`, point Composer at both `src/theme/` and `src/module/` paths.)
+(Replace `hyva-quick-view` with whichever folder you want. For the three multi-module projects, point the path repository at `src/*` and require either the metapackage — `scr1be/headless-api-suite`, `scr1be/store-toolkit`, `scr1be/content-as-code` — or a single module out of the set.)
 
 ## Stack across all projects
 

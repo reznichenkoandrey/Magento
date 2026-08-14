@@ -12,7 +12,7 @@ Rules for every Wave 2 project:
 - Pure core Magento + Hyvä. No paid/3rd-party module dependencies, no client-specific data.
 - Production-grade: declarative schema, idempotent data patches, ACL, DI discipline,
   CSP-safe Alpine templates, unit tests where behaviour is non-trivial.
-- Demoable on the live storefront in this repo (Luma catalog, 2,040 products).
+- Demoable on the live storefront in this repo (Luma catalog, 2,046 products).
 
 ## Status
 
@@ -25,17 +25,21 @@ Rules for every Wave 2 project:
 | 5 | `admin-grid-toolkit` | 2a | built · reviewed |
 | 6 | `pos-bridge` | 2a | built · reviewed |
 | 7 | `fpc-inspector` | 2a | built · reviewed |
-| 8 | `hyva-mega-menu` v2 | 2b | in progress |
-| 9 | `hyva-product-card` | 2b | planned |
-| 10 | `hyva-product-slider` | 2b | planned |
-| 11 | `curated-categories` | 2b | planned |
-| 12 | `product-families` | 2b | planned |
-| 13 | `back-in-stock` | 2b | planned |
-| 14 | `hyva-media` | 2b | planned |
-| 15 | `store-toolkit` | 2b | planned |
-| 16 | `headless-api-suite` | 2c | planned |
-| 17 | `content-as-code` | 2c | planned |
-| 18 | `signed-document-delivery` | 2c | planned |
+| 8 | `hyva-mega-menu` v2 | 2b | built · reviewed |
+| 9 | `hyva-product-card` | 2b | built |
+| 10 | `hyva-product-slider` | 2b | built |
+| 11 | `curated-categories` | 2b | built |
+| 12 | `product-families` | 2b | built |
+| 13 | `back-in-stock` | 2b | built |
+| 14 | `hyva-media` | 2b | built |
+| 15 | `store-toolkit` | 2b | built |
+| 16 | `headless-api-suite` | 2c | built |
+| 17 | `content-as-code` | 2c | built |
+| 18 | `signed-document-delivery` | 2c | built |
+
+All eighteen are written and installed on the demo stand, where the thirty modules they
+add up to are enabled together. "Built" without "reviewed" means the module has not yet
+had the second pass described below.
 
 Wave 2a = compact, high value-per-line. Wave 2b = full features with admin + frontend.
 Wave 2c = large suites. Order within a wave is the build order.
@@ -45,7 +49,12 @@ against the actual core source in `vendor/`, not against recollection — the on
 that separates a portfolio module from a plausible-looking one. Two rounds of that caught a
 fabricated `price_id` contract that broke Alpine id scoping on Hyvä, a wrong event payload key
 that would have left a warning on screen forever, and a repeated bit of folklore about
-interceptors. Demo screenshots on the live storefront come after the whole wave is written.
+interceptors.
+
+Demo screenshots so far cover what is visible on the storefront — `demo-screenshots/w2-01`
+to `w2-05`, and of this wave that is `hyva-mega-menu` and `hyva-product-card`. The admin
+screens, CLI commands and GraphQL surfaces built in 2a–2c are not captured yet; each
+module's README says what would be worth showing.
 
 ---
 
