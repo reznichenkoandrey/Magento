@@ -23,6 +23,9 @@ class LazyImage implements ArgumentInterface
     private const DEFAULT_QUALITY     = 80;
     private const LQIP_CACHE_DIR      = 'lqip';
 
+    /** Seconds. A cold-cache LQIP fetch blocks the render, so it gets a page-budget timeout. */
+    private const LQIP_FETCH_TIMEOUT_SECONDS = 1.5;
+
     private ?WriteInterface $varDir = null;
 
     public function __construct(
@@ -77,18 +80,37 @@ class LazyImage implements ArgumentInterface
 
     private function getLqip(string $imagePath): string
     {
-        $hash = substr(sha1($imagePath), 0, 16);
-        $cachePath = self::LQIP_CACHE_DIR . '/' . $hash . '.txt';
+        $cdnBase = $this->getCdnBase();
+        $size = (int) ($this->scopeConfig->getValue(self::CONFIG_LQIP_SIZE, ScopeInterface::SCOPE_STORE) ?: self::DEFAULT_LQIP_SIZE);
+        $quality = $this->getJpegQuality();
+
+        // Everything that changes the bytes belongs in the key. Hashing the path alone made the
+        // first store to render an image own that placeholder for every other store sharing the
+        // path — regardless of its own CDN — and made the size and quality settings inert for
+        // any image already rendered once, with no way to invalidate short of deleting the file.
+        $cachePath = self::LQIP_CACHE_DIR . '/' . substr(
+            sha1(implode('|', [$cdnBase, $size, $quality, $imagePath])),
+            0,
+            16
+        ) . '.txt';
         $varDir = $this->getVarDir();
 
         if ($varDir->isFile($cachePath)) {
             return 'data:image/jpeg;base64,' . trim($varDir->readFile($cachePath));
         }
 
-        $size = (int) ($this->scopeConfig->getValue(self::CONFIG_LQIP_SIZE, ScopeInterface::SCOPE_STORE) ?: self::DEFAULT_LQIP_SIZE);
-        $url = $this->buildUrl($this->getCdnBase(), $imagePath, 'jpg', $size);
+        $url = $this->buildUrl($cdnBase, $imagePath, 'jpg', $size);
 
-        $raw = @file_get_contents($url);
+        // A cold cache fetches inline, during render. Without an explicit timeout this inherits
+        // default_socket_timeout (60s by default) per uncached image, sequentially — one slow CDN
+        // turns a category page into a worker-exhausting stall. A placeholder is a far better
+        // outcome than a held request, so the budget is deliberately tight.
+        $context = stream_context_create([
+            'http' => ['timeout' => self::LQIP_FETCH_TIMEOUT_SECONDS],
+            'https' => ['timeout' => self::LQIP_FETCH_TIMEOUT_SECONDS],
+        ]);
+
+        $raw = @file_get_contents($url, false, $context);
         if ($raw === false) {
             return $this->getInlinePlaceholder();
         }

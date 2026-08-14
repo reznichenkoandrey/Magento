@@ -27,9 +27,12 @@ $viewModel = $block->getData('view_model');
         </div>
         <form action="<?= $escaper->escapeUrl($viewModel->getAddToCartUrl($product)) ?>"
               method="post">
+            <?php // From the ViewModel, not $block: the runtime-created Template block has no
+                  // getFormKey(), so calling it there returns null through DataObject's magic
+                  // getter and ships an empty field that core's form-key validator rejects. ?>
             <input type="hidden"
                    name="form_key"
-                   value="<?= $escaper->escapeHtmlAttr($block->getFormKey()) ?>"/>
+                   value="<?= $escaper->escapeHtmlAttr($viewModel->getFormKey()) ?>"/>
             <button type="submit"
                     class="w-full px-6 py-3 bg-black text-white font-medium rounded hover:bg-gray-800 transition">
                 <?= $escaper->escapeHtml(__('Add to cart')) ?>

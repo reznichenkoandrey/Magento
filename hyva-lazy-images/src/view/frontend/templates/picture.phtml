@@ -17,9 +17,17 @@ if ($src === '') {
     return;
 }
 
-/** @var LazyImage $viewModel */
+/**
+ * A ViewModel is not a Block. createBlock() runs the result through BlockFactory, which throws
+ * a LogicException for anything that is not a BlockInterface — and LazyImage implements
+ * ArgumentInterface, so that fallback fataled on every call that did not pass view_model.
+ * ObjectManager is the correct resolver for a ViewModel; the layout-XML usage below stays the
+ * documented path, and this only covers a block created at runtime without arguments.
+ *
+ * @var LazyImage $viewModel
+ */
 $viewModel = $block->getData('view_model')
-    ?: $block->getLayout()->createBlock(LazyImage::class);
+    ?: \Magento\Framework\App\ObjectManager::getInstance()->get(LazyImage::class);
 
 $image = $viewModel->generate($src, $sizes);
 
@@ -34,7 +42,10 @@ $initialSrc   = $isPriority
     ? $escaper->escapeUrl(strtok($image['jpg_srcset'], ' '))
     : $escaper->escapeUrl($image['lqip']);
 ?>
-<picture class="scr1be-lazy-picture block">
+<?php // Alpine's @load instead of an inline onload= attribute: inline attribute handlers need
+      // CSP3 unsafe-hashes, a strictly worse ask than the inline <script> blocks the sibling
+      // modules register hashes for. Alpine is already on the page in Hyvä. ?>
+<picture x-data class="scr1be-lazy-picture block">
     <source type="image/avif"
             <?= $srcsetAttr ?>="<?= $escaper->escapeHtmlAttr($image['avif_srcset']) ?>"
             sizes="<?= $escaper->escapeHtmlAttr($image['sizes']) ?>"/>
@@ -56,5 +67,5 @@ $initialSrc   = $isPriority
          decoding="<?= $decoding ?>"<?= $fetchAttr ?>
          class="block w-full h-auto bg-gray-100 transition-[filter] duration-300 motion-reduce:transition-none"
          style="<?= $isPriority ? '' : 'filter: blur(8px);' ?>"
-         onload="this.style.filter='none'"/>
+         @load="$el.style.filter = 'none'"/>
 </picture>

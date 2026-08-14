@@ -3,28 +3,22 @@ declare(strict_types=1);
 
 namespace Scr1be\HyvaQuickView\Block;
 
-use Magento\Catalog\Block\Product\AbstractProduct;
+use Magento\Catalog\Block\Product\ProductList\Item\Block as ProductListItemBlock;
 
 /**
- * AbstractProduct subclass that pulls the product from its parent (the catalog.list.item.addto
- * Container) at render time.
+ * The quick-view button rendered into Hyvä's `catalog.list.item.addto` slot.
  *
- * Why this is needed: Hyvä's product/list/item.phtml renders the addto slot via
- * `$addToBlock->setProduct($product)->getChildHtml()`. `getChildHtml()` walks children through
- * `Layout::renderElement()`, which calls each child's `_toHtml()` directly and bypasses
- * `Container::_toHtml()` — the place where Magento normally propagates the product to AbstractProduct
- * children. The result: setProduct fires on the Container, but never reaches us. We compensate here.
+ * The base class is the whole trick. That slot's container is
+ * Magento\Catalog\Block\Product\ProductList\Item\Container, whose getChildHtml() override pushes
+ * the current product into each child that implements Magento\Catalog\Block\Product\AwareInterface
+ * — and only into those. A plain AbstractProduct subclass does not implement it, so it renders
+ * with no product and needs a getParentBlock() workaround to compensate.
+ *
+ * Item\Block is core's own base for this slot and already implements the interface, so the
+ * product arrives by the same mechanism core uses for its own buttons. It also settles the
+ * card-reuse problem for free: the container assigns before every child render, so one block
+ * instance serving every card on the page cannot carry a stale product from the previous one.
  */
-class QuickViewButton extends AbstractProduct
+class QuickViewButton extends ProductListItemBlock
 {
-    protected function _beforeToHtml()
-    {
-        // Always pull the current product from the parent — the same block instance is
-        // reused for every product card on the page, so a previous-render product would
-        // otherwise stick and every card would render with the first product's id.
-        if (($parent = $this->getParentBlock()) && $parent->getProduct()) {
-            $this->setProduct($parent->getProduct());
-        }
-        return parent::_beforeToHtml();
-    }
 }
