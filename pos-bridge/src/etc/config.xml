@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <!--
+      Both switches default to off. Enabling a module should never be the same act as opening a
+      customer-search endpoint and an act-as-customer endpoint on an installation: those are
+      decisions a merchant makes deliberately, after deciding which role holds the ACL resources.
+    -->
+    <default>
+        <scr1be_pos_bridge>
+            <general>
+                <enabled>0</enabled>
+                <impersonation_enabled>0</impersonation_enabled>
+            </general>
+            <search>
+                <result_limit>20</result_limit>
+            </search>
+        </scr1be_pos_bridge>
+    </default>
+</config>

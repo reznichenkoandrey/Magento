@@ -1,0 +1,23 @@
+{
+    "name": "scr1be/pos-bridge",
+    "description": "Back-office REST endpoints letting a POS terminal find a customer by anything the shopper says, and act as them through a core-issued customer JWT",
+    "type": "magento2-module",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "magento/framework": "^103.0",
+        "magento/module-authorization": "^100.4",
+        "magento/module-backend": "^102.0",
+        "magento/module-config": "^101.2",
+        "magento/module-customer": "^103.0",
+        "magento/module-integration": "^100.4",
+        "magento/module-store": "^101.1",
+        "magento/module-webapi": "^100.4"
+    },
+    "autoload": {
+        "files": ["registration.php"],
+        "psr-4": {
+            "Scr1be\\PosBridge\\": ""
+        }
+    }
+}

@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="100">
+            <label>scr1be</label>
+        </tab>
+        <section id="scr1be_category_cascade" translate="label" sortOrder="30"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Category Cascade</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_CategoryCascade::config</resource>
+
+            <group id="general" translate="label" type="text" sortOrder="10"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Cascade</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Cascade disable to subcategories</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>When a category is switched from enabled to disabled, every category below it is disabled too. Read in the scope the category was saved in. Off means a parent can be disabled while its children stay enabled — which is core behaviour.</comment>
+                </field>
+                <field id="confirm_prompt" translate="label comment" type="select" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Confirm before a cascading save</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Shows the admin how many active subcategories a save is about to disable and asks for confirmation. The prompt is a courtesy — the cascade itself is enforced server side either way.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="log_cascades" translate="label comment" type="select" sortOrder="30"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Log cascades</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Writes one line per cascade to var/log/category_cascade.log with the parent, the store scope and the affected category ids. Turning this off does not silence failures.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+
+            <group id="product_count" translate="label" type="text" sortOrder="20" showInDefault="1">
+                <label>Admin Tree Product Count</label>
+                <field id="use_index" translate="label comment" type="select" sortOrder="10" showInDefault="1">
+                    <label>Count products from the category index</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Replaces core's per-anchor-category count queries with one grouped query against catalog_category_product_index_store&lt;id&gt;. Only applies to a tree scoped to a single store view; All Store Views always uses core's counting.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

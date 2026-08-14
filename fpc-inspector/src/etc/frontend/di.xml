@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      Frontend only, on purpose. Both questions this module answers are about the storefront full
+      page cache; adminhtml and the CLI have no full page cache to explain, and a global declaration
+      would pay a plugin-list lookup on every intercepted call in every area to answer a question
+      that cannot be asked there. Magento_PageCache scopes its own response plugin the same way, in
+      vendor/magento/module-page-cache/etc/frontend/di.xml.
+
+      Extending the module to the GraphQL area is a matter of copying this file to etc/graphql/ —
+      deliberately not done here, because the GraphQL cache identifier composes the vary string with
+      more than the storefront does and the records would need a shape of their own to stay honest.
+    -->
+    <type name="Magento\Framework\App\Http\Context">
+        <plugin name="scr1be_fpc_inspector_log_vary_string"
+                type="Scr1be\FpcInspector\Plugin\LogVaryString"
+                sortOrder="100"/>
+    </type>
+
+    <!--
+      This method already has a neighbour on a Hyvä storefront:
+      Hyva\Theme\Plugin\Theme\RemoveNoStoreHeaderPlugin declares a before/after pair on it with no
+      sort order of its own. Its before-half only reads Cache-Control, so the order between the two
+      changes nothing either of them sees — sortOrder 100 here is the right default for an observer
+      rather than a fix for a conflict: last in the queue, never in front of a plugin that acts.
+    -->
+    <type name="Magento\Framework\App\Response\Http">
+        <plugin name="scr1be_fpc_inspector_log_no_cache_headers"
+                type="Scr1be\FpcInspector\Plugin\LogNoCacheHeaders"
+                sortOrder="100"/>
+    </type>
+</config>

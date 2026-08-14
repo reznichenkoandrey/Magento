@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scr1be_category_cascade>
+            <general>
+                <!--
+                  On by default: the module changes nothing until an admin disables a category that
+                  actually has children, and a cascade that only runs after someone remembers to
+                  switch it on is a cascade nobody can rely on.
+                -->
+                <enabled>1</enabled>
+                <confirm_prompt>1</confirm_prompt>
+                <log_cascades>1</log_cascades>
+            </general>
+            <product_count>
+                <use_index>1</use_index>
+            </product_count>
+        </scr1be_category_cascade>
+    </default>
+</config>

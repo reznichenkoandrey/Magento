@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <!--
+                              Its own resource rather than riding on Magento_Config::config: the
+                              switch turns on request-rate file writes and exposes cache keys, so a
+                              merchant should be able to hand out configuration access without
+                              handing out this.
+                            -->
+                            <resource id="Scr1be_FpcInspector::config"
+                                      title="FPC Inspector"
+                                      sortOrder="120"/>
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scr1be_customer_group_guard>
+            <general>
+                <enabled>1</enabled>
+                <force_logout>1</force_logout>
+                <block_place_order>1</block_place_order>
+            </general>
+        </scr1be_customer_group_guard>
+    </default>
+</config>

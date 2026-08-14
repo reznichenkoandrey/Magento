@@ -1,0 +1,16 @@
+<?php
+/**
+ * @var \Scr1be\CategoryCascade\Block\Adminhtml\Category\CascadeConfirm $block
+ */
+declare(strict_types=1);
+
+if (!$block->isPromptEnabled()) {
+    return;
+}
+?>
+<div id="scr1be-cascade-confirm"
+     hidden
+     data-was-active="<?= $block->isCategoryEnabled() ? '1' : '0' ?>"
+     data-message="<?= $block->escapeHtmlAttr($block->getConfirmMessage()) ?>"></div>
+<script type="module"
+        src="<?= $block->escapeUrl($block->getViewFileUrl('Scr1be_CategoryCascade::js/cascade-confirm.js')) ?>"></script>
