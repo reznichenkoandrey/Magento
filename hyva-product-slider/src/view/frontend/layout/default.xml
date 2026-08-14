@@ -4,13 +4,27 @@
     <body>
         <referenceBlock name="head.additional">
             <!--
-                Deliberately on every page rather than only on pages holding a slider: the import map
-                must be installed before the first module script anywhere on the document, and layout
-                cannot know whether a CMS block three levels down contains a slider widget. Three lines
-                of markup is the price of that certainty.
+                Deliberately on every page rather than only on pages holding a slider, and
+                deliberately in the head. Two separate constraints happen to point the same way:
+
+                * the import map must be installed before the first module script anywhere in the
+                  document, and layout cannot know whether a CMS block three levels down contains a
+                  slider widget;
+                * `<script type="module">` is deferred by definition, and deferred scripts run in
+                  document order — so an entry module rendered from `before.body.end` runs *after*
+                  Hyvä's Alpine, which has already walked the DOM and found no `scr1beSlider`
+                  registered. Moving this block there was tried and produced exactly that: a page
+                  full of `scr1beSlider is not defined`.
+
+                `before="-"` puts the map ahead of the mega menu's module tag, which is also written
+                into this container. It is the only import map the storefront prints — Firefox
+                installs the first one a document declares and rejects the rest, so the mega menu
+                and the product card now import their siblings relatively and print none. This one
+                stays because its engine specifier is a rebindable seam (see SliderScripts).
             -->
             <block class="Scr1be\HyvaProductSlider\Block\SliderScripts"
                    name="scr1be.slider.scripts"
+                   before="-"
                    template="Scr1be_HyvaProductSlider::scripts.phtml"/>
         </referenceBlock>
     </body>

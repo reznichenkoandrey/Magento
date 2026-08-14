@@ -3,71 +3,36 @@ declare(strict_types=1);
 
 namespace Scr1be\HyvaMegaMenu\Block;
 
-use Magento\Framework\Serialize\Serializer\JsonHexTag;
 use Magento\Framework\View\Element\Template;
-use Magento\Framework\View\Element\Template\Context;
 
 /**
- * The import map and the entry module tag — a block of its own, in the page head, on purpose.
+ * The entry module tag — one line, from a block of its own in the page head.
  *
- * Two reasons it is not part of the menu block.
+ * **There is deliberately no import map here.** A document may install one only before its first
+ * module script, and Firefox honours the first map it sees and rejects the rest; a storefront
+ * running three Hyvä modules that each printed their own therefore lost two of them, silently, with
+ * no console error on the server side and none in Chrome. The entry module imports its siblings by
+ * relative path instead, which the browser resolves against this file's own url — no map, no
+ * ordering contract with any other module, and nothing to go wrong when a fourth module arrives.
  *
- * **An import map has to come first.** The HTML specification lets a document install one only
- * before the first module script starts loading, and Hyvä loads Alpine as a module from
- * `before.body.end`. A map printed anywhere below that is a map the browser rejects. Rendering it
- * from `head.additional` puts it in front of every module script on the page, including Alpine's.
- *
- * **It must not be cached with the menu.** An import map is an inline script, so on a storefront
- * with a strict policy it needs a CSP hash — and the hash is registered while the template runs.
- * A menu block with a `cache_lifetime` skips its template on a hit, so a map that travelled
- * inside it would be served with no hash behind it and blocked. This block has no lifetime, and
- * the two lines it renders are why that costs nothing.
+ * **It is still not part of the menu block.** The menu carries a `cache_lifetime` and skips its
+ * template on a hit; the script tag must be emitted on every request, including cached ones.
  */
 class MenuScripts extends Template
 {
     /**
-     * Bare specifiers, bound here to the published static files and in package.json to the source
-     * files. Both maps exist so the same three specifiers resolve in a browser and under
-     * `node --test`; if you rename one, rename the other.
-     */
-    private const SCRIPT_ALIASES = [
-        'scr1be-mega-menu/register.js' => 'Scr1be_HyvaMegaMenu::js/mega-menu-register.js',
-        'scr1be-mega-menu/component.js' => 'Scr1be_HyvaMegaMenu::js/mega-menu.js',
-        'scr1be-mega-menu/state.js' => 'Scr1be_HyvaMegaMenu::js/menu-state.js',
-    ];
-
-    private const ENTRY_ALIAS = 'scr1be-mega-menu/register.js';
-
-    public function __construct(
-        Context $context,
-        private readonly JsonHexTag $jsonSerializer,
-        array $data = []
-    ) {
-        parent::__construct($context, $data);
-    }
-
-    /**
-     * The map, already serialised.
+     * The published file behind the entry module.
      *
-     * Every target comes from `getViewFileUrl()`, which resolves through the asset repository —
-     * so the urls carry the deployment's static version and respect a separate static domain, and
-     * `Asset\File::getPath()` runs the result through `Asset\Minification::addMinifiedSign()`, which
-     * appends `.min` when `dev/js/minify_files` is on outside developer mode. Writing the paths by
-     * hand is how a module works in developer mode and 404s in production.
+     * Resolved through `getViewFileUrl()` rather than written out, because the asset repository is
+     * what puts the deployment's static version into the url, honours a separate static domain, and
+     * runs the path through `Asset\Minification::addMinifiedSign()` — which appends `.min` when
+     * `dev/js/minify_files` is on outside developer mode. A hand-written path is how a module works
+     * in developer mode and 404s in production.
      */
-    public function getImportMapJson(): string
-    {
-        $imports = [];
-
-        foreach (self::SCRIPT_ALIASES as $specifier => $fileId) {
-            $imports[$specifier] = $this->getViewFileUrl($fileId);
-        }
-
-        return $this->jsonSerializer->serialize(['imports' => $imports]);
-    }
+    private const ENTRY_FILE = 'Scr1be_HyvaMegaMenu::js/mega-menu-register.js';
 
     public function getEntryScriptUrl(): string
     {
-        return $this->getViewFileUrl(self::SCRIPT_ALIASES[self::ENTRY_ALIAS]);
+        return $this->getViewFileUrl(self::ENTRY_FILE);
     }
 }
