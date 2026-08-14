@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <!--
+                              The client ids in this section decide which OIDC audience is trusted to
+                              produce customer sessions. Anyone who can edit them can point the store
+                              at an identity provider they control.
+                            -->
+                            <resource id="Scr1be_SocialLogin::config"
+                                      title="Headless Suite: Social Login"
+                                      translate="title"
+                                      sortOrder="310"/>
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

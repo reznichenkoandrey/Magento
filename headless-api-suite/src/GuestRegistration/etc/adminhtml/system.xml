@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="400">
+            <label>scr1be</label>
+        </tab>
+        <section id="scr1be_guest_registration" translate="label" type="text" sortOrder="30"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Headless Suite: Guest Registration</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_GuestRegistration::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="10"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Guest to Customer</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Create accounts from GraphQL guest orders</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>
+                        Applies to the `placeOrder` mutation only. Storefront checkout has its own
+                        "create an account" checkbox and admin-created orders are not covered, so
+                        turning this on changes nothing outside the API.
+                    </comment>
+                </field>
+                <field id="link_existing" translate="label comment" type="select" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Attach orders to accounts that already exist</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>
+                        When a guest order's email already has an account on this website, attach
+                        the order to it instead of leaving it a guest order. Switch this off to
+                        restrict the module to creating brand new accounts only — the inference
+                        "same email means same person" is one some merchants do not want made.
+                    </comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

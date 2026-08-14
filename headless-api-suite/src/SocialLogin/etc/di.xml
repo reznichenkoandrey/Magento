@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      Adding a third provider is a subclass of AbstractVerifier and one line here. Nothing in the
+      pool, the resolver or the provisioner knows how many there are.
+    -->
+    <type name="Scr1be\SocialLogin\Model\Verifier\VerifierPool">
+        <arguments>
+            <argument name="verifiers" xsi:type="array">
+                <item name="google" xsi:type="object">Scr1be\SocialLogin\Model\Verifier\GoogleVerifier</item>
+                <item name="apple" xsi:type="object">Scr1be\SocialLogin\Model\Verifier\AppleVerifier</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

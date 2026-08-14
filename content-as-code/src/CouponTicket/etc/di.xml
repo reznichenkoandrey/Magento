@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+        Both halves of the claim live here, in the claiming module, so the engine stays unaware that
+        coupon tickets exist:
+
+        1. the porter joins the pool, and
+        2. the generic widget porter is told to leave this widget class alone.
+
+        Drop this module and both lines go with it; the generic porter picks the instances back up
+        and captures them with a raw numeric rule id, which is the correct degraded behaviour.
+    -->
+    <type name="Scr1be\ContentTransfer\Model\PorterPool">
+        <arguments>
+            <argument name="porters" xsi:type="array">
+                <item name="coupon_ticket" xsi:type="object">Scr1be\CouponTicket\Model\Porter\CouponTicketPorter</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Scr1be\ContentTransfer\Model\Porter\WidgetInstancePorter">
+        <arguments>
+            <argument name="claimedTypes" xsi:type="array">
+                <item name="coupon_ticket" xsi:type="string">Scr1be\CouponTicket\Block\Widget\Ticket</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="400">
+            <label>scr1be</label>
+        </tab>
+        <section id="scr1be_social_login" translate="label" type="text" sortOrder="32"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Headless Suite: Social Login</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_SocialLogin::config</resource>
+            <group id="google" translate="label" type="text" sortOrder="10"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Google</label>
+                <field id="client_id" translate="label comment" type="text" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>OAuth client ID</label>
+                    <comment>
+                        The audience an ID token must name. Leaving this blank switches Google
+                        sign-in off for the scope — there is no separate enable flag, because a
+                        provider with no client id cannot verify anything anyway.
+                        Store-view scope so a market can use its own Google project.
+                    </comment>
+                </field>
+            </group>
+            <group id="apple" translate="label" type="text" sortOrder="20"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Apple</label>
+                <field id="client_id" translate="label comment" type="text" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Services ID (or bundle ID)</label>
+                    <comment>
+                        The `aud` Apple puts in the ID token: the app's bundle identifier for a
+                        native sign-in, or the Services ID for a web one. Blank switches Apple
+                        sign-in off for the scope.
+                    </comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

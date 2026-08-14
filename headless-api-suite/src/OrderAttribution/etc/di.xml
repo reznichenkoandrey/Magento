@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Scr1be\OrderAttribution\Api\Data\SourceInterface"
+                type="Scr1be\OrderAttribution\Model\Source"/>
+    <preference for="Scr1be\OrderAttribution\Api\SourceRepositoryInterface"
+                type="Scr1be\OrderAttribution\Model\SourceRepository"/>
+
+    <!--
+      The order grid is a denormalised copy, refreshed by Magento\Sales\Model\ResourceModel\Grid from
+      the `columns` map on this virtual type. Adding the two columns to the declarative schema puts
+      them in the table; adding them here is what actually fills them. Miss this and the grid columns
+      render blank on every order and nothing in the logs says why.
+    -->
+    <virtualType name="Magento\Sales\Model\ResourceModel\Order\Grid" type="Magento\Sales\Model\ResourceModel\Grid">
+        <arguments>
+            <argument name="columns" xsi:type="array">
+                <item name="scr1be_source_code" xsi:type="string">sales_order.scr1be_source_code</item>
+                <item name="scr1be_source_detail" xsi:type="string">sales_order.scr1be_source_detail</item>
+            </argument>
+        </arguments>
+    </virtualType>
+</config>

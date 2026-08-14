@@ -1,0 +1,44 @@
+<!--@subject {{trans "Take a look at %customer_name's Wish List" customer_name=$customerName}} @-->
+<!--@vars {
+"var store.frontend_name":"Store Name",
+"var customerName":"Customer Name",
+"var viewOnSiteLink":"View Wish List URL",
+"var message":"Message from the sender",
+"var items":"Wish List Items"
+} @-->
+
+{{template config_path="design/email/header_template"}}
+
+<p>{{trans "%customer_name wants to share this Wish List from %store_name with you:" customer_name=$customerName store_name=$store.frontend_name}}</p>
+
+{{depend message}}
+<table class="message-info">
+    <tr>
+        <td>
+            <h3>{{trans "Message from %customer_name:" customer_name=$customerName}}</h3>
+            <p>{{var message}}</p>
+        </td>
+    </tr>
+</table>
+<br />
+{{/depend}}
+
+<!--
+  `{{var item.name}}`, not `|raw`. Every value in this template comes from a product name, a store
+  name or something a shopper typed, and the shopper-typed one is arriving from an unauthenticated
+  client over an API. Core's own template renders `items` and `message` with `|raw` because both are
+  produced server-side by a block it controls; here they are not, so nothing is exempt from escaping.
+-->
+<table class="wishlist-items">
+    {{for item in items}}
+    <tr>
+        <td>{{var item.name}}</td>
+        <td>{{var item.qty}}</td>
+    </tr>
+    {{/for}}
+</table>
+<br/>
+
+<p><a href="{{var viewOnSiteLink}}">{{trans "View all Wish List items"}}</a></p>
+
+{{template config_path="design/email/footer_template"}}

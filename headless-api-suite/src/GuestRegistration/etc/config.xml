@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+  Off by default. Creating accounts for people who did not ask for one is a decision with a legal
+  dimension in several jurisdictions, and a module that starts doing it the moment it is enabled
+  would be making that decision for the merchant.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scr1be_guest_registration>
+            <general>
+                <enabled>0</enabled>
+                <link_existing>1</link_existing>
+            </general>
+        </scr1be_guest_registration>
+    </default>
+</config>

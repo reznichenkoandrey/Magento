@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Scr1be_OrderAttribution::source"
+             title="Order Attribution Sources"
+             translate="title"
+             module="Scr1be_OrderAttribution"
+             sortOrder="100"
+             parent="Magento_Backend::stores_other_settings"
+             action="scr1be_orderattribution/source/index"
+             resource="Scr1be_OrderAttribution::source"/>
+    </menu>
+</config>
