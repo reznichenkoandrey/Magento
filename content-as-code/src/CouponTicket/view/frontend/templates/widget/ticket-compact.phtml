@@ -1,0 +1,38 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scr1be\CouponTicket\Block\Widget\Ticket;
+
+/** @var Ticket $block */
+/** @var Escaper $escaper */
+
+$ticket = $block->getTicket();
+
+if ($ticket === null) {
+    return;
+}
+
+// The compact ticket is a one-line banner. With no code to copy it is a line of text with nothing
+// to do, so it renders nothing at all rather than an empty bar.
+if (!$ticket->hasCode()) {
+    return;
+}
+?>
+<div class="scr1be-coupon-ticket-compact flex flex-wrap items-center gap-3 rounded border border-gray-300 px-4 py-2"
+     x-data="scr1beCouponTicket(<?= $escaper->escapeHtmlAttr(
+         json_encode($ticket->getCode(), JSON_THROW_ON_ERROR)
+     ) ?>, <?= (int)$block->getCopyFeedbackMs() ?>)">
+    <span class="font-semibold"><?= $escaper->escapeHtml($ticket->getDiscountLabel()) ?></span>
+    <code class="select-all rounded bg-gray-100 px-2 py-1 font-mono tracking-widest">
+        <?= $escaper->escapeHtml($ticket->getCode()) ?>
+    </code>
+    <button type="button" class="btn btn-primary btn-sm" @click="copy" :disabled="copied">
+        <span x-show="!copied"><?= $escaper->escapeHtml(__('Copy')) ?></span>
+        <span x-show="copied" x-cloak><?= $escaper->escapeHtml(__('Copied')) ?></span>
+    </button>
+    <span class="text-sm text-red-700" x-show="failed" x-cloak>
+        <?= $escaper->escapeHtml(__('Select the code to copy it.')) ?>
+    </span>
+</div>
+<script type="module" src="<?= $escaper->escapeUrl($block->getScriptUrl()) ?>"></script>

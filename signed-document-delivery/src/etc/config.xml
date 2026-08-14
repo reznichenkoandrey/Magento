@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+  Defaults that make the module work out of the box without being generous with them.
+
+  Five minutes is long enough for a phone to hand over between networks between the mutation and
+  the download, and short enough that a URL copied out of a log or a screenshot is stale before
+  anyone reads it. A day of cache lifetime is a compromise with a known consequence: a change to
+  the store logo or address does not invalidate anything, so it takes up to that long to appear on
+  a document that has already been rendered. See CanonicalKeyBuilder for the reasoning and the
+  escape hatch.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scr1be_signed_documents>
+            <delivery>
+                <url_ttl>300</url_ttl>
+            </delivery>
+            <cache>
+                <lifetime>86400</lifetime>
+            </cache>
+        </scr1be_signed_documents>
+    </default>
+</config>

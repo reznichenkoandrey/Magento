@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Scr1be_SignedDocumentDelivery">
+        <sequence>
+            <!--
+              The renderers delegate to Magento\Sales\Model\Order\Pdf\{Invoice,Shipment,Creditmemo}
+              and this module's etc/pdf.xml adds an "order" page type to the same merged
+              configuration Magento_Sales declares, so Magento_Sales has to be read first.
+            -->
+            <module name="Magento_Sales"/>
+            <!--
+              The download controller resolves the caller's bearer token through
+              Magento_Integration's UserTokenReaderInterface / UserTokenValidatorInterface.
+            -->
+            <module name="Magento_Integration"/>
+            <!--
+              The mutation reads `is_customer` and `store` off the GraphQL query context. Both are
+              extension attributes declared elsewhere — `is_customer` in Magento_CustomerGraphQl's
+              extension_attributes.xml, `store` in Magento_StoreGraphQl's — so both have to be
+              loaded before this module's schema is stitched in.
+            -->
+            <module name="Magento_GraphQl"/>
+            <module name="Magento_CustomerGraphQl"/>
+            <module name="Magento_StoreGraphQl"/>
+            <!--
+              The shipment renderer exists to absorb the UID shape Magento_SalesGraphQl emits.
+              Nothing here overrides that module, but the schema this one extends is its schema.
+            -->
+            <module name="Magento_SalesGraphQl"/>
+        </sequence>
+    </module>
+</config>

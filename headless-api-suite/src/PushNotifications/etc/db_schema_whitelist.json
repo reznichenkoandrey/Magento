@@ -1,0 +1,34 @@
+{
+    "scr1be_headless_push_device": {
+        "column": {
+            "device_id": true,
+            "token_hash": true,
+            "token": true,
+            "customer_id": true,
+            "store_id": true,
+            "platform": true,
+            "is_active": true,
+            "deactivated_reason": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {
+            "SCR1BE_HEADLESS_PUSH_DEVICE_CUSTOMER_ID_IS_ACTIVE": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "SCR1BE_HEADLESS_PUSH_DEVICE_TOKEN_HASH": true,
+            "SCR1BE_HEADLESS_PUSH_DEVICE_CUSTOMER_ID_CUSTOMER_ENTITY_ENTITY_ID": true
+        }
+    },
+    "quote": {
+        "column": {
+            "scr1be_device_token_hash": true
+        }
+    },
+    "sales_order": {
+        "column": {
+            "scr1be_device_token_hash": true
+        }
+    }
+}

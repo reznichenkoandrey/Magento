@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="400">
+            <label>scr1be</label>
+        </tab>
+        <section id="scr1be_signed_documents" translate="label" type="text" sortOrder="40"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Signed Document Delivery</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_SignedDocumentDelivery::config</resource>
+            <group id="delivery" translate="label" type="text" sortOrder="10"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Signed URLs</label>
+                <field id="url_ttl" translate="label comment" type="text" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Link lifetime (seconds)</label>
+                    <comment>
+                        How long a signed download URL stays valid. 30–3600; anything outside that
+                        falls back to 300. Store-scoped because a native app and a kiosk in the same
+                        website can reasonably want different windows.
+                    </comment>
+                </field>
+            </group>
+            <group id="cache" translate="label" type="text" sortOrder="20"
+                   showInDefault="1">
+                <label>Rendered PDF Cache</label>
+                <field id="lifetime" translate="label comment" type="text" sortOrder="10"
+                       showInDefault="1" canRestore="1">
+                    <label>Keep rendered files for (seconds)</label>
+                    <comment>
+                        How long a rendered PDF stays in var/tmp before the hourly sweep removes it.
+                        300–2592000; anything outside that falls back to 86400. Default scope only —
+                        the cache is swept by a cron job with no store context, so a per-store
+                        lifetime could not be honoured.
+                    </comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

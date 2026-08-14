@@ -1,0 +1,16 @@
+type Mutation {
+    socialLogin(input: SocialLoginInput! @doc(description: "The provider and the ID token it issued.")): SocialLoginOutput @resolver(class: "Scr1be\\SocialLogin\\Model\\Resolver\\SocialLogin") @doc(description: "Exchange an OIDC ID token from a configured provider for a Magento customer token. The store is taken from the `Store` header, never from an argument.")
+}
+
+type Query {
+    availableSocialLoginProviders: [String!]! @resolver(class: "Scr1be\\SocialLogin\\Model\\Resolver\\AvailableProviders") @doc(description: "Provider codes configured and enabled for the current store, so a client can render only the buttons that will work.")
+}
+
+input SocialLoginInput {
+    provider: String! @doc(description: "A code from `availableSocialLoginProviders` — currently `google` or `apple`.")
+    id_token: String! @doc(description: "The ID token (a JWS) the provider's SDK returned to the app. Never an access token.")
+}
+
+type SocialLoginOutput @doc(description: "The result of a successful social sign-in.") {
+    token: String! @doc(description: "A Magento customer token, interchangeable with the one `generateCustomerToken` returns.")
+}

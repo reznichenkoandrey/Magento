@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!--
+  One table, and the reason it exists rather than an attribute on the customer is the shape of the
+  relation: a customer may sign in with Google *and* Apple, and the same Google account may be two
+  different customers on two different websites. That is many-to-many with a website dimension, which
+  is a table.
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="scr1be_social_login_link" resource="default" engine="innodb"
+           comment="Links an OIDC (provider, subject) pair to a customer account">
+        <column xsi:type="int" name="link_id" unsigned="true" nullable="false" identity="true"
+                comment="Link ID"/>
+        <column xsi:type="varchar" name="provider" length="32" nullable="false"
+                comment="Provider code, e.g. google or apple"/>
+        <!--
+          The `sub` claim, which is what an OIDC identity actually is. Never the email: an email is a
+          mutable attribute of the account, and both Google and Apple let a user change it. Matching
+          on email alone would hand somebody the wrong account the day a recycled address is reused.
+          255 characters because the OIDC core spec caps `sub` at 255 ASCII characters.
+        -->
+        <column xsi:type="varchar" name="subject" length="255" nullable="false"
+                comment="OIDC subject identifier"/>
+        <column xsi:type="int" name="customer_id" unsigned="true" nullable="false" identity="false"
+                comment="Customer ID"/>
+        <column xsi:type="smallint" name="website_id" unsigned="true" nullable="false" identity="false"
+                default="0" comment="Website the account belongs to"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Created at"/>
+        <column xsi:type="timestamp" name="last_login_at" on_update="false" nullable="true"
+                comment="Last successful sign-in through this link"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="link_id"/>
+        </constraint>
+        <!--
+          The uniqueness that makes the lookup safe. Website is part of the key because customer
+          accounts are unique per website, so the same social identity is legitimately a different
+          person on a different brand.
+        -->
+        <constraint xsi:type="unique" referenceId="SCR1BE_SOCIAL_LOGIN_LINK_PROVIDER_SUBJECT_WEBSITE_ID">
+            <column name="provider"/>
+            <column name="subject"/>
+            <column name="website_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="SCR1BE_SOCIAL_LOGIN_LINK_CUSTOMER_ID_CUSTOMER_ENTITY_ENTITY_ID"
+                    table="scr1be_social_login_link" column="customer_id" referenceTable="customer_entity"
+                    referenceColumn="entity_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="SCR1BE_SOCIAL_LOGIN_LINK_WEBSITE_ID_STORE_WEBSITE_WEBSITE_ID"
+                    table="scr1be_social_login_link" column="website_id" referenceTable="store_website"
+                    referenceColumn="website_id" onDelete="CASCADE"/>
+        <index referenceId="SCR1BE_SOCIAL_LOGIN_LINK_CUSTOMER_ID" indexType="btree">
+            <column name="customer_id"/>
+        </index>
+    </table>
+</schema>
