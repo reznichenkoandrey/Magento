@@ -1,0 +1,305 @@
+<?php
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\BlockJsDependencies;
+use Hyva\Theme\ViewModel\LucideIcons;
+use Hyva\Theme\ViewModel\ProductCompare;
+use Hyva\Theme\ViewModel\ProductListItem;
+use Hyva\Theme\ViewModel\ProductPage;
+use Hyva\Theme\ViewModel\Wishlist;
+use Magento\Catalog\Block\Product\View;
+use Magento\Catalog\Helper\Output as CatalogOutputHelper;
+use Magento\Catalog\ViewModel\Product\OptionsData as ProductOptionsData;
+use Magento\Framework\Escaper;
+use Scr1be\HyvaProductCard\ViewModel\ProductCard;
+
+// phpcs:disable Magento2.Templates.ThisInTemplate.FoundHelper
+
+/** @var View $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/**
+ * Renderer one of four: the server-rendered card.
+ *
+ * This template replaces Hyvä's `Magento_Catalog::product/list/item.phtml` as the template of the
+ * `product_list_item` block (see `view/frontend/layout/catalog_list_item.xml`). Replacing it is a
+ * fork and forks rot, so the structure Hyvä established is reproduced deliberately rather than
+ * reinvented: same `<form>` wrapper and add-to-cart action, same child blocks in the same order
+ * (`details.renderers` through `getProductDetailsHtml()`, `stockstatus`, `wishlist`, `addto`), same
+ * `x-data="initPriceBox()"` price wrapper. Anything a third-party module injects into those slots
+ * keeps working. What is new is the badge overlay, the srcset ladder, the hover image and the
+ * quantity stepper — and each of those reads {@see ProductCard}, not the product.
+ */
+
+/** @var ProductCard $cardViewModel */
+$cardViewModel = $viewModels->require(ProductCard::class);
+
+/** @var ProductPage $productViewModel */
+$productViewModel = $viewModels->require(ProductPage::class);
+
+/** @var ProductListItem $productListItemViewModel */
+$productListItemViewModel = $viewModels->require(ProductListItem::class);
+
+/** @var CatalogOutputHelper $catalogOutputHelper */
+$catalogOutputHelper = $this->helper(CatalogOutputHelper::class);
+
+/** @var ProductCompare $compareViewModel */
+$compareViewModel = $viewModels->require(ProductCompare::class);
+/** @var Wishlist $wishlistViewModel */
+$wishlistViewModel = $viewModels->require(Wishlist::class);
+/** @var LucideIcons $lucideIcons */
+$lucideIcons = $viewModels->require(LucideIcons::class);
+
+$productOptionsViewModel = $viewModels->require(ProductOptionsData::class);
+
+/** @var Magento\Catalog\Model\Product $product */
+if (! ($product = $block->getData('product'))) {
+    return;
+}
+
+$imageDisplayArea = (string) ($block->getData('image_display_area') ?: 'category_page_grid');
+$viewMode = $block->getData('view_mode');
+$viewIsGrid = $viewMode === 'grid';
+$showDescription = $block->getData('show_description');
+$showAddToWishlist = $wishlistViewModel->isEnabled();
+$showAddToCompare = $compareViewModel->showInProductList();
+$hideDetails = $block->getData('hide_details') ?: false;
+$hideRatingSummary = $block->getData('hide_rating_summary') ?: false;
+
+$productId = (int) $product->getId();
+$productType = $product->getTypeId();
+$isProductGroupedOrBundle = $productType === 'bundle' || $productType === 'grouped';
+$productName = $catalogOutputHelper->productAttribute($product, $product->getName(), 'name');
+$options = $productOptionsViewModel->getOptionsData($product);
+
+// Hyvä's own item template registers this dependency, and the price wrapper below still uses
+// `initPriceBox()` — dropping the registration would leave every card calling a function no block
+// on the page defines.
+$viewModels->require(BlockJsDependencies::class)
+    ->setBlockTemplateDependency($block, 'Magento_Catalog::product/list/js/price-box.phtml');
+
+$card = $cardViewModel->getCard($product, $imageDisplayArea, (int) $block->getData('card_index'));
+$image = $card->getImage();
+$qtyRules = $card->getQtyRules();
+$imageCustomAttributes = $product->getData('image_custom_attributes')
+    ?? $block->getData('image_custom_attributes')
+    ?? [];
+$isEagerImage = ($imageCustomAttributes['loading'] ?? null) === 'eager';
+?>
+<?php if ($product->isSaleable()): ?>
+<form method="post"
+      action="<?= $escaper->escapeUrl($productViewModel->getAddToCartUrl($product, ['useUencPlaceholder' => true])) ?>"
+      class="item product product-item product_addtocart_form card card-interactive grow flex flex-col w-full relative <?= $viewIsGrid ? '' : 'md:flex-row' ?>"
+      x-data="scr1beProductCard"
+      data-product-id="<?= /* @noEscape */ $productId ?>"
+      @submit.prevent="addToCart"
+      <?php if ($product->getOptions()): ?>enctype="multipart/form-data"<?php endif; ?>
+>
+    <?= /** @noEscape */ $block->getBlockHtml('formkey') ?>
+    <input type="hidden" name="product" value="<?= /* @noEscape */ $productId ?>">
+    <?php foreach ($options as $optionItem): ?>
+        <input type="hidden"
+               name="<?= $escaper->escapeHtml($optionItem['name']) ?>"
+               value="<?= $escaper->escapeHtml($optionItem['value']) ?>">
+    <?php endforeach; ?>
+<?php else: ?>
+<div class="item product product-item card card-interactive flex flex-col w-full relative <?= $viewIsGrid ? '' : 'md:flex-row' ?>"
+     x-data="scr1beProductCard"
+     data-product-id="<?= /* @noEscape */ $productId ?>"
+>
+<?php endif; ?>
+
+    <?php /*
+        Badges. Server-rendered so they survive with JavaScript off and are visible to a crawler.
+        Colour is carried by `data-badge` and resolved in the module stylesheet — the same hook the
+        client renderer binds, so the two renderings cannot diverge into two palettes.
+    */ ?>
+    <?php if ($card->getBadges()): ?>
+        <ul role="list" class="absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
+            <?php foreach ($card->getBadges() as $badge): ?>
+                <li class="scr1be-card-badge" data-badge="<?= $escaper->escapeHtmlAttr($badge->getCode()) ?>">
+                    <?= $escaper->escapeHtml($badge->getLabel()) ?>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    <?php endif; ?>
+
+    <?php /*
+        The image is written by this template rather than delegated to Hyvä's image block, because
+        the ladder is the point: the block renders one `src`. Dimensions come from the resolved
+        fallback rung so the box is reserved before the bytes land.
+    */ ?>
+    <a href="<?= $escaper->escapeUrl($card->getUrl()) ?>"
+       title="<?= $escaper->escapeHtmlAttr($card->getName()) ?>"
+       class="product photo product-item-photo block mx-auto mb-3 <?= $viewIsGrid ? '' : 'md:w-2/6 md:mb-0 md:shrink-0' ?>"
+       tabindex="-1"
+    >
+        <img src="<?= $escaper->escapeUrl($image->getUrl()) ?>"
+             <?php if ($image->getSrcset() !== ''): ?>
+             srcset="<?= $escaper->escapeHtmlAttr($image->getSrcset()) ?>"
+             <?php endif; ?>
+             <?php if ($image->getSizes() !== ''): ?>
+             sizes="<?= $escaper->escapeHtmlAttr($image->getSizes()) ?>"
+             <?php endif; ?>
+             width="<?= /* @noEscape */ (int) $image->getWidth() ?>"
+             height="<?= /* @noEscape */ (int) $image->getHeight() ?>"
+             alt="<?= $escaper->escapeHtmlAttr($image->getLabel()) ?>"
+             loading="<?= /* @noEscape */ $isEagerImage ? 'eager' : 'lazy' ?>"
+             <?php if ($isEagerImage): ?>fetchpriority="high"<?php endif; ?>
+             class="w-full h-auto"
+             <?php if ($image->getHoverUrl() !== null): ?>
+             x-ref="primaryImage"
+             data-hover-src="<?= $escaper->escapeUrl($image->getHoverUrl()) ?>"
+             @mouseenter="swapToHoverImage"
+             @mouseleave="swapToPrimaryImage"
+             <?php endif; ?>
+        >
+    </a>
+
+    <div class="product-info flex flex-col grow <?= $viewIsGrid ? '' : 'md:pl-5 md:w-4/6' ?>">
+        <div class="mt-2 mb-1 items-center justify-center font-semibold text-lg text-center <?= $viewIsGrid ? '' : 'md:text-left' ?>">
+            <a class="product-item-link"
+               href="<?= $escaper->escapeUrl($card->getUrl()) ?>"
+               @click="trackSelectItem"
+            >
+                <?= /* @noEscape */ $productName ?>
+            </a>
+        </div>
+
+        <?php if (!$hideRatingSummary): ?>
+            <div class="py-1 mx-auto <?= $viewIsGrid ? '' : 'md:mx-0 md:w-auto' ?>">
+                <?= $block->getReviewsSummaryHtml($product, 'short') ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($product->isAvailable() && !$hideDetails): ?>
+            <?= $block->getProductDetailsHtml($product) ?>
+        <?php endif; ?>
+
+        <?php if ($showDescription): ?>
+            <div class="mt-2 mb-1 items-center justify-center text-center <?= $viewIsGrid ? '' : 'md:text-left' ?>">
+                <?= /* @noEscape */ $productViewModel->getShortDescriptionForProduct($product) ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($isProductGroupedOrBundle): ?>
+            <span class="sr-only">
+                <?= $escaper->escapeHtml(__('The price depends on the options chosen on the product page')) ?>
+            </span>
+        <?php endif; ?>
+
+        <div class="pt-1"
+             x-data="initPriceBox()"
+             x-defer="intersect"
+             @update-prices-<?= /* @noEscape */ $productId ?>.window="updatePrice($event.detail);"
+        >
+            <?= /* @noEscape */ $productListItemViewModel->getProductPriceHtml($product) ?>
+        </div>
+
+        <?php /*
+            Availability. The text rendered here is as old as the block cache entry, so it carries
+            an x-text binding the Alpine component overwrites once the stock endpoint answers.
+        */ ?>
+        <p class="pt-1 text-sm <?= $card->getStock()->isInStock() ? 'text-gray-600' : 'text-red-700' ?>"
+           x-text="stockLabel"
+           data-stock-label
+        ><?= $escaper->escapeHtml($card->getStock()->getLabel()) ?></p>
+
+        <div class="mt-auto pt-3 flex flex-wrap items-center gap-y-4 gap-x-2 <?= $viewIsGrid ? '' : 'md:justify-center' ?>">
+            <?php if ($product->isSaleable()): ?>
+                <?php if ($isProductGroupedOrBundle): ?>
+                    <a href="<?= $escaper->escapeUrl($card->getUrl()) ?>"
+                       class="btn btn-primary text-sm <?= $viewIsGrid ? 'me-auto' : 'me-auto md:me-0' ?>"
+                       aria-label="<?= $escaper->escapeHtmlAttr(__('Configure %1 on the product page', $productName)) ?>"
+                    >
+                        <?= $lucideIcons->pencilHtml('', 24, 24, ['aria-hidden' => 'true']) ?>
+                        <span class="inline <?= $viewIsGrid ? 'md:hidden lg:inline' : '' ?>">
+                            <?= $escaper->escapeHtml(__('Configure')) ?>
+                        </span>
+                    </a>
+                <?php else: ?>
+                    <?php /* The stepper. min/step/max are the stock item's own rules, not markup guesses. */ ?>
+                    <div class="flex items-center rounded border border-gray-300">
+                        <button type="button"
+                                class="px-2 py-1 text-lg leading-none"
+                                aria-label="<?= $escaper->escapeHtmlAttr(__('Decrease quantity')) ?>"
+                                @click="decrement"
+                        >&minus;</button>
+                        <label class="sr-only" for="scr1be-qty-<?= /* @noEscape */ $productId ?>">
+                            <?= $escaper->escapeHtml(__('Quantity')) ?>
+                        </label>
+                        <input id="scr1be-qty-<?= /* @noEscape */ $productId ?>"
+                               name="qty"
+                               type="number"
+                               class="form-input w-16 border-0 text-center"
+                               inputmode="<?= /* @noEscape */ $qtyRules->isDecimal() ? 'decimal' : 'numeric' ?>"
+                               min="<?= $escaper->escapeHtmlAttr((string) $qtyRules->getMin()) ?>"
+                               step="<?= $escaper->escapeHtmlAttr((string) $qtyRules->getStep()) ?>"
+                               <?php if ($qtyRules->getMax() !== null): ?>
+                               max="<?= $escaper->escapeHtmlAttr((string) $qtyRules->getMax()) ?>"
+                               <?php endif; ?>
+                               value="<?= $escaper->escapeHtmlAttr((string) $qtyRules->getMin()) ?>"
+                               x-model="qty"
+                               @change="clampQty"
+                        >
+                        <button type="button"
+                                class="px-2 py-1 text-lg leading-none"
+                                aria-label="<?= $escaper->escapeHtmlAttr(__('Increase quantity')) ?>"
+                                @click="increment"
+                        >+</button>
+                    </div>
+                    <button class="btn btn-primary text-sm <?= $viewIsGrid ? 'me-auto' : 'me-auto md:me-0' ?>"
+                            aria-label="<?= $escaper->escapeHtmlAttr(__('Add to Cart') . ' ' . $productName) ?>"
+                            data-addto="cart"
+                            :disabled="isBusy"
+                    >
+                        <?= $lucideIcons->shoppingCartHtml('', 24, 24, ['aria-hidden' => 'true']) ?>
+                        <span class="inline <?= $viewIsGrid ? 'md:hidden lg:inline' : '' ?>">
+                            <?= $escaper->escapeHtml(__('Add to Cart')) ?>
+                        </span>
+                    </button>
+                <?php endif; ?>
+            <?php else: ?>
+                <div class="<?= $viewIsGrid ? 'me-auto' : 'me-auto md:me-0' ?>">
+                    <?= $block->getChildBlock('stockstatus')->setData('product', $product)->toHtml() ?>
+                </div>
+            <?php endif; ?>
+            <div class="flex flex-wrap gap-2">
+                <?php if ($showAddToWishlist && $blockWishlist = $block->getChildBlock('wishlist')): ?>
+                    <?= $blockWishlist->setData('product', $product)->toHtml() ?>
+                <?php endif; ?>
+                <?php if ($showAddToCompare): ?>
+                    <button x-data="initCompareOnProductList()"
+                            x-defer="intersect"
+                            @click.prevent="addToCompare(<?= /* @noEscape */ $productId ?>)"
+                            aria-label="<?= $escaper->escapeHtmlAttr(__('Add to Compare') . ' ' . $productName) ?>"
+                            type="button"
+                            class="btn p-2 rounded-full"
+                            data-addto="compare"
+                    >
+                        <?= $lucideIcons->scaleHtml('', 20, 20, ['aria-hidden' => 'true']) ?>
+                    </button>
+                <?php endif; ?>
+                <?php if ($addToBlock = $block->getChildBlock('addto')): ?>
+                    <?= $addToBlock->setProduct($product)->getChildHtml() ?>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <?php /*
+        The card's own state, as JSON rather than as x-data expressions: an Alpine attribute holding
+        a computed object literal is exactly what a strict CSP forbids, and the payload is the same
+        array the client renderer and the GraphQL resolvers return.
+    */ ?>
+    <script type="application/json" data-scr1be-card>
+        <?= /* @noEscape */ json_encode($card->toArray(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
+    </script>
+
+<?php if ($product->isSaleable()): ?>
+</form>
+<?php else: ?>
+</div>
+<?php endif; ?>

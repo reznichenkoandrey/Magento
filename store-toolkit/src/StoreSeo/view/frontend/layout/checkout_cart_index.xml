@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!--
+  The cart is not a document. It has no stable content, it is per-visitor, and it is not supposed
+  to be in an index at all — so a canonical pointing at it is at best noise and at worst an
+  invitation. hreflang goes with it: "the German version of your cart" is not a thing.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="scr1be.seo.canonical" remove="true"/>
+        <referenceBlock name="scr1be.seo.hreflang" remove="true"/>
+    </body>
+</page>

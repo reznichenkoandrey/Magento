@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <!--
+            Renderer one: the card template.
+
+            `product_list_item` is the block Hyvä renders every card through — see
+            `Hyva\Theme\ViewModel\ProductListItem::getItemHtml()`, which looks the block up by that
+            exact name. Repointing its template is the whole integration: category listings, search
+            results, the compare page and Hyvä's own product slider all reach the card through this
+            one block, so none of them needs its own hook.
+
+            It is also, honestly, a fork of Hyvä's `product/list/item.phtml`. The template it
+            replaces reproduces Hyvä's structure deliberately (same form, same child blocks, same
+            order) so third-party injections keep working, and the README says what to re-check
+            after a Hyvä upgrade. Delete this one file to go back to the stock card — the ViewModel
+            layer, the GraphQL fields and the minicart plugins are unaffected.
+        -->
+        <referenceBlock name="product_list_item" template="Scr1be_HyvaProductCard::product/list/card.phtml"/>
+    </body>
+</page>

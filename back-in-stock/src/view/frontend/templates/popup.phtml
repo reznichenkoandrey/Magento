@@ -1,0 +1,198 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scr1be\BackInStock\Block\Popup;
+
+/** @var Popup $block */
+/** @var Escaper $escaper */
+
+if (!$block->isEnabled()) {
+    return;
+}
+?>
+<?php /*
+    Not one byte of this is per-customer, which is what lets it render inside a full-page-cached
+    document. The cards come from the `scr1be-back-in-stock` customer-data section, which Hyvä
+    dispatches to every listener as `private-content-loaded`.
+*/ ?>
+<div
+    x-data="scr1beBackInStockPopup"
+    @private-content-loaded.window="receive($event.detail.data)"
+    class="scr1be-back-in-stock"
+>
+    <template x-if="open">
+        <div
+            class="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="scr1be-back-in-stock-title"
+        >
+            <?php /* The backdrop is a sibling rather than a parent, so a click on a card cannot
+                     bubble into a dismissal. */ ?>
+            <div class="absolute inset-0 bg-black/60" @click="close()" aria-hidden="true"></div>
+
+            <div
+                x-init="trap($el)"
+                @keydown.escape.window="close()"
+                class="
+                    relative flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden
+                    rounded-t-lg bg-white shadow-xl sm:rounded-lg
+                "
+            >
+                <div class="flex items-start justify-between gap-x-4 border-b border-gray-200 p-4">
+                    <div>
+                        <h2 id="scr1be-back-in-stock-title" class="text-lg font-semibold text-gray-900">
+                            <?= $escaper->escapeHtml(__('Back in stock')) ?>
+                        </h2>
+                        <p class="text-sm text-gray-600">
+                            <?= $escaper->escapeHtml(__('You asked to be told when these came back.')) ?>
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        @click="close()"
+                        class="shrink-0 rounded p-1 text-gray-400 hover:text-gray-800 focus:outline-none focus:ring"
+                        aria-label="<?= $escaper->escapeHtmlAttr(__('Close')) ?>"
+                    >
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.5" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <ul role="list" class="divide-y divide-gray-200 overflow-y-auto">
+                    <template x-for="item in items" :key="item.alert_id">
+                        <li class="flex gap-x-4 p-4">
+                            <a :href="item.url" class="shrink-0" tabindex="-1" aria-hidden="true">
+                                <img
+                                    :src="item.image.src"
+                                    :width="item.image.width"
+                                    :height="item.image.height"
+                                    alt=""
+                                    loading="lazy"
+                                    class="h-20 w-20 rounded object-cover"
+                                >
+                            </a>
+
+                            <div class="min-w-0 flex-1">
+                                <a :href="item.url" class="block text-sm font-medium text-gray-900 hover:underline"
+                                   x-text="item.name"></a>
+
+                                <div class="mt-1 flex flex-wrap items-baseline gap-x-2">
+                                    <span class="text-base font-semibold text-gray-900" x-text="item.price"></span>
+                                    <template x-if="item.regular_price">
+                                        <span class="text-sm text-gray-500 line-through"
+                                              x-text="item.regular_price"></span>
+                                    </template>
+                                </div>
+
+                                <template x-if="item.reviews_count">
+                                    <p class="mt-1 text-xs text-gray-600">
+                                        <?php /* The percentage is Magento's own rating_summary, which is a
+                                                 0–100 integer rather than a star count. */ ?>
+                                        <span x-text="item.rating_summary"></span><?= /* @noEscape */ '%' ?>
+                                        ·
+                                        <span x-text="item.reviews_count"></span>
+                                        <?= $escaper->escapeHtml(__('reviews')) ?>
+                                    </p>
+                                </template>
+
+                                <template x-if="item.badges.length">
+                                    <ul role="list" class="mt-2 flex flex-wrap gap-1">
+                                        <template x-for="badge in item.badges" :key="badge.code">
+                                            <li class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700"
+                                                x-text="badge.label"></li>
+                                        </template>
+                                    </ul>
+                                </template>
+
+                                <div class="mt-3 flex flex-wrap items-center gap-2">
+                                    <template x-if="item.can_add_to_cart">
+                                        <div class="flex items-center gap-2">
+                                            <?php /*
+                                                `x-model` is unusable under a strict CSP — Hyvä says
+                                                so in its own helper file — so the field is a bound
+                                                value plus a change handler, and the component floors
+                                                whatever arrives to the product's own qty rules.
+                                            */ ?>
+                                            <div class="flex items-center rounded border border-gray-300">
+                                                <button
+                                                    type="button"
+                                                    @click="step(item, -1)"
+                                                    class="px-2 py-1 text-gray-600 hover:text-gray-900"
+                                                    aria-label="<?= $escaper->escapeHtmlAttr(__('Decrease quantity')) ?>"
+                                                >&minus;</button>
+                                                <input
+                                                    type="number"
+                                                    inputmode="numeric"
+                                                    class="w-12 border-0 p-1 text-center text-sm"
+                                                    :value="qty[item.alert_id]"
+                                                    :min="item.qty.start"
+                                                    :step="item.qty.increment || 1"
+                                                    @change="setQty(item, $event.target.value)"
+                                                    aria-label="<?= $escaper->escapeHtmlAttr(__('Quantity')) ?>"
+                                                >
+                                                <button
+                                                    type="button"
+                                                    @click="step(item, 1)"
+                                                    class="px-2 py-1 text-gray-600 hover:text-gray-900"
+                                                    aria-label="<?= $escaper->escapeHtmlAttr(__('Increase quantity')) ?>"
+                                                >+</button>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                @click="addToCart(item)"
+                                                :disabled="busy"
+                                                class="btn btn-primary text-sm disabled:opacity-50"
+                                            >
+                                                <?= $escaper->escapeHtml(__('Add to Cart')) ?>
+                                            </button>
+                                        </div>
+                                    </template>
+
+                                    <?php /*
+                                        A configurable, a bundle, a grouped product or anything with
+                                        required options cannot be added from a card, because the
+                                        card does not know which options. It gets a link to the page
+                                        that does — a working path to the same purchase, unlike a
+                                        button that posts an incomplete cart line.
+                                    */ ?>
+                                    <template x-if="!item.can_add_to_cart">
+                                        <a :href="item.url" class="btn btn-secondary text-sm">
+                                            <?= $escaper->escapeHtml(__('Choose options')) ?>
+                                        </a>
+                                    </template>
+
+                                    <button
+                                        type="button"
+                                        @click="dismiss(item)"
+                                        class="ml-auto text-xs text-gray-500 underline hover:text-gray-800"
+                                    >
+                                        <?= $escaper->escapeHtml(__('Not now')) ?>
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                    </template>
+                </ul>
+
+                <div class="flex flex-wrap items-center justify-between gap-2 border-t border-gray-200 p-4">
+                    <a href="<?= $escaper->escapeUrl($block->getAccountUrl()) ?>"
+                       class="text-sm text-gray-600 underline hover:text-gray-900">
+                        <?= $escaper->escapeHtml(__('All my product alerts')) ?>
+                    </a>
+                    <button
+                        type="button"
+                        @click="addAll()"
+                        :disabled="busy"
+                        class="btn btn-primary text-sm disabled:opacity-50"
+                    >
+                        <?= $escaper->escapeHtml(__('Add everything to cart')) ?>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>

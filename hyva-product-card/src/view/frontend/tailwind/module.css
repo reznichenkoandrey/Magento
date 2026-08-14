@@ -1,0 +1,82 @@
+/**
+ * The module's half of the theme's Tailwind build.
+ *
+ * Hyvä finds this module through `app/etc/hyva-themes.json`, which `Hyva\Theme\Model\
+ * HyvaModulesConfig` regenerates on setup:upgrade and on every module:enable / module:disable, and
+ * `view/frontend/tailwind/module.css` is the conventional entry point it reads from a module.
+ *
+ * The `@source` on the JavaScript matters as much as the one on the templates: the client renderer
+ * builds cards in the browser, and the classes it uses appear in no .phtml. Without it Tailwind
+ * would compile a stylesheet that is correct for every card except the ones Alpine draws.
+ */
+@source "../templates";
+@source "../web/js";
+
+/**
+ * Badge presentation lives here rather than in either renderer.
+ *
+ * The server template writes `data-badge="sale"` and the Alpine renderer binds `:data-badge` to the
+ * same value out of the same payload. Neither one knows what a sale badge looks like — which is the
+ * only reason it is safe to have two renderers at all. It also keeps the client renderer inside a
+ * strict CSP: a bound `:class` would have to be a computed expression, and `:data-badge` is a dot
+ * path.
+ */
+:root {
+    --scr1be-card-badge-radius: 0.25rem;
+    --scr1be-card-badge-padding: 0.125rem 0.5rem;
+    --scr1be-card-badge-sale-bg: #b91c1c;
+    --scr1be-card-badge-sale-fg: #ffffff;
+    --scr1be-card-badge-new-bg: #1d4ed8;
+    --scr1be-card-badge-new-fg: #ffffff;
+    --scr1be-card-badge-low-stock-bg: #f59e0b;
+    --scr1be-card-badge-low-stock-fg: #111827;
+    --scr1be-card-badge-fallback-bg: #1f2937;
+    --scr1be-card-badge-fallback-fg: #ffffff;
+    --scr1be-card-image-transition: opacity 150ms ease-in-out;
+}
+
+.scr1be-card-badge {
+    border-radius: var(--scr1be-card-badge-radius);
+    padding: var(--scr1be-card-badge-padding);
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    background-color: var(--scr1be-card-badge-fallback-bg);
+    color: var(--scr1be-card-badge-fallback-fg);
+}
+
+.scr1be-card-badge[data-badge="sale"] {
+    background-color: var(--scr1be-card-badge-sale-bg);
+    color: var(--scr1be-card-badge-sale-fg);
+}
+
+.scr1be-card-badge[data-badge="new"] {
+    background-color: var(--scr1be-card-badge-new-bg);
+    color: var(--scr1be-card-badge-new-fg);
+}
+
+.scr1be-card-badge[data-badge="low_stock"] {
+    background-color: var(--scr1be-card-badge-low-stock-bg);
+    color: var(--scr1be-card-badge-low-stock-fg);
+}
+
+/**
+ * The hover swap changes the `src` of an already-laid-out element, so there is no reflow to
+ * animate — only the decode flash, which a short opacity transition covers.
+ */
+.scr1be-card-grid img,
+.product_addtocart_form img[data-hover-src] {
+    transition: var(--scr1be-card-image-transition);
+}
+
+/**
+ * Motion is an enhancement, never a requirement: the swap itself still happens.
+ */
+@media (prefers-reduced-motion: reduce) {
+    .scr1be-card-grid img,
+    .product_addtocart_form img[data-hover-src] {
+        transition: none;
+    }
+}

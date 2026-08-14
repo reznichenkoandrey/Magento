@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scr1be_hyva_media>
+            <output>
+                <enabled>1</enabled>
+                <!--
+                  The ladder is the merchant's byte budget: its top rung is the largest image any
+                  browser will ever be offered, however big the upload was. Six rungs cover
+                  360 CSS px at 1x through 1920 at 1x / 960 at 2x, which is the range a CMS banner
+                  actually renders at.
+                -->
+                <widths>320,480,768,1024,1440,1920</widths>
+                <quality>82</quality>
+            </output>
+            <webp>
+                <enabled>1</enabled>
+                <!--
+                  Lower than the source-format quality on purpose: at equal visual quality WebP
+                  scores 5-10 points lower on the same 0-100 scale, and the whole point of the
+                  second srcset is that it is smaller.
+                -->
+                <quality>78</quality>
+            </webp>
+            <limits>
+                <max_source_megapixels>40</max_source_megapixels>
+                <max_encodes_per_request>24</max_encodes_per_request>
+            </limits>
+        </scr1be_hyva_media>
+    </default>
+</config>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+        `after`, not `around`: the plugin only ever narrows the answer. The decision is a conjunction
+        of every participant's veto, and an `around` here would gain exactly one capability — the
+        capability to break every session on the storefront by forgetting `$proceed`.
+
+        Registered in the frontend area only. The endpoint does not exist anywhere else, and a global
+        registration would put a path comparison in front of every admin and CLI session start.
+    -->
+    <type name="Magento\Framework\Session\SessionStartChecker">
+        <plugin name="scr1be_slider_suppress_proof_endpoint_session"
+                type="Scr1be\HyvaProductSlider\Plugin\Session\SuppressProofEndpointSession"/>
+    </type>
+</config>

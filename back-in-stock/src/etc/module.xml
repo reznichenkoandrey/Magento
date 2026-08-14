@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Scr1be_BackInStock">
+        <sequence>
+            <!--
+              Magento_ProductAlert owns the table this module adds a column to, so its declarative
+              schema has to be read first for the column to land on an existing table rather than
+              on one this module appears to be creating.
+            -->
+            <module name="Magento_ProductAlert"/>
+            <module name="Magento_Catalog"/>
+            <module name="Magento_CatalogInventory"/>
+            <module name="Magento_Customer"/>
+            <module name="Magento_Review"/>
+            <module name="Magento_Checkout"/>
+            <module name="Magento_Backend"/>
+            <!--
+              The resolver reads `is_customer` and `store` off the GraphQL query context. Both are
+              extension attributes declared by other modules — `is_customer` in
+              Magento_CustomerGraphQl's `extension_attributes.xml`, `store` in
+              Magento_StoreGraphQl's — so both have to be loaded before this one.
+            -->
+            <module name="Magento_GraphQl"/>
+            <module name="Magento_CustomerGraphQl"/>
+            <module name="Magento_StoreGraphQl"/>
+        </sequence>
+    </module>
+</config>

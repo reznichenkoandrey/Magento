@@ -1,0 +1,82 @@
+<?php
+/**
+ * Family rows for the product page.
+ *
+ * There is no JavaScript here, and that is the design rather than an omission. The row is a list of
+ * links whose content is decided at reconcile time; an Alpine component would give it nothing except
+ * a hydration step and a reason for the row to appear a frame late. What Hyva contributes is the
+ * markup vocabulary — utility classes, `sr-only`, the focus ring — not a runtime.
+ *
+ * The single inline `style` is the swatch colour, which is data and cannot live in a stylesheet. It
+ * is an attribute rather than a `<script>` or an `onclick`, so it sits inside `style-src`, which
+ * `Magento_Csp`'s default policy in `etc/config.xml` declares with `<inline>1</inline>` — and it is
+ * the same thing Hyva's own `Magento_Swatches/templates/product/layered/renderer.phtml` does with a
+ * visual swatch. The value itself is validated against `#rrggbb` in the view model before it ever
+ * reaches this file.
+ */
+
+declare(strict_types=1);
+
+use Magento\Catalog\Block\Product\View;
+use Magento\Framework\Escaper;
+use Scr1be\ProductFamilies\ViewModel\ProductFamilies;
+
+/** @var View $block */
+/** @var Escaper $escaper */
+
+/** @var ProductFamilies $familiesViewModel */
+$familiesViewModel = $block->getViewModel();
+$product = $block->getProduct();
+$rows = $product ? $familiesViewModel->getRows($product) : [];
+
+if (!$rows) {
+    return '';
+}
+?>
+<div class="product-families mt-6 space-y-4">
+    <?php foreach ($rows as $row): ?>
+        <div class="product-family product-family-<?= $escaper->escapeHtmlAttr($row['code']) ?>">
+            <?php if ($row['label'] !== ''): ?>
+                <h3 class="mb-2 text-sm font-medium text-gray-700">
+                    <?= $escaper->escapeHtml($row['label']) ?>
+                </h3>
+            <?php endif; ?>
+
+            <ul class="flex flex-wrap gap-2" role="list">
+                <?php foreach ($row['chips'] as $chip): ?>
+                    <li>
+                        <a
+                            href="<?= $escaper->escapeUrl($chip['url']) ?>"
+                            title="<?= $escaper->escapeHtmlAttr($chip['name']) ?>"
+                            class="flex items-center gap-2 px-2 py-1 border border-gray-300 rounded
+                                   hover:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                        >
+                            <?php if ($chip['swatch_type'] === 'color'): ?>
+                                <span
+                                    class="block w-5 h-5 border border-gray-300 rounded-full"
+                                    style="background-color: <?= $escaper->escapeHtmlAttr($chip['swatch_value']) ?>"
+                                    aria-hidden="true"
+                                ></span>
+                                <span class="sr-only"><?= $escaper->escapeHtml($chip['label']) ?></span>
+                            <?php elseif ($chip['swatch_type'] === 'image'): ?>
+                                <img
+                                    src="<?= $escaper->escapeUrl($chip['swatch_value']) ?>"
+                                    alt=""
+                                    width="20"
+                                    height="20"
+                                    loading="lazy"
+                                    class="block w-5 h-5 border border-gray-300 rounded-full object-cover"
+                                />
+                                <span class="sr-only"><?= $escaper->escapeHtml($chip['label']) ?></span>
+                            <?php else: ?>
+                                <span class="text-sm text-gray-900">
+                                    <?= $escaper->escapeHtml($chip['label']) ?>
+                                </span>
+                            <?php endif; ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endforeach; ?>
+</div>

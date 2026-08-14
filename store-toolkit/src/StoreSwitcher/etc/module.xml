@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Scr1be_StoreSwitcher">
+        <sequence>
+            <module name="Magento_Store"/>
+            <module name="Magento_Directory"/>
+            <module name="Magento_Theme"/>
+            <!--
+              The templates render into Hyvä's `header-content` container and reuse its Tailwind
+              form classes, so the theme module has to be loaded first for the layout to merge.
+            -->
+            <module name="Hyva_Theme"/>
+        </sequence>
+    </module>
+</config>

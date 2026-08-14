@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Scr1be\ProductFamilies\Api\FamilyReconcilerInterface"
+                type="Scr1be\ProductFamilies\Model\Reconciler"/>
+
+    <!--
+      The link type aliases.
+
+      `Magento\Catalog\Model\Product\LinkTypeProvider` is constructed with a `linkTypes` map of
+      name => id, and core's own di.xml fills it with `related`, `crosssell` and `upsell` as
+      `xsi:type="const"` references to `Magento\Catalog\Model\Product\Link`'s constants. That map is
+      what `Magento\Catalog\Api\ProductLinkTypeListInterface::getItems()` returns, so appending three
+      entries here is what makes the families visible to everything that asks Magento which link
+      types exist — the `V1/products/links/types` REST endpoint included — rather than only to this
+      module's own code.
+
+      It is also the reason the ids have to be constants rather than a runtime lookup: an
+      `xsi:type="const"` argument is resolved by `Magento\Framework\Data\Argument\Interpreter\Constant`,
+      which calls `constant()` on the value and nothing else.
+    -->
+    <type name="Magento\Catalog\Model\Product\LinkTypeProvider">
+        <arguments>
+            <argument name="linkTypes" xsi:type="array">
+                <item name="scr1be_other_colors" xsi:type="const">
+                    Scr1be\ProductFamilies\Model\FamilyLinkType::LINK_TYPE_OTHER_COLORS
+                </item>
+                <item name="scr1be_other_sizes" xsi:type="const">
+                    Scr1be\ProductFamilies\Model\FamilyLinkType::LINK_TYPE_OTHER_SIZES
+                </item>
+                <item name="scr1be_similar" xsi:type="const">
+                    Scr1be\ProductFamilies\Model\FamilyLinkType::LINK_TYPE_SIMILAR
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!--
+      The other half of registering a link type, and the half that is easy to miss because nothing
+      complains until a product is saved.
+
+      Magento\Catalog\Model\ProductLink\CollectionProvider::getCollection() is called once per
+      registered link type on the product-save path and throws
+      "The collection provider isn't registered." for any type missing from the map below. A type
+      present in LinkTypeProvider but absent here therefore does not mean "this type has no links" —
+      it means every ProductRepository::save() in the installation fails, for products with and
+      without families alike. It took down a clean install's sample-data import exactly that way.
+
+      One class, three virtual types: the only thing that differs per family is the link type id.
+    -->
+    <virtualType name="Scr1be\ProductFamilies\Model\ProductLink\OtherColorsCollectionProvider"
+                 type="Scr1be\ProductFamilies\Model\ProductLink\FamilyCollectionProvider">
+        <arguments>
+            <argument name="linkTypeId" xsi:type="const">
+                Scr1be\ProductFamilies\Model\FamilyLinkType::LINK_TYPE_OTHER_COLORS
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Scr1be\ProductFamilies\Model\ProductLink\OtherSizesCollectionProvider"
+                 type="Scr1be\ProductFamilies\Model\ProductLink\FamilyCollectionProvider">
+        <arguments>
+            <argument name="linkTypeId" xsi:type="const">
+                Scr1be\ProductFamilies\Model\FamilyLinkType::LINK_TYPE_OTHER_SIZES
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Scr1be\ProductFamilies\Model\ProductLink\SimilarCollectionProvider"
+                 type="Scr1be\ProductFamilies\Model\ProductLink\FamilyCollectionProvider">
+        <arguments>
+            <argument name="linkTypeId" xsi:type="const">
+                Scr1be\ProductFamilies\Model\FamilyLinkType::LINK_TYPE_SIMILAR
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Catalog\Model\ProductLink\CollectionProvider">
+        <arguments>
+            <argument name="providers" xsi:type="array">
+                <item name="scr1be_other_colors" xsi:type="object">
+                    Scr1be\ProductFamilies\Model\ProductLink\OtherColorsCollectionProvider
+                </item>
+                <item name="scr1be_other_sizes" xsi:type="object">
+                    Scr1be\ProductFamilies\Model\ProductLink\OtherSizesCollectionProvider
+                </item>
+                <item name="scr1be_similar" xsi:type="object">
+                    Scr1be\ProductFamilies\Model\ProductLink\SimilarCollectionProvider
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!--
+      Its own log file. Links appear on product pages without anyone touching the admin, so "why
+      does this page suggest that product" has to be answerable by tailing one path rather than
+      grepping system.log for the night the catalogue changed.
+    -->
+    <virtualType name="Scr1be\ProductFamilies\Logger\FamilyHandler"
+                 type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/product_families.log</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Scr1be\ProductFamilies\Logger\FamilyLogger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="name" xsi:type="string">productFamilies</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="families" xsi:type="object">
+                    Scr1be\ProductFamilies\Logger\FamilyHandler
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Scr1be\ProductFamilies\Model\FamilyLog">
+        <arguments>
+            <argument name="logger" xsi:type="object">
+                Scr1be\ProductFamilies\Logger\FamilyLogger
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="scr1be_families_reconcile" xsi:type="object">
+                    Scr1be\ProductFamilies\Console\Command\ReconcileCommand
+                </item>
+            </argument>
+        </arguments>
+    </type>
+</config>

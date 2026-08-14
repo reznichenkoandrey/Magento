@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <!--
+        One row per product, holding the first moment it was ever in stock — the fact the New
+        Arrivals adapter ranks by and the one thing the core schema does not record anywhere.
+
+        The primary key on product_id is what makes "first" true: the writer inserts and does not
+        update, so a restock cannot move the date and two concurrent stock saves cannot produce two
+        rows. The foreign key means a deleted product takes its arrival with it, which keeps the
+        table from becoming the one place in the database that remembers products nobody else does.
+    -->
+    <table name="scr1be_curated_arrival" resource="default" engine="innodb"
+           comment="First In-Stock Moment Per Product">
+        <column xsi:type="int" name="product_id" unsigned="true" nullable="false" identity="false"
+                comment="Product ID"/>
+        <column xsi:type="timestamp" name="arrived_at" on_update="false" nullable="false"
+                default="CURRENT_TIMESTAMP"
+                comment="First moment the product was observed in stock"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="product_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="SCR1BE_CURATED_ARRIVAL_PRD_ID_CAT_PRD_ENTT_ENTT_ID"
+                    table="scr1be_curated_arrival" column="product_id"
+                    referenceTable="catalog_product_entity" referenceColumn="entity_id"
+                    onDelete="CASCADE"/>
+        <!-- Every read is "arrivals since X, newest first"; without this it is a table scan. -->
+        <index referenceId="SCR1BE_CURATED_ARRIVAL_ARRIVED_AT" indexType="btree">
+            <column name="arrived_at"/>
+        </index>
+    </table>
+</schema>

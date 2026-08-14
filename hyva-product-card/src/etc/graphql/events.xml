@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!--
+        The same observer in the graphql area. `qty_rules` on a 20-product query is 20 stock-item
+        SELECTs without it, and a headless frontend is exactly where nobody notices — the query
+        returns the right answer, slowly.
+    -->
+    <event name="catalog_product_collection_load_after">
+        <observer name="scr1be_product_card_preload_qty_rules"
+                  instance="Scr1be\HyvaProductCard\Observer\PreloadQtyRules"/>
+    </event>
+</config>

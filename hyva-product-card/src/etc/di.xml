@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+        Core ships no preference for FilterableAttributeListInterface — it wires the category and
+        search implementations by argument, one per catalogue layer. Card vocabulary is
+        catalogue-wide, so the category list (addIsFilterableFilter) is the right default; the
+        search list narrows to attributes filterable in search and would drop labels on a category
+        page. Change this argument if your storefront wants the other behaviour.
+    -->
+    <type name="Scr1be\HyvaProductCard\Model\LayeredNavLabels">
+        <arguments>
+            <argument name="filterableAttributes" xsi:type="object">Magento\Catalog\Model\Layer\Category\FilterableAttributeList</argument>
+        </arguments>
+    </type>
+
+    <!--
+        The card's collection pre-processor, registered globally and deliberately not in
+        etc/graphql/di.xml even though it only ever runs in that area.
+
+        Core declares the composite's processor list in Magento_CatalogGraphQl's *global* di.xml.
+        Array arguments merge item by item between modules within one scope, but an area scope is
+        applied over the global one as a layer: declaring `collectionProcessors` in the graphql
+        area replaces the global list outright instead of adding to it. Doing that here left the
+        composite holding this one processor and none of core's seven — no attribute loading, no
+        visibility filter, no stock, no search criteria — so every product query in the
+        installation answered with empty names, null url keys and zero prices while still
+        returning the right SKUs. Nothing in the response says "misconfigured"; it reads as a data
+        problem, which is what makes it worth this comment.
+
+        The composite is run by both entry points, DataProvider\Product (filter/category) and
+        DataProvider\ProductSearch (full text), so one registration covers both.
+    -->
+    <type name="Magento\CatalogGraphQl\Model\Resolver\Products\DataProvider\Product\CompositeCollectionProcessor">
+        <arguments>
+            <argument name="collectionProcessors" xsi:type="array">
+                <item name="scr1beCardAttributes" xsi:type="object">Scr1be\HyvaProductCard\Model\Resolver\CollectionProcessor\CardAttributes</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

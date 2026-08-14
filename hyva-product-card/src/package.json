@@ -1,0 +1,15 @@
+{
+    "name": "scr1be-product-card",
+    "description": "ES module scope for the storefront JavaScript. The exports map is the Node half of the import map the page ships, so the specs import exactly what the storefront imports.",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./register.js": "./view/frontend/web/js/card-register.js",
+        "./card.js": "./view/frontend/web/js/card.js",
+        "./grid.js": "./view/frontend/web/js/card-grid.js",
+        "./data.js": "./view/frontend/web/js/card-data.js"
+    },
+    "scripts": {
+        "test": "node --test \"Test/Js/*.test.js\""
+    }
+}

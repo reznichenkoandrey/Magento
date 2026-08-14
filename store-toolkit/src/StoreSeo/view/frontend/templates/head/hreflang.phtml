@@ -1,0 +1,31 @@
+<?php
+/**
+ * Copyright (c) 2026 scr1be. MIT licensed.
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Scr1be\StoreSeo\Model\Hreflang\AlternateLink;
+use Scr1be\StoreSeo\ViewModel\Hreflang;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+/** @var Hreflang $hreflang */
+$hreflang = $block->getData('hreflang_view_model');
+
+/** @var AlternateLink[] $alternates */
+$alternates = $hreflang->getAlternates();
+$xDefault = $hreflang->getXDefault();
+?>
+<?php foreach ($alternates as $alternate): ?>
+<link rel="alternate"
+      hreflang="<?= $escaper->escapeHtmlAttr($alternate->getHreflang()) ?>"
+      href="<?= $escaper->escapeUrl($alternate->getHref()) ?>"/>
+<?php endforeach; ?>
+<?php if ($xDefault !== null): ?>
+<?php /* A second link on the same href, not a replacement: the primary needs both its own tag and the x-default one. */ ?>
+<link rel="alternate" hreflang="x-default" href="<?= $escaper->escapeUrl($xDefault->getHref()) ?>"/>
+<?php endif; ?>

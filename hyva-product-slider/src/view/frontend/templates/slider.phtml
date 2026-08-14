@@ -1,0 +1,103 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scr1be\HyvaProductSlider\Block\Slider;
+
+/** @var Slider $block */
+/** @var Escaper $escaper */
+
+$slider = $block->getSlider();
+$products = $block->getProducts();
+
+if ($slider === null || $products === []) {
+    return;
+}
+
+$domId = $block->getDomId();
+?>
+<section id="<?= $escaper->escapeHtmlAttr($domId) ?>"
+         class="scr1be-slider my-8"
+         style="<?= $escaper->escapeHtmlAttr($block->getBreakpointStyle()) ?>"
+         x-data="scr1beSlider()"
+         data-scr1be-slider
+         aria-roledescription="carousel"
+         aria-label="<?= $escaper->escapeHtmlAttr($slider->getTitle()) ?>">
+    <?php /*
+        Data, not code: `application/json` is a media type no engine executes, so this needs no CSP
+        treatment at all — unlike the import map in the head, which is a script and is hashed there.
+    */ ?>
+    <script type="application/json" data-scr1be-slider-config>
+        <?= /* @noEscape */ $block->getSliderConfigJson() ?>
+    </script>
+
+    <div class="flex items-baseline justify-between gap-4 mb-4">
+        <h2 class="text-2xl font-semibold"><?= $escaper->escapeHtml($slider->getTitle()) ?></h2>
+
+        <?php if ($block->isScrollable()): ?>
+            <div class="flex gap-2 shrink-0" x-show="hasControls">
+                <button type="button"
+                        class="scr1be-slider__arrow"
+                        @click="prev"
+                        :disabled="prevDisabled"
+                        aria-label="<?= $escaper->escapeHtmlAttr(__('Previous products')) ?>">
+                    <span aria-hidden="true">&#8249;</span>
+                </button>
+                <button type="button"
+                        class="scr1be-slider__arrow"
+                        @click="next"
+                        :disabled="nextDisabled"
+                        aria-label="<?= $escaper->escapeHtmlAttr(__('Next products')) ?>">
+                    <span aria-hidden="true">&#8250;</span>
+                </button>
+            </div>
+        <?php endif ?>
+    </div>
+
+    <?php /*
+        `tabindex="0"` because the track is a scroll container: without it a keyboard user can reach
+        the cards but not the scrolling, and the arrow keys do nothing.
+    */ ?>
+    <div class="scr1be-slider__track"
+         x-ref="track"
+         tabindex="0"
+         role="group"
+         aria-label="<?= $escaper->escapeHtmlAttr(__('Products')) ?>"
+         @mouseenter="pause"
+         @mouseleave="resume"
+         @focusin="pause"
+         @focusout="resume"
+         @keydown.arrow-left="prev"
+         @keydown.arrow-right="next">
+        <?php foreach ($products as $product): ?>
+            <div class="scr1be-slider__slide" data-scr1be-slide>
+                <?= /* @noEscape */ $block->getItemHtml($product) ?>
+                <?php if ($block->isSocialProofEnabled()): ?>
+                    <?php /*
+                        Filled by the component after the proof fetch, addressed by product id. The
+                        text is never bound with an Alpine expression: this markup sits inside a block
+                        that is cached for an hour, and the line inside it is true for a minute.
+                    */ ?>
+                    <p class="scr1be-slider__proof"
+                       data-scr1be-proof="<?= $escaper->escapeHtmlAttr((string) $product->getId()) ?>"
+                       hidden></p>
+                <?php endif ?>
+            </div>
+        <?php endforeach ?>
+    </div>
+
+    <?php if ($block->isScrollable()): ?>
+        <div class="scr1be-slider__dots" x-show="hasControls" role="tablist"
+             aria-label="<?= $escaper->escapeHtmlAttr(__('Slides')) ?>">
+            <template x-for="page in pages" :key="page">
+                <button type="button"
+                        class="scr1be-slider__dot"
+                        role="tab"
+                        @click="goTo(page)"
+                        :data-active="isActive(page)"
+                        :aria-selected="isActive(page)"
+                        :aria-label="pageLabel(page)"></button>
+            </template>
+        </div>
+    <?php endif ?>
+</section>

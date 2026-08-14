@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
+    <!--
+        `ttl` is what makes Magento cache a widget instance at all — core's own `products_list`
+        declares one for the same reason. It is a ceiling, not the whole story: the block's
+        identities invalidate it earlier whenever a product it shows changes.
+
+        `is_email_compatible` is deliberately absent. A carousel is JavaScript and horizontal
+        scrolling; in an email it would be a column of images with dead arrows.
+    -->
+    <widget id="scr1be_product_slider"
+            class="Scr1be\HyvaProductSlider\Block\Widget\Slider"
+            ttl="3600">
+        <label translate="true">Product Slider (scr1be)</label>
+        <description translate="true">An admin-managed product carousel, placed by identifier.</description>
+        <parameters>
+            <parameter name="slider_identifier" xsi:type="select" required="true" visible="true"
+                       source_model="Scr1be\HyvaProductSlider\Model\Source\SliderOptions">
+                <label translate="true">Slider</label>
+                <description translate="true">Managed under Content → Elements → Product Sliders. Everything
+                    else — source, slide counts, autoplay — belongs to the slider, not to this
+                    placement.</description>
+            </parameter>
+            <!--
+                One option, and it is not decoration: a widget block takes its template from this
+                parameter, and a widget declared without one renders an empty string. Hidden because
+                there is nothing to choose between.
+            -->
+            <parameter name="template" xsi:type="select" required="true" visible="false">
+                <label translate="true">Template</label>
+                <options>
+                    <option name="default" value="Scr1be_HyvaProductSlider::slider.phtml" selected="true">
+                        <label translate="true">Product Slider</label>
+                    </option>
+                </options>
+            </parameter>
+            <parameter name="cache_lifetime" xsi:type="text" visible="true">
+                <label translate="true">Block Cache Lifetime (seconds)</label>
+                <description translate="true">Leave empty for one hour. Only worth lowering for a
+                    time-ranked source on a very busy shop.</description>
+            </parameter>
+        </parameters>
+        <containers>
+            <container name="content">
+                <template name="default" value="default"/>
+            </container>
+            <container name="content.top">
+                <template name="default" value="default"/>
+            </container>
+            <container name="content.bottom">
+                <template name="default" value="default"/>
+            </container>
+            <container name="sidebar.main">
+                <template name="default" value="default"/>
+            </container>
+        </containers>
+    </widget>
+</widgets>
