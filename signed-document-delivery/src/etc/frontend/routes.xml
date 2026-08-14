@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="standard">
+        <!--
+          A frontend route rather than a webapi.xml one. The endpoint has to stream a file with a
+          Content-Disposition header, and a REST route's return value goes through
+          Magento\Framework\Webapi\Rest\Response\RendererInterface — whose JSON implementation is a
+          single `$this->encoder->encode($data)` — so a PDF would arrive as an encoded string inside
+          a response body rather than as a download. Authentication is not lost by leaving the Web
+          API: the controller resolves the same bearer token through the same Magento_Integration
+          interfaces the Web API uses.
+        -->
+        <route id="signeddocument" frontName="signeddocument">
+            <module name="Scr1be_SignedDocumentDelivery"/>
+        </route>
+    </router>
+</config>

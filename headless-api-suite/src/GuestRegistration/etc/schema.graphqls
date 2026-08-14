@@ -1,0 +1,15 @@
+# Core declares PlaceOrderOutput in Magento_QuoteGraphQl; re-declaring it here does not shadow
+# it, because the stitcher merges every module's declaration under one name, so this file
+# contributes one field and leaves the other three alone.
+#
+# The wording deliberately keeps schema keywords away from any word that follows them. Magento
+# splits these files with a regex that has no word boundaries, so `input`, `type`, `enum` and
+# the rest are read as the start of a declaration wherever they appear — comments included —
+# and everything up to the next brace goes with them. See the note in OrderAttribution's schema.
+#
+# Nullable on purpose. `false` would mean "an order was placed and no account came of it"; `null`
+# means "there is nothing to report", which is the honest answer both when placeOrder returned
+# errors instead of an order and when the module is switched off for this store view.
+type PlaceOrderOutput {
+    customer_created: Boolean @doc(description: "Whether placing this order created a new customer account. Null when no order was placed, or when guest auto-registration is not active for this store view.")
+}

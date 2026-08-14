@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      `around` — see the plugin's class docblock. In short: it has to be able to refuse before core
+      runs, hold state while core runs, and release that state whether core returns or throws. No
+      other plugin type does all three.
+
+      graphql area only, because the target class only ever executes there.
+    -->
+    <type name="Magento\QuoteGraphQl\Model\Resolver\PlaceOrder">
+        <plugin name="scr1be_order_attribution_capture"
+                type="Scr1be\OrderAttribution\Plugin\CaptureAttribution"
+                sortOrder="10"/>
+    </type>
+</config>

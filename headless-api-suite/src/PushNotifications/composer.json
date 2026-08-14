@@ -1,0 +1,28 @@
+{
+    "name": "scr1be/headless-push-notifications",
+    "description": "Order-lifecycle push for a native app: a device registry, an FCM HTTP v1 client that mints its own RS256 service-account JWT without an SDK, after plugins on the eight core sales email senders so push inherits Notify Customer semantics, and a setCartDeviceToken mutation that carries the device from cart to order.",
+    "type": "magento2-module",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "ext-json": "*",
+        "ext-openssl": "*",
+        "ext-curl": "*",
+        "magento/framework": "^103.0",
+        "magento/module-sales": "^103.0",
+        "magento/module-quote": "^101.2",
+        "magento/module-customer": "^103.0",
+        "magento/module-store": "^101.1",
+        "magento/module-config": "^101.2",
+        "magento/module-backend": "^102.0",
+        "magento/module-graph-ql": "^100.4",
+        "magento/module-quote-graph-ql": "^100.4",
+        "magento/module-store-graph-ql": "^100.4"
+    },
+    "autoload": {
+        "files": ["registration.php"],
+        "psr-4": {
+            "Scr1be\\PushNotifications\\": ""
+        }
+    }
+}

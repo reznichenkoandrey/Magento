@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<!--
+  Three tables, and the reason they are different kinds of change is the point of the module.
+
+  `sales_order` and `sales_order_grid` are core tables. Re-declaring them here does not shadow them:
+  declarative schema merges every module's declaration of a table name into one definition, so these
+  two files contribute two columns each and nothing else. Dropping the module drops the columns and
+  leaves the sales tables intact.
+
+  The two columns are deliberately *soft* references — a varchar code with no foreign key to the
+  registry. An order is a historical record. If a merchant retires the `ios-app` source next year,
+  the orders that came through it in January must keep saying so; a foreign key would either block
+  the deletion or cascade it and rewrite history. The registry is a lookup for the living, not a
+  parent of the dead.
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="sales_order" resource="sales" engine="innodb" comment="Sales Flat Order">
+        <column xsi:type="varchar" name="scr1be_source_code" length="32" nullable="true"
+                comment="Attribution source code, as validated against the source registry"/>
+        <column xsi:type="varchar" name="scr1be_source_detail" length="255" nullable="true"
+                comment="Free-text attribution detail supplied by the client"/>
+    </table>
+    <table name="sales_order_grid" resource="sales" engine="innodb" comment="Sales Flat Order Grid">
+        <column xsi:type="varchar" name="scr1be_source_code" length="32" nullable="true"
+                comment="Attribution source code"/>
+        <column xsi:type="varchar" name="scr1be_source_detail" length="255" nullable="true"
+                comment="Free-text attribution detail"/>
+        <!--
+          The grid is what an admin filters on, and a filter on an unindexed varchar over a table
+          that grows one row per order is a table scan that gets slower every day.
+        -->
+        <index referenceId="SCR1BE_ORDER_ATTRIBUTION_SOURCE_CODE" indexType="btree">
+            <column name="scr1be_source_code"/>
+        </index>
+    </table>
+    <table name="scr1be_order_source" resource="default" engine="innodb"
+           comment="Order attribution source registry">
+        <column xsi:type="int" name="source_id" unsigned="true" nullable="false" identity="true"
+                comment="Source ID"/>
+        <!--
+          The code is what a client sends and what an order stores, so it is the natural key and it
+          is unique. 32 characters matches the order column exactly: a registry that accepted codes
+          an order could not hold would validate a request and then silently truncate it.
+        -->
+        <column xsi:type="varchar" name="code" length="32" nullable="false" comment="Source code"/>
+        <column xsi:type="varchar" name="label" length="255" nullable="false"
+                comment="Human-readable label"/>
+        <column xsi:type="smallint" name="is_active" unsigned="true" nullable="false" identity="false"
+                default="1" comment="Whether new orders may be attributed to this source"/>
+        <column xsi:type="int" name="sort_order" unsigned="true" nullable="false" identity="false"
+                default="0" comment="Sort order"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Created at"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Updated at"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="source_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="SCR1BE_ORDER_SOURCE_CODE">
+            <column name="code"/>
+        </constraint>
+        <index referenceId="SCR1BE_ORDER_SOURCE_IS_ACTIVE_SORT_ORDER" indexType="btree">
+            <column name="is_active"/>
+            <column name="sort_order"/>
+        </index>
+    </table>
+</schema>
