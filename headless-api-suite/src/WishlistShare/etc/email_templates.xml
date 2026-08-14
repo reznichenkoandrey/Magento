@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+  Its own template rather than core's `wishlist_email_email_template`.
+
+  Core's template renders its item table from the `items` variable, which the storefront controller
+  fills by adding the `wishlist_email_items` layout handle and calling `toHtml()` on the
+  `wishlist.email.items` block. That handle is declared in
+  Magento_Wishlist/view/frontend/layout/wishlist_email_items.xml — the frontend area — and the block
+  resolves which wishlist to render through Magento\Wishlist\Helper\Data::getWishlist(), which reads
+  the `shared_wishlist` registry entry or a session-backed provider. A GraphQL request has neither.
+  Reusing core's template would mean emulating a storefront well enough to fool a session-dependent
+  block; shipping a template whose variables this module actually owns is the smaller, honest answer.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <template id="scr1be_wishlist_share_email_template"
+              label="Wish List Sharing (headless)"
+              file="share_wishlist.html"
+              type="html"
+              module="Scr1be_WishlistShare"
+              area="frontend"/>
+</config>

@@ -1,0 +1,12 @@
+{
+    "name": "scr1be-coupon-ticket",
+    "description": "ES module scope for the widget's storefront JavaScript, so `node --test` imports exactly the file the browser loads.",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./coupon-ticket.js": "./view/frontend/web/js/coupon-ticket.js"
+    },
+    "scripts": {
+        "test": "node --test \"Test/Js/*.test.js\""
+    }
+}

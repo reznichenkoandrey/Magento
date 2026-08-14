@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="400">
+            <label>scr1be</label>
+        </tab>
+        <section id="scr1be_push" translate="label" type="text" sortOrder="36"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Headless Suite: Push Notifications</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_PushNotifications::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="10"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Send order notifications</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>
+                        Notifications follow the eight sales emails and inherit their "Notify
+                        Customer" setting: if the email is not sent to the customer, neither is the
+                        push. Store-view scope, so one market can pilot the app.
+                    </comment>
+                </field>
+            </group>
+            <group id="fcm" translate="label comment" type="text" sortOrder="20" showInDefault="1">
+                <label>Firebase Cloud Messaging</label>
+                <comment><![CDATA[
+                    Default scope only: a Firebase project belongs to an app, not to a store view.
+                    <br/><br/>
+                    Filling this in does <em>not</em> switch the transport on. The shipped binding is
+                    a log sink, so the whole chain is observable before any credentials exist; point
+                    <code>Scr1be\PushNotifications\Api\PushTransportInterface</code> at
+                    <code>Scr1be\PushNotifications\Model\Fcm\FcmTransport</code> in your project's
+                    <code>di.xml</code> when you are ready.
+                ]]></comment>
+                <field id="service_account" translate="label comment" type="textarea" sortOrder="10"
+                       showInDefault="1">
+                    <label>Service account key (JSON)</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <comment>
+                        The whole JSON key file from the Firebase console, pasted. Stored encrypted
+                        with the installation's crypt key. Only `project_id`, `client_email` and
+                        `private_key` are read.
+                    </comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

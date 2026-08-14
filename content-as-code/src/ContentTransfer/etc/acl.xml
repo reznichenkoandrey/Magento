@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::content">
+                    <!--
+                        Two resources, not one: seeing what content exists and downloading every
+                        byte of it are different privileges. A role that may audit the store's
+                        content inventory does not thereby get a file it can carry off the premises.
+                    -->
+                    <resource id="Scr1be_ContentTransfer::transfer"
+                              title="Content Transfer"
+                              translate="title"
+                              sortOrder="90">
+                        <resource id="Scr1be_ContentTransfer::export"
+                                  title="Export Content Bundles"
+                                  translate="title"
+                                  sortOrder="10"/>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

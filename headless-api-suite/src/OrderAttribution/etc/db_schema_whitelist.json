@@ -1,0 +1,35 @@
+{
+    "sales_order": {
+        "column": {
+            "scr1be_source_code": true,
+            "scr1be_source_detail": true
+        }
+    },
+    "sales_order_grid": {
+        "column": {
+            "scr1be_source_code": true,
+            "scr1be_source_detail": true
+        },
+        "index": {
+            "SCR1BE_ORDER_ATTRIBUTION_SOURCE_CODE": true
+        }
+    },
+    "scr1be_order_source": {
+        "column": {
+            "source_id": true,
+            "code": true,
+            "label": true,
+            "is_active": true,
+            "sort_order": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {
+            "SCR1BE_ORDER_SOURCE_IS_ACTIVE_SORT_ORDER": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "SCR1BE_ORDER_SOURCE_CODE": true
+        }
+    }
+}

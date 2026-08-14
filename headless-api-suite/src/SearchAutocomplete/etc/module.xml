@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Scr1be_SearchAutocomplete">
+        <sequence>
+            <module name="Magento_CatalogSearch"/>
+            <module name="Magento_Search"/>
+            <module name="Magento_StoreGraphQl"/>
+            <module name="Magento_CustomerGraphQl"/>
+        </sequence>
+    </module>
+</config>

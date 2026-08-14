@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <!--
+                              Its own resource because switching this on changes what happens to
+                              personal data at checkout. That is a decision a merchant may want to
+                              keep away from roles that otherwise edit configuration freely.
+                            -->
+                            <resource id="Scr1be_GuestRegistration::config"
+                                      title="Headless Suite: Guest Registration"
+                                      translate="title"
+                                      sortOrder="300"/>
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <!--
+                              This section holds a service-account private key. Anyone who can read
+                              it can send push notifications to every device the app has ever
+                              registered.
+                            -->
+                            <resource id="Scr1be_PushNotifications::config"
+                                      title="Headless Suite: Push Notifications"
+                                      translate="title"
+                                      sortOrder="320"/>
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

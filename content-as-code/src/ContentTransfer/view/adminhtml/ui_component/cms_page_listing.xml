@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+    Adds one action to the CMS page grid's existing mass-action menu. The file is merged into core's
+    `cms_page_listing.xml`, so nothing else about the grid is restated here — a copy of the whole
+    listing is how a module ends up pinning a grid to the Magento version it was written against.
+-->
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <listingToolbar name="listing_top">
+        <massaction name="listing_massaction">
+            <action name="scr1be_export_bundle">
+                <settings>
+                    <url path="scr1be_contenttransfer/massexport/page"/>
+                    <type>scr1be_export_bundle</type>
+                    <label translate="true">Export to Content Bundle</label>
+                </settings>
+            </action>
+        </massaction>
+    </listingToolbar>
+</listing>

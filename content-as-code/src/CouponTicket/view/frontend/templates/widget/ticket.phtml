@@ -1,0 +1,73 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scr1be\CouponTicket\Block\Widget\Ticket;
+
+/** @var Ticket $block */
+/** @var Escaper $escaper */
+
+$ticket = $block->getTicket();
+
+// _toHtml() already returns early when there is no ticket; this is the guard for the case where the
+// template is rendered directly by something that bypassed the block's own rendering.
+if ($ticket === null) {
+    return;
+}
+?>
+<div class="scr1be-coupon-ticket rounded-lg border border-dashed border-gray-400 bg-white p-6"
+     x-data="scr1beCouponTicket(<?= $escaper->escapeHtmlAttr(
+         json_encode($ticket->getCode(), JSON_THROW_ON_ERROR)
+     ) ?>, <?= (int)$block->getCopyFeedbackMs() ?>)">
+
+    <?php if ($block->getHeading() !== ''): ?>
+        <p class="text-lg font-semibold text-gray-900"><?= $escaper->escapeHtml($block->getHeading()) ?></p>
+    <?php endif; ?>
+
+    <p class="mt-1 text-2xl font-bold text-primary">
+        <?= $escaper->escapeHtml($ticket->getDiscountLabel()) ?>
+    </p>
+
+    <?php if ($ticket->hasCode()): ?>
+        <div class="mt-4 flex items-center gap-3">
+            <?php /* Selectable text, always: the copy button is an accelerator, not the only way in. */ ?>
+            <code class="select-all rounded bg-gray-100 px-3 py-2 font-mono text-base tracking-widest">
+                <?= $escaper->escapeHtml($ticket->getCode()) ?>
+            </code>
+            <button type="button"
+                    class="btn btn-primary"
+                    @click="copy"
+                    :disabled="copied">
+                <span x-show="!copied"><?= $escaper->escapeHtml(__('Copy code')) ?></span>
+                <span x-show="copied" x-cloak><?= $escaper->escapeHtml(__('Copied')) ?></span>
+            </button>
+        </div>
+        <p class="mt-2 text-sm text-red-700" x-show="failed" x-cloak>
+            <?= $escaper->escapeHtml(__('Copying is not available here — select the code and copy it.')) ?>
+        </p>
+    <?php elseif (!$ticket->isEligible()): ?>
+        <p class="mt-4 text-sm text-gray-600">
+            <?= $escaper->escapeHtml(__('This offer applies to a different customer group.')) ?>
+        </p>
+    <?php endif; ?>
+
+    <?php if ($ticket->getFromDate() !== null || $ticket->getToDate() !== null): ?>
+        <p class="mt-4 text-sm text-gray-600">
+            <?php if ($ticket->getToDate() !== null): ?>
+                <?= $escaper->escapeHtml(__('Valid until %1', $ticket->getToDate())) ?>
+            <?php else: ?>
+                <?= $escaper->escapeHtml(__('Valid from %1', $ticket->getFromDate())) ?>
+            <?php endif; ?>
+        </p>
+    <?php endif; ?>
+
+    <?php if ($block->getNote() !== ''): ?>
+        <p class="mt-2 text-sm text-gray-600"><?= $escaper->escapeHtml($block->getNote()) ?></p>
+    <?php endif; ?>
+</div>
+<?php /*
+    An external module script, so no CSP nonce or hash is involved. Two ticket widgets on one page
+    emit two identical tags; a module graph is keyed by resolved url, so the browser fetches and
+    evaluates it once regardless.
+*/ ?>
+<script type="module" src="<?= $escaper->escapeUrl($block->getScriptUrl()) ?>"></script>

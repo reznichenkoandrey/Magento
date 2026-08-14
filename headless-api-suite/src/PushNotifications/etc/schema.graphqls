@@ -1,0 +1,13 @@
+type Mutation {
+    setCartDeviceToken(input: SetCartDeviceTokenInput! @doc(description: "The cart, the device, and what kind of device it is.")): SetCartDeviceTokenOutput @resolver(class: "Scr1be\\PushNotifications\\Model\\Resolver\\SetCartDeviceToken") @doc(description: "Register a push device and attach it to a cart, so the order placed from that cart can notify it — including for a guest checkout, where there is no account to look devices up by.")
+}
+
+input SetCartDeviceTokenInput {
+    cart_id: String! @doc(description: "The masked cart id. Must belong to the authenticated caller, or be a guest cart when there is none.")
+    device_token: String! @doc(description: "The provider's registration token, exactly as the device SDK returned it.")
+    platform: String! @doc(description: "One of `ios`, `android` or `web`. Anything else is refused rather than stored, so the column stays groupable.")
+}
+
+type SetCartDeviceTokenOutput {
+    success: Boolean! @doc(description: "Always true; failures are GraphQL errors, so a client never has to check both.")
+}

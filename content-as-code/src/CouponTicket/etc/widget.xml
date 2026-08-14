@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Four visible parameters and no fifth. Everything a customer reads off the ticket except the
+    headline and the small print — the discount, the dates, who it applies to, the code — comes from
+    the rule the author picked. There is deliberately no "discount text" field: the day it exists is
+    the day it disagrees with the rule.
+-->
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
+    <widget id="scr1be_coupon_ticket" class="Scr1be\CouponTicket\Block\Widget\Ticket">
+        <label translate="true">Coupon Ticket</label>
+        <description translate="true">Shows a cart price rule's coupon as a tear-off ticket, with a copy-to-clipboard button.</description>
+        <parameters>
+            <parameter name="rule_id" xsi:type="select" visible="true" required="true" sort_order="10"
+                       source_model="Scr1be\CouponTicket\Model\Source\CartPriceRule">
+                <label translate="true">Cart Price Rule</label>
+                <description translate="true">Only active rules with a specific coupon code are listed.</description>
+            </parameter>
+            <parameter name="heading" xsi:type="text" visible="true" sort_order="20">
+                <label translate="true">Headline</label>
+                <description translate="true">Optional line above the discount, e.g. "Spring sale".</description>
+            </parameter>
+            <parameter name="note" xsi:type="text" visible="true" sort_order="30">
+                <label translate="true">Small print</label>
+                <description translate="true">Optional line under the ticket, e.g. "One use per customer".</description>
+            </parameter>
+            <parameter name="template" xsi:type="select" visible="true" required="true" sort_order="40">
+                <label translate="true">Template</label>
+                <options>
+                    <option name="default" value="widget/ticket.phtml" selected="true">
+                        <label translate="true">Coupon Ticket</label>
+                    </option>
+                    <option name="compact" value="widget/ticket-compact.phtml">
+                        <label translate="true">Coupon Ticket — single line</label>
+                    </option>
+                </options>
+            </parameter>
+        </parameters>
+    </widget>
+</widgets>

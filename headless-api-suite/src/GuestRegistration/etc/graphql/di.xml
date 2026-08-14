@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      `after` because the field being added is derived from core's return value and core must always
+      run. See the plugin's class docblock for why this is a plugin rather than a resolver for the
+      new field.
+
+      Declared in the graphql area rather than globally: the target class only ever executes there,
+      and an interceptor generated for it in the frontend area is dead weight in every page render.
+    -->
+    <type name="Magento\QuoteGraphQl\Model\Resolver\PlaceOrder">
+        <plugin name="scr1be_guest_registration_stamp_customer_created"
+                type="Scr1be\GuestRegistration\Plugin\StampCustomerCreated"
+                sortOrder="10"/>
+    </type>
+    <!--
+      Both resolvers that return PlaceOrderOutput. `SetPaymentAndPlaceOrder` backs the deprecated
+      `setPaymentMethodAndPlaceOrder` mutation; it is an independent class rather than a wrapper
+      around the one above, so it needs the plugin declared separately. Its success payload has the
+      same `order.order_number` key, and the observer is on the quote submit event, so the plugin
+      body needs no branch.
+    -->
+    <type name="Magento\QuoteGraphQl\Model\Resolver\SetPaymentAndPlaceOrder">
+        <plugin name="scr1be_guest_registration_stamp_customer_created"
+                type="Scr1be\GuestRegistration\Plugin\StampCustomerCreated"
+                sortOrder="10"/>
+    </type>
+</config>

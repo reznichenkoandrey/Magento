@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+  graphql area only. The holder is filled by a plugin on a GraphQL resolver, so in every other area
+  the observer would load its dependency graph to find an empty holder and return.
+
+  `sales_model_service_quote_submit_before` rather than `..._success`: the before event fires while
+  the order object is still unsaved, so the two columns ride along with the insert that creates the
+  order instead of costing a second save on the checkout's critical path.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="sales_model_service_quote_submit_before">
+        <observer name="scr1be_order_attribution_stamp"
+                  instance="Scr1be\OrderAttribution\Observer\StampOrderAttribution"/>
+    </event>
+</config>

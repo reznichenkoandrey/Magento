@@ -1,0 +1,15 @@
+{
+    "name": "scr1be/headless-api-suite",
+    "description": "The GraphQL surface a native mobile app actually needs on a Magento 2 store: guest-to-customer auto-registration, order attribution with an admin-managed source registry, OIDC social login, search autocomplete, a wishlist share mutation and order-lifecycle push notifications. Installs all six modules of the suite.",
+    "type": "metapackage",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "scr1be/headless-guest-registration": "self.version",
+        "scr1be/headless-order-attribution": "self.version",
+        "scr1be/headless-social-login": "self.version",
+        "scr1be/headless-search-autocomplete": "self.version",
+        "scr1be/headless-wishlist-share": "self.version",
+        "scr1be/headless-push-notifications": "self.version"
+    }
+}

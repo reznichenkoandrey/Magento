@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <!--
+          On the hour, like Magento_Sales' own sales_clean_orders. The cache is disposable derived
+          data and a missed run costs nothing but disk, so it goes in the default group rather than
+          in one of its own.
+        -->
+        <job name="scr1be_signed_documents_sweep_cache"
+             instance="Scr1be\SignedDocumentDelivery\Cron\SweepDocumentCache"
+             method="execute">
+            <schedule>0 * * * *</schedule>
+        </job>
+    </group>
+</config>

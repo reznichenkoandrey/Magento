@@ -1,0 +1,22 @@
+{
+    "scr1be_social_login_link": {
+        "column": {
+            "link_id": true,
+            "provider": true,
+            "subject": true,
+            "customer_id": true,
+            "website_id": true,
+            "created_at": true,
+            "last_login_at": true
+        },
+        "index": {
+            "SCR1BE_SOCIAL_LOGIN_LINK_CUSTOMER_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "SCR1BE_SOCIAL_LOGIN_LINK_PROVIDER_SUBJECT_WEBSITE_ID": true,
+            "SCR1BE_SOCIAL_LOGIN_LINK_CUSTOMER_ID_CUSTOMER_ENTITY_ENTITY_ID": true,
+            "SCR1BE_SOCIAL_LOGIN_LINK_WEBSITE_ID_STORE_WEBSITE_WEBSITE_ID": true
+        }
+    }
+}

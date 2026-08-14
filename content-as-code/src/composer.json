@@ -1,0 +1,11 @@
+{
+    "name": "scr1be/content-as-code",
+    "description": "CMS content made reproducible: capture pages, blocks, widget instances and coupon tickets into a deterministic JSON bundle you can commit, and replay it on any other install from the console, from the admin, or from a setup patch. Installs both modules.",
+    "type": "metapackage",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "scr1be/content-transfer": "self.version",
+        "scr1be/coupon-ticket": "self.version"
+    }
+}

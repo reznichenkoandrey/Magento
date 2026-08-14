@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+  Area-scoped to `graphql` deliberately.
+
+  `sales_model_service_quote_submit_success` is dispatched by
+  Magento\Quote\Model\QuoteManagement::submitQuote() and fires for every checkout on the
+  installation. Registering the observer globally and then testing the area inside it would still
+  instantiate the observer, the registrar and their dependency graph on every storefront and admin
+  order. Declaring it here means the other areas never see the class at all.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="sales_model_service_quote_submit_success">
+        <observer name="scr1be_guest_registration_register_after_submit"
+                  instance="Scr1be\GuestRegistration\Observer\RegisterGuestAfterSubmit"/>
+    </event>
+</config>

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!--
+  A fifth page type for Magento's PDF renderer configuration.
+
+  Magento_Sales' own pdf.xml declares `invoice`, `shipment` and `creditmemo`, each with a default
+  item renderer, and Magento_Bundle, Magento_Downloadable and Magento_GroupedProduct add
+  product-type-specific renderers to those three. `Magento\Sales\Model\Order\Pdf\Config` is a
+  merged configuration keyed on `renderers/<page type>`, and pdf.xsd types `page/@type` as a plain
+  string, so `order` slots in beside the others without touching anything core declares.
+
+  Only the `default` renderer is registered. A bundle or downloadable line on an order document
+  therefore falls back to it — `AbstractPdf::_getRenderer()` substitutes `default` for any product
+  type it has no entry for — which draws the parent line without the child breakdown. Registering
+  order-page renderers for those product types is the extension point, and it is somebody else's
+  pdf.xml rather than a fork of this one.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Sales:etc/pdf_file.xsd">
+    <renderers>
+        <page type="order">
+            <renderer product_type="default">Scr1be\SignedDocumentDelivery\Model\Pdf\Items\DefaultOrder</renderer>
+        </page>
+    </renderers>
+</config>

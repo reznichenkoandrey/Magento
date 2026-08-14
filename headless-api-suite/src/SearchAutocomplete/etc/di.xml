@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      The load-bearing four lines of this module.
+
+      Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection defaults `searchRequestName` to
+      `catalog_view_container`, and `Magento_CatalogSearch/etc/search_request.xml` declares no
+      `$search_term$` binding in that container — only `quick_search_container` has one. A collection
+      built with the default therefore takes `addSearchFilter('shirt')` without complaint and returns
+      the whole catalogue. Core solves this for its own quick search with a virtual type of exactly
+      this shape; this module needs its own because injecting core's
+      `Magento\CatalogSearch\Model\ResourceModel\Fulltext\SearchCollectionFactory` would mean any
+      project that re-points that factory silently re-points this module too.
+    -->
+    <virtualType name="Scr1beAutocompleteFulltextCollection"
+                 type="Magento\CatalogSearch\Model\ResourceModel\Fulltext\Collection">
+        <arguments>
+            <argument name="searchRequestName" xsi:type="string">quick_search_container</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Scr1beAutocompleteFulltextCollectionFactory"
+                 type="Magento\Catalog\Model\ResourceModel\Product\CollectionFactory">
+        <arguments>
+            <argument name="instanceName" xsi:type="string">Scr1beAutocompleteFulltextCollection</argument>
+        </arguments>
+    </virtualType>
+    <type name="Scr1be\SearchAutocomplete\Model\Provider\ProductProvider">
+        <arguments>
+            <argument name="collectionFactory" xsi:type="object">Scr1beAutocompleteFulltextCollectionFactory</argument>
+        </arguments>
+    </type>
+
+    <!--
+      The array keys are the GraphQL fields each provider fills, so adding a fourth source is a class
+      and one line — the resolver never learns how many there are.
+    -->
+    <type name="Scr1be\SearchAutocomplete\Model\ProviderPool">
+        <arguments>
+            <argument name="providers" xsi:type="array">
+                <item name="products" xsi:type="object">Scr1be\SearchAutocomplete\Model\Provider\ProductProvider</item>
+                <item name="categories" xsi:type="object">Scr1be\SearchAutocomplete\Model\Provider\CategoryProvider</item>
+                <item name="terms" xsi:type="object">Scr1be\SearchAutocomplete\Model\Provider\TermProvider</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/menu.xsd">
+    <menu>
+        <!--
+            Under Content > Elements, next to Pages and Blocks: this page is about those two, and an
+            operator looking for it will look where they are.
+        -->
+        <add id="Scr1be_ContentTransfer::transfer"
+             title="Content Transfer"
+             translate="title"
+             module="Scr1be_ContentTransfer"
+             sortOrder="90"
+             parent="Magento_Backend::content_elements"
+             action="scr1be_contenttransfer/transfer/index"
+             resource="Scr1be_ContentTransfer::transfer"/>
+    </menu>
+</config>

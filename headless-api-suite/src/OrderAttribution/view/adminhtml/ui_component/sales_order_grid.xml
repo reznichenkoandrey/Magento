@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Merged into Magento_Sales' own sales_order_grid definition rather than replacing it.
+
+  Both columns are hidden by default (`<visible>false</visible>`): the order grid already ships more
+  columns than fit on a laptop, and a module that adds two more to everybody's default view has made
+  a layout decision on behalf of every admin on the installation. They are one click away in Columns.
+-->
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <columns name="sales_order_columns">
+        <column name="scr1be_source_code" sortOrder="200">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Order Source</label>
+                <visible>false</visible>
+            </settings>
+        </column>
+        <column name="scr1be_source_detail" sortOrder="210">
+            <settings>
+                <filter>text</filter>
+                <label translate="true">Order Source Detail</label>
+                <visible>false</visible>
+            </settings>
+        </column>
+    </columns>
+</listing>

@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      The default transport writes to the log. See LogSinkTransport's docblock for why that is the
+      shipped binding rather than FCM. A project switches over with:
+
+          <preference for="Scr1be\PushNotifications\Api\PushTransportInterface"
+                      type="Scr1be\PushNotifications\Model\Fcm\FcmTransport"/>
+    -->
+    <preference for="Scr1be\PushNotifications\Api\PushTransportInterface"
+                type="Scr1be\PushNotifications\Model\LogSinkTransport"/>
+
+    <!--
+      Eight plugins, two classes. Each virtual type is the same plugin carrying one notification type,
+      which keeps the copy for all eight notifications in MessageComposer rather than spread across
+      eight near-identical classes.
+
+      `after` on all of them: the push has to inherit the sender's "Notify Customer" decision, and
+      only the sender knows the outcome of it. Both plugin classes document precisely which signal
+      they read and why the two shapes differ.
+    -->
+    <virtualType name="Scr1beNotifyOnOrderEmail" type="Scr1be\PushNotifications\Plugin\NotifyOnEntityEmail">
+        <arguments>
+            <argument name="notificationType" xsi:type="const">Scr1be\PushNotifications\Model\MessageComposer::TYPE_ORDER</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Scr1beNotifyOnInvoiceEmail" type="Scr1be\PushNotifications\Plugin\NotifyOnEntityEmail">
+        <arguments>
+            <argument name="notificationType" xsi:type="const">Scr1be\PushNotifications\Model\MessageComposer::TYPE_INVOICE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Scr1beNotifyOnShipmentEmail" type="Scr1be\PushNotifications\Plugin\NotifyOnEntityEmail">
+        <arguments>
+            <argument name="notificationType" xsi:type="const">Scr1be\PushNotifications\Model\MessageComposer::TYPE_SHIPMENT</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Scr1beNotifyOnCreditmemoEmail" type="Scr1be\PushNotifications\Plugin\NotifyOnEntityEmail">
+        <arguments>
+            <argument name="notificationType" xsi:type="const">Scr1be\PushNotifications\Model\MessageComposer::TYPE_CREDITMEMO</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Scr1beNotifyOnOrderComment" type="Scr1be\PushNotifications\Plugin\NotifyOnCommentEmail">
+        <arguments>
+            <argument name="notificationType" xsi:type="const">Scr1be\PushNotifications\Model\MessageComposer::TYPE_ORDER_COMMENT</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Scr1beNotifyOnInvoiceComment" type="Scr1be\PushNotifications\Plugin\NotifyOnCommentEmail">
+        <arguments>
+            <argument name="notificationType" xsi:type="const">Scr1be\PushNotifications\Model\MessageComposer::TYPE_INVOICE_COMMENT</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Scr1beNotifyOnShipmentComment" type="Scr1be\PushNotifications\Plugin\NotifyOnCommentEmail">
+        <arguments>
+            <argument name="notificationType" xsi:type="const">Scr1be\PushNotifications\Model\MessageComposer::TYPE_SHIPMENT_COMMENT</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Scr1beNotifyOnCreditmemoComment" type="Scr1be\PushNotifications\Plugin\NotifyOnCommentEmail">
+        <arguments>
+            <argument name="notificationType" xsi:type="const">Scr1be\PushNotifications\Model\MessageComposer::TYPE_CREDITMEMO_COMMENT</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Sales\Model\Order\Email\Sender\OrderSender">
+        <plugin name="scr1be_push_notify_order" type="Scr1beNotifyOnOrderEmail" sortOrder="100"/>
+    </type>
+    <type name="Magento\Sales\Model\Order\Email\Sender\InvoiceSender">
+        <plugin name="scr1be_push_notify_invoice" type="Scr1beNotifyOnInvoiceEmail" sortOrder="100"/>
+    </type>
+    <type name="Magento\Sales\Model\Order\Email\Sender\ShipmentSender">
+        <plugin name="scr1be_push_notify_shipment" type="Scr1beNotifyOnShipmentEmail" sortOrder="100"/>
+    </type>
+    <type name="Magento\Sales\Model\Order\Email\Sender\CreditmemoSender">
+        <plugin name="scr1be_push_notify_creditmemo" type="Scr1beNotifyOnCreditmemoEmail" sortOrder="100"/>
+    </type>
+    <type name="Magento\Sales\Model\Order\Email\Sender\OrderCommentSender">
+        <plugin name="scr1be_push_notify_order_comment" type="Scr1beNotifyOnOrderComment" sortOrder="100"/>
+    </type>
+    <type name="Magento\Sales\Model\Order\Email\Sender\InvoiceCommentSender">
+        <plugin name="scr1be_push_notify_invoice_comment" type="Scr1beNotifyOnInvoiceComment" sortOrder="100"/>
+    </type>
+    <type name="Magento\Sales\Model\Order\Email\Sender\ShipmentCommentSender">
+        <plugin name="scr1be_push_notify_shipment_comment" type="Scr1beNotifyOnShipmentComment" sortOrder="100"/>
+    </type>
+    <type name="Magento\Sales\Model\Order\Email\Sender\CreditmemoCommentSender">
+        <plugin name="scr1be_push_notify_creditmemo_comment" type="Scr1beNotifyOnCreditmemoComment" sortOrder="100"/>
+    </type>
+</config>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Cache/etc/cache.xsd">
+    <type name="scr1be_social_jwks" translate="label,description"
+          instance="Scr1be\SocialLogin\Model\Cache\JwksCache">
+        <label>Social Login Signing Keys</label>
+        <description>Public signing keys (JWKS) fetched from Google and Apple</description>
+    </type>
+</config>

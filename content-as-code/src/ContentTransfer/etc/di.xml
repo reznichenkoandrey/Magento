@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+        The pool. Adding a porter is one <item> here or in your own module's di.xml — nothing else
+        in the engine has to learn about it, because ordering comes from the porter's own declared
+        dependencies rather than from this list.
+    -->
+    <type name="Scr1be\ContentTransfer\Model\PorterPool">
+        <arguments>
+            <argument name="porters" xsi:type="array">
+                <item name="cms_block" xsi:type="object">Scr1be\ContentTransfer\Model\Porter\CmsBlockPorter</item>
+                <item name="cms_page" xsi:type="object">Scr1be\ContentTransfer\Model\Porter\CmsPagePorter</item>
+                <item name="widget_instance" xsi:type="object">Scr1be\ContentTransfer\Model\Porter\WidgetInstancePorter</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="scr1be_content_capture" xsi:type="object">Scr1be\ContentTransfer\Console\Command\CaptureCommand</item>
+                <item name="scr1be_content_apply" xsi:type="object">Scr1be\ContentTransfer\Console\Command\ApplyCommand</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

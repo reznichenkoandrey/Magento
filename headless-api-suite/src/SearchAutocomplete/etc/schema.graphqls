@@ -1,0 +1,36 @@
+type Query {
+    searchAutocomplete(
+        query: String! @doc(description: "What the shopper has typed so far. Terms shorter than the store's minimum query length return empty sections rather than an error.")
+    ): SearchAutocompleteResult! @resolver(class: "Scr1be\\SearchAutocomplete\\Model\\Resolver\\SearchAutocomplete") @doc(description: "Everything a search drop-down needs, in one round trip: matching products as renderable cards, matching categories, and popular search terms.")
+}
+
+type SearchAutocompleteResult @doc(description: "One drop-down's worth of suggestions.") {
+    query: String! @doc(description: "The term the suggestions were produced for, after trimming and truncation to the store's maximum query length.")
+    products: [AutocompleteProduct!]! @doc(description: "Matching products, ordered by search relevance.")
+    categories: [AutocompleteCategory!]! @doc(description: "Categories whose name contains the term.")
+    terms: [AutocompleteTerm!]! @doc(description: "Popular past searches containing the term, most popular first. Terms that have never matched anything are excluded.")
+}
+
+type AutocompleteProduct @doc(description: "Enough of a product to draw a row without a second request.") {
+    sku: String!
+    name: String!
+    url_key: String! @doc(description: "The product's URL key, for building a link with the store's product URL suffix.")
+    image_url: String @doc(description: "Null when the product has no image — the client decides what a placeholder looks like.")
+    price: Float @doc(description: "Regular price for the requesting customer's group.")
+    final_price: Float @doc(description: "Price after catalogue and special pricing. Equal to `price` when nothing applies.")
+    currency: String! @doc(description: "The store's current currency code.")
+    badges: [String!]! @doc(description: "`discount` when final_price is below price; `from_price` when the price shown is a starting price rather than the price of one item.")
+}
+
+type AutocompleteCategory {
+    id: Int!
+    name: String!
+    url_path: String! @doc(description: "Path relative to the store's base URL, without the category URL suffix.")
+    product_count: Int!
+}
+
+type AutocompleteTerm {
+    query_text: String!
+    result_count: Int! @doc(description: "How many products this term matched the last time somebody searched it.")
+    is_exact_match: Boolean! @doc(description: "True when the term is exactly what the shopper has typed, so a client can render it as 'search for X' rather than as a suggestion.")
+}

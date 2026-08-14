@@ -1,0 +1,29 @@
+type Mutation {
+    requestSalesDocument(
+        input: SalesDocumentRequestInput! @doc(description: "Identifies the document to be delivered.")
+    ): SalesDocumentRequestOutput
+        @resolver(class: "\\Scr1be\\SignedDocumentDelivery\\Model\\Resolver\\RequestSalesDocument")
+        @doc(description: "Issue a short-lived signed URL for one of the logged-in customer's own sales documents. The URL is not a capability on its own: fetching it also requires the customer's bearer token in an Authorization header.")
+}
+
+input SalesDocumentRequestInput @doc(description: "Identifies one sales document belonging to the logged-in customer.") {
+    document_type: SalesDocumentType! @doc(description: "Which document to render.")
+    uid: ID! @doc(description: "The document's UID, exactly as returned by the customer order query. For SHIPMENT this is the base64-encoded increment ID rather than the entity ID, which is what Magento_SalesGraphQl emits; entity IDs are accepted as a fallback.")
+}
+
+type SalesDocumentRequestOutput @doc(description: "A signed, expiring URL for one sales document.") {
+    document_type: SalesDocumentType! @doc(description: "The document type that was requested.")
+    uid: ID! @doc(description: "The UID that was requested, echoed back.")
+    url: String! @doc(description: "Absolute HTTPS URL carrying the signed token. Must be fetched with the customer's Authorization header attached.")
+    filename: String! @doc(description: "Suggested filename, built from the document's increment ID.")
+    content_type: String! @doc(description: "MIME type of the delivered file. Always application/pdf.")
+    expires_in: Int! @doc(description: "Seconds until the URL stops working, measured at the moment of issue.")
+    expires_at: String! @doc(description: "Absolute expiry as an ISO 8601 timestamp in UTC.")
+}
+
+enum SalesDocumentType @doc(description: "The sales documents a customer may download.") {
+    ORDER @doc(description: "The order itself. Magento ships no order PDF; this module renders one on the same Zend_Pdf machinery as the other three.")
+    INVOICE @doc(description: "An invoice, rendered by Magento\\Sales\\Model\\Order\\Pdf\\Invoice.")
+    SHIPMENT @doc(description: "A packing slip, rendered by Magento\\Sales\\Model\\Order\\Pdf\\Shipment.")
+    CREDITMEMO @doc(description: "A credit memo, rendered by Magento\\Sales\\Model\\Order\\Pdf\\Creditmemo.")
+}

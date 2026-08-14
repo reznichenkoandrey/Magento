@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">scr1be_order_source_form.scr1be_order_source_form_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">Order Source</item>
+    </argument>
+    <settings>
+        <buttons>
+            <button name="back" class="Magento\Ui\Component\Control\BackButton"/>
+            <button name="save" class="Magento\Ui\Component\Control\SaveButton"/>
+        </buttons>
+        <namespace>scr1be_order_source_form</namespace>
+        <dataScope>data</dataScope>
+        <deps>
+            <dep>scr1be_order_source_form.scr1be_order_source_form_data_source</dep>
+        </deps>
+    </settings>
+    <dataSource name="scr1be_order_source_form_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+        <settings>
+            <submitUrl path="scr1be_orderattribution/source/save"/>
+        </settings>
+        <dataProvider class="Scr1be\OrderAttribution\Ui\DataProvider\SourceFormDataProvider"
+                      name="scr1be_order_source_form_data_source">
+            <settings>
+                <requestFieldName>source_id</requestFieldName>
+                <primaryFieldName>source_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+    <fieldset name="general">
+        <settings>
+            <label translate="true">Source</label>
+        </settings>
+        <field name="source_id" formElement="hidden">
+            <settings>
+                <dataType>number</dataType>
+            </settings>
+        </field>
+        <field name="code" sortOrder="10" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Code</label>
+                <notice translate="true">
+                    What clients send as `order_source.source_code`, and what every attribution report
+                    groups by. Lowercase letters, digits, "-" and "_", 2–32 characters. Changing it
+                    later does not rewrite the orders already stamped with the old value.
+                </notice>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+        <field name="label" sortOrder="20" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Label</label>
+                <notice translate="true">Shown in `availableOrderSources` and in the order grid.</notice>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+        <field name="is_active" sortOrder="30" formElement="select">
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                    </settings>
+                </select>
+            </formElements>
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Accepting New Orders</label>
+                <notice translate="true">
+                    "No" retires the channel: it disappears from `availableOrderSources` and
+                    `placeOrder` refuses it, while every order already attributed to it keeps its
+                    code and its label. This is the safe way to stop using a source.
+                </notice>
+            </settings>
+        </field>
+        <field name="sort_order" sortOrder="40" formElement="input">
+            <settings>
+                <dataType>number</dataType>
+                <label translate="true">Sort Order</label>
+                <notice translate="true">Ascending. Ties are broken by code, so the API's order is stable.</notice>
+                <validation>
+                    <rule name="validate-digits" xsi:type="boolean">true</rule>
+                </validation>
+            </settings>
+        </field>
+    </fieldset>
+</form>

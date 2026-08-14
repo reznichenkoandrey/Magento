@@ -1,0 +1,26 @@
+type Query {
+    availableOrderSources: [OrderSource!]! @resolver(class: "Scr1be\\OrderAttribution\\Model\\Resolver\\AvailableOrderSources") @doc(description: "The attribution sources a client may currently name when placing an order. Deactivated sources are absent.") @cache(cacheIdentity: "Scr1be\\OrderAttribution\\Model\\Resolver\\Cache\\AvailableOrderSourcesIdentity")
+}
+
+type OrderSource @doc(description: "One attribution source from the merchant's registry.") {
+    code: String! @doc(description: "The value to send as `order_source.source_code` on placeOrder.")
+    label: String! @doc(description: "Human-readable name, safe to show in a picker.")
+}
+
+# Core owns PlaceOrderInput (Magento_QuoteGraphQl); re-declaring it here contributes one
+# optional field, because the stitcher merges both declarations rather than replacing core's.
+#
+# Mind the phrasing in comments. Magento splits these files with a regex rather than a parser,
+# and that regex has no word boundaries: a schema keyword — `input`, `type`, `enum` and the
+# rest — directly followed by another word is read as the start of a declaration, even inside a
+# comment, and everything up to the next brace is swallowed with it. The result is an
+# "Unterminated string" that kills schema generation for every GraphQL request in the
+# installation. Keep such pairings out of prose; punctuation after the keyword defuses them.
+input PlaceOrderInput {
+    order_source: OrderSourceInput @doc(description: "Where this order came from. Optional; validated against the source registry, and an unknown or deactivated code fails the mutation.")
+}
+
+input OrderSourceInput {
+    source_code: String! @doc(description: "A code from `availableOrderSources`.")
+    source_detail: String @doc(description: "Free text the merchant's reporting can slice on — a campaign id, a store number, a build. Truncated to 255 characters.")
+}

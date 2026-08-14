@@ -1,0 +1,26 @@
+type Mutation {
+    shareWishlist(input: ShareWishlistInput! @doc(description: "Which list, to whom, and what to say.")): ShareWishlistOutput @resolver(class: "Scr1be\\WishlistShare\\Model\\Resolver\\ShareWishlist") @doc(description: "Email a link to the signed-in customer's wish list. Every address supplied comes back in exactly one of `sent` or `failed`, whatever happened.")
+}
+
+input ShareWishlistInput {
+    wishlist_id: ID @doc(description: "Omit for the customer's default wish list.")
+    emails: [String!]! @doc(description: "Recipients. De-duplicated case-insensitively; the maximum is the store's `wishlist/email/number_limit`.")
+    message: String @doc(description: "A covering note. The maximum length is the store's `wishlist/email/text_limit`.")
+}
+
+type ShareWishlistOutput @doc(description: "A frozen contract: the shape does not change with how well the send went.") {
+    wishlist_id: ID! @doc(description: "The list that was shared.")
+    shared_url: String! @doc(description: "The public link the recipients were sent, so the app can offer it for copying too.")
+    sent: [String!]! @doc(description: "Addresses the message reached the transport for.")
+    failed: [ShareWishlistFailure!]! @doc(description: "Addresses that did not. Never a reason to consider the whole mutation failed.")
+}
+
+type ShareWishlistFailure {
+    email: String!
+    reason: ShareWishlistFailureReason!
+}
+
+enum ShareWishlistFailureReason @doc(description: "Deliberately coarse. The transport's own words go to the store's log, never to the caller: an SMTP rejection describes the recipient's mailbox and the merchant's infrastructure, and neither is the sender's business.") {
+    INVALID_ADDRESS @doc(description: "The string is not a valid email address. Nothing was sent, and the shopper can fix it.")
+    DELIVERY_FAILED @doc(description: "The address was valid and the send did not succeed. Retryable.")
+}

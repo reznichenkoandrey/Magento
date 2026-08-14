@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      The listing's data source. A SearchResult over the registry table is enough: there is no join,
+      no store scope and no computed column, so a dedicated grid collection class would be a class
+      whose only content is two arguments.
+    -->
+    <virtualType name="Scr1beOrderSourceGridCollection"
+                 type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">scr1be_order_source</argument>
+            <argument name="resourceModel" xsi:type="string">Scr1be\OrderAttribution\Model\ResourceModel\Source</argument>
+        </arguments>
+    </virtualType>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="scr1be_order_source_listing_data_source" xsi:type="string">Scr1beOrderSourceGridCollection</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

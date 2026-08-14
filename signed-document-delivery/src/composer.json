@@ -1,0 +1,29 @@
+{
+    "name": "scr1be/signed-document-delivery",
+    "description": "Short-lived signed URLs for order, invoice, shipment and credit memo PDFs — a GraphQL mutation that authorizes and signs, a streaming controller that authorizes again against the caller's own customer token, and a content-addressed PDF cache under var/tmp",
+    "type": "magento2-module",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "ext-json": "*",
+        "ext-hash": "*",
+        "magento/framework": "^103.0",
+        "magento/module-sales": "^103.0",
+        "magento/module-store": "^101.1",
+        "magento/module-config": "^101.2",
+        "magento/module-backend": "^102.0",
+        "magento/module-cron": "^100.4",
+        "magento/module-integration": "^100.4",
+        "magento/module-authorization": "^100.4",
+        "magento/module-graph-ql": "^100.4",
+        "magento/module-customer-graph-ql": "^100.4",
+        "magento/module-store-graph-ql": "^100.4",
+        "magento/module-sales-graph-ql": "^100.4"
+    },
+    "autoload": {
+        "files": ["registration.php"],
+        "psr-4": {
+            "Scr1be\\SignedDocumentDelivery\\": ""
+        }
+    }
+}

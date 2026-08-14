@@ -1,0 +1,113 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scr1be\ContentTransfer\Block\Adminhtml\Transfer\Picker;
+
+/** @var Picker $block */
+/** @var Escaper $escaper */
+?>
+<div class="scr1be-content-transfer">
+    <?php /* GET, so a filtered view is a url an operator can bookmark or paste into a ticket. */ ?>
+    <form method="get" action="<?= $escaper->escapeUrl($block->getFilterUrl()) ?>" class="admin__field">
+        <label class="admin__field-label" for="scr1be-transfer-store">
+            <?= $escaper->escapeHtml(__('Store view')) ?>
+        </label>
+        <select name="<?= $escaper->escapeHtmlAttr(Picker::PARAM_STORE) ?>"
+                id="scr1be-transfer-store"
+                class="admin__control-select">
+            <option value=""><?= $escaper->escapeHtml(__('All store views')) ?></option>
+            <?php foreach ($block->getStoreOptions() as $storeId => $storeCode): ?>
+                <option value="<?= $escaper->escapeHtmlAttr((string)$storeId) ?>"
+                    <?= $block->isStoreSelected((int)$storeId) ? ' selected="selected"' : '' ?>>
+                    <?= $escaper->escapeHtml($storeCode) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <button type="submit" class="action-secondary">
+            <span><?= $escaper->escapeHtml(__('Apply filter')) ?></span>
+        </button>
+    </form>
+
+    <form method="post" action="<?= $escaper->escapeUrl($block->getExportUrl()) ?>">
+        <?php /* Magento rejects an admin POST without it; see Magento\Framework\Data\Form\FormKey. */ ?>
+        <input name="form_key" type="hidden" value="<?= $escaper->escapeHtmlAttr($block->getFormKey()) ?>"/>
+
+        <?php foreach ($block->getPorters() as $porter): ?>
+            <?php $summaries = $block->getSummaries($porter->getCode()); ?>
+            <fieldset class="admin__fieldset">
+                <legend class="admin__legend">
+                    <span><?= $escaper->escapeHtml($porter->getLabel()) ?></span>
+                </legend>
+
+                <?php if ($summaries === []): ?>
+                    <p class="admin__field-note">
+                        <?= $escaper->escapeHtml(__('Nothing to transfer in the selected scope.')) ?>
+                    </p>
+                <?php else: ?>
+                    <table class="admin__table-primary">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th><?= $escaper->escapeHtml(__('Name')) ?></th>
+                            <th><?= $escaper->escapeHtml(__('Bundle key')) ?></th>
+                            <th><?= $escaper->escapeHtml(__('Store views')) ?></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($summaries as $summary): ?>
+                            <?php
+                            $fieldName = sprintf(
+                                '%s[%s][]',
+                                Picker::PARAM_ENTRIES,
+                                $porter->getCode()
+                            );
+                            ?>
+                            <tr>
+                                <td>
+                                    <input type="checkbox"
+                                           class="admin__control-checkbox"
+                                           name="<?= $escaper->escapeHtmlAttr($fieldName) ?>"
+                                           value="<?= $escaper->escapeHtmlAttr($summary->getIdentifier()) ?>"/>
+                                </td>
+                                <td><?= $escaper->escapeHtml($summary->getLabel()) ?></td>
+                                <td><code><?= $escaper->escapeHtml($summary->getIdentifier()) ?></code></td>
+                                <td><?= $escaper->escapeHtml($block->describeStores($summary)) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+            </fieldset>
+        <?php endforeach; ?>
+
+        <div class="admin__field">
+            <label class="admin__field-label" for="scr1be-transfer-format">
+                <?= $escaper->escapeHtml(__('Bundle format')) ?>
+            </label>
+            <select name="<?= $escaper->escapeHtmlAttr(Picker::PARAM_FORMAT) ?>"
+                    id="scr1be-transfer-format"
+                    class="admin__control-select">
+                <option value="<?= $escaper->escapeHtmlAttr(Picker::FORMAT_JSON) ?>">
+                    <?= $escaper->escapeHtml(__('Single JSON document')) ?>
+                </option>
+                <option value="<?= $escaper->escapeHtmlAttr(Picker::FORMAT_ZIP) ?>">
+                    <?= $escaper->escapeHtml(__('Zip archive, one file per entry')) ?>
+                </option>
+            </select>
+        </div>
+
+        <?php /* Carried through so the export runs against the same scope the list was built from. */ ?>
+        <?php foreach ($block->getSelectedStoreIds() as $storeId): ?>
+            <input type="hidden"
+                   name="<?= $escaper->escapeHtmlAttr(Picker::PARAM_STORE) ?>"
+                   value="<?= $escaper->escapeHtmlAttr((string)$storeId) ?>"/>
+        <?php endforeach; ?>
+
+        <div class="admin__field">
+            <button type="submit" class="action-primary">
+                <span><?= $escaper->escapeHtml(__('Export selected')) ?></span>
+            </button>
+        </div>
+    </form>
+</div>

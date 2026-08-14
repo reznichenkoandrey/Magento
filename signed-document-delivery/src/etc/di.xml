@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!--
+      The registry. Adding a fifth document type means adding an entry here and nothing else:
+      no switch to extend, no factory to teach. The keys are the DocumentType enum's values and
+      the pool refuses at construction time if one of them is not.
+    -->
+    <type name="Scr1be\SignedDocumentDelivery\Model\Renderer\RendererPool">
+        <arguments>
+            <argument name="renderers" xsi:type="array">
+                <item name="ORDER" xsi:type="object">
+                    Scr1be\SignedDocumentDelivery\Model\Renderer\OrderRenderer
+                </item>
+                <item name="INVOICE" xsi:type="object">
+                    Scr1be\SignedDocumentDelivery\Model\Renderer\InvoiceRenderer
+                </item>
+                <item name="SHIPMENT" xsi:type="object">
+                    Scr1be\SignedDocumentDelivery\Model\Renderer\ShipmentRenderer
+                </item>
+                <item name="CREDITMEMO" xsi:type="object">
+                    Scr1be\SignedDocumentDelivery\Model\Renderer\CreditmemoRenderer
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!--
+      Every class in this module logs through a dedicated file. The whole point of the design is
+      that the customer is told nothing, so the log is the only place a refusal is visible — and an
+      operator investigating "why did this download 404" should not have to grep it out of
+      everything else the installation logged that minute.
+
+      This is Magento_Cron's VirtualLogger pattern verbatim: overriding the `system` handler by name
+      replaces that one entry in the platform's handler array and leaves the `debug` and `syslog`
+      handlers from app/etc/di.xml in place, so in developer mode the same records also reach
+      debug.log.
+    -->
+    <virtualType name="Scr1be\SignedDocumentDelivery\Logger\Handler"
+                 type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/scr1be_signed_documents.log</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Scr1be\SignedDocumentDelivery\Logger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">Scr1be\SignedDocumentDelivery\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Scr1be\SignedDocumentDelivery\Model\Document\OwnershipGuard">
+        <arguments>
+            <argument name="logger" xsi:type="object">Scr1be\SignedDocumentDelivery\Logger</argument>
+        </arguments>
+    </type>
+    <type name="Scr1be\SignedDocumentDelivery\Model\Renderer\AbstractPdfRenderer">
+        <arguments>
+            <argument name="logger" xsi:type="object">Scr1be\SignedDocumentDelivery\Logger</argument>
+        </arguments>
+    </type>
+    <type name="Scr1be\SignedDocumentDelivery\Model\Cache\CacheSweeper">
+        <arguments>
+            <argument name="logger" xsi:type="object">Scr1be\SignedDocumentDelivery\Logger</argument>
+        </arguments>
+    </type>
+    <type name="Scr1be\SignedDocumentDelivery\Cron\SweepDocumentCache">
+        <arguments>
+            <argument name="logger" xsi:type="object">Scr1be\SignedDocumentDelivery\Logger</argument>
+        </arguments>
+    </type>
+    <type name="Scr1be\SignedDocumentDelivery\Controller\Download\Index">
+        <arguments>
+            <argument name="logger" xsi:type="object">Scr1be\SignedDocumentDelivery\Logger</argument>
+        </arguments>
+    </type>
+</config>

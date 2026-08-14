@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!--
+    Same one-action merge as `cms_page_listing.xml`, for the CMS block grid.
+-->
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <listingToolbar name="listing_top">
+        <massaction name="listing_massaction">
+            <action name="scr1be_export_bundle">
+                <settings>
+                    <url path="scr1be_contenttransfer/massexport/block"/>
+                    <type>scr1be_export_bundle</type>
+                    <label translate="true">Export to Content Bundle</label>
+                </settings>
+            </action>
+        </massaction>
+    </listingToolbar>
+</listing>
