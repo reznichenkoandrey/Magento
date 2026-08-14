@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">scr1be_slider_form.scr1be_slider_form_data_source</item>
+        </item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
+    </argument>
+    <settings>
+        <buttons>
+            <button name="save" class="Scr1be\HyvaProductSlider\Block\Adminhtml\Slider\Edit\SaveButton"/>
+            <button name="delete" class="Scr1be\HyvaProductSlider\Block\Adminhtml\Slider\Edit\DeleteButton"/>
+            <button name="back" class="Scr1be\HyvaProductSlider\Block\Adminhtml\Slider\Edit\BackButton"/>
+        </buttons>
+        <namespace>scr1be_slider_form</namespace>
+        <dataScope>data</dataScope>
+        <deps>
+            <dep>scr1be_slider_form.scr1be_slider_form_data_source</dep>
+        </deps>
+    </settings>
+    <dataSource name="scr1be_slider_form_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+        <settings>
+            <submitUrl path="scr1be_slider/slider/save"/>
+        </settings>
+        <dataProvider class="Scr1be\HyvaProductSlider\Ui\DataProvider\SliderDataProvider"
+                      name="scr1be_slider_form_data_source">
+            <settings>
+                <requestFieldName>slider_id</requestFieldName>
+                <primaryFieldName>slider_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+
+    <fieldset name="general" sortOrder="10">
+        <settings>
+            <label translate="true">General</label>
+        </settings>
+        <field name="slider_id" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <visible>false</visible>
+                <dataScope>slider_id</dataScope>
+            </settings>
+        </field>
+        <field name="is_active" sortOrder="10" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">1</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Enabled</label>
+                <dataScope>is_active</dataScope>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="number">0</map>
+                            <map name="true" xsi:type="number">1</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+        <field name="title" sortOrder="20" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Title</label>
+                <notice translate="true">Rendered as the carousel heading.</notice>
+                <dataScope>title</dataScope>
+            </settings>
+        </field>
+        <field name="identifier" sortOrder="30" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                    <rule name="no-marginal-whitespace" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Identifier</label>
+                <notice translate="true">Lower-case letters, digits, dashes and underscores. Layout XML and the
+                    widget address the slider by this name, so changing it detaches anything already pointing
+                    at it.</notice>
+                <dataScope>identifier</dataScope>
+            </settings>
+        </field>
+        <field name="store_id" sortOrder="40" formElement="multiselect"
+               class="Magento\Store\Ui\Component\Form\Field\StoreView">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">0</item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>int</dataType>
+                <label translate="true">Store View</label>
+                <dataScope>store_id</dataScope>
+            </settings>
+            <formElements>
+                <multiselect>
+                    <settings>
+                        <options class="Magento\Store\Model\System\Store"/>
+                    </settings>
+                </multiselect>
+            </formElements>
+        </field>
+    </fieldset>
+
+    <fieldset name="source" sortOrder="20">
+        <settings>
+            <label translate="true">Products</label>
+        </settings>
+        <field name="source_type" sortOrder="10" formElement="select">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="string">new</item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Source</label>
+                <dataScope>source_type</dataScope>
+                <!--
+                    The switcher only *applies* the rule whose value matches (see
+                    Magento_Ui/js/form/switcher.js — applyRule() returns early on a mismatch and
+                    nothing ever reverses an earlier action). So every rule spells out the full
+                    picture: show the one argument field that belongs to it, hide the other two.
+                    Rules that only said "show" would leave a category picker on screen next to a
+                    SKU list.
+                -->
+                <switcherConfig>
+                    <rules>
+                        <rule name="0">
+                            <value>category</value>
+                            <actions>
+                                <action name="0">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_category</target>
+                                    <callback>show</callback>
+                                </action>
+                                <action name="1">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_attribute_set</target>
+                                    <callback>hide</callback>
+                                </action>
+                                <action name="2">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_skus</target>
+                                    <callback>hide</callback>
+                                </action>
+                            </actions>
+                        </rule>
+                        <rule name="1">
+                            <value>attribute_set</value>
+                            <actions>
+                                <action name="0">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_category</target>
+                                    <callback>hide</callback>
+                                </action>
+                                <action name="1">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_attribute_set</target>
+                                    <callback>show</callback>
+                                </action>
+                                <action name="2">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_skus</target>
+                                    <callback>hide</callback>
+                                </action>
+                            </actions>
+                        </rule>
+                        <rule name="2">
+                            <value>manual</value>
+                            <actions>
+                                <action name="0">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_category</target>
+                                    <callback>hide</callback>
+                                </action>
+                                <action name="1">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_attribute_set</target>
+                                    <callback>hide</callback>
+                                </action>
+                                <action name="2">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_skus</target>
+                                    <callback>show</callback>
+                                </action>
+                            </actions>
+                        </rule>
+                        <rule name="3">
+                            <value>new</value>
+                            <actions>
+                                <action name="0">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_category</target>
+                                    <callback>hide</callback>
+                                </action>
+                                <action name="1">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_attribute_set</target>
+                                    <callback>hide</callback>
+                                </action>
+                                <action name="2">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_skus</target>
+                                    <callback>hide</callback>
+                                </action>
+                            </actions>
+                        </rule>
+                        <rule name="4">
+                            <value>bestsellers</value>
+                            <actions>
+                                <action name="0">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_category</target>
+                                    <callback>hide</callback>
+                                </action>
+                                <action name="1">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_attribute_set</target>
+                                    <callback>hide</callback>
+                                </action>
+                                <action name="2">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_skus</target>
+                                    <callback>hide</callback>
+                                </action>
+                            </actions>
+                        </rule>
+                        <rule name="5">
+                            <value>deals</value>
+                            <actions>
+                                <action name="0">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_category</target>
+                                    <callback>hide</callback>
+                                </action>
+                                <action name="1">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_attribute_set</target>
+                                    <callback>hide</callback>
+                                </action>
+                                <action name="2">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_skus</target>
+                                    <callback>hide</callback>
+                                </action>
+                            </actions>
+                        </rule>
+                        <rule name="6">
+                            <value>most_viewed</value>
+                            <actions>
+                                <action name="0">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_category</target>
+                                    <callback>hide</callback>
+                                </action>
+                                <action name="1">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_attribute_set</target>
+                                    <callback>hide</callback>
+                                </action>
+                                <action name="2">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_skus</target>
+                                    <callback>hide</callback>
+                                </action>
+                            </actions>
+                        </rule>
+                        <rule name="7">
+                            <value>recently_bought</value>
+                            <actions>
+                                <action name="0">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_category</target>
+                                    <callback>hide</callback>
+                                </action>
+                                <action name="1">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_attribute_set</target>
+                                    <callback>hide</callback>
+                                </action>
+                                <action name="2">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_skus</target>
+                                    <callback>hide</callback>
+                                </action>
+                            </actions>
+                        </rule>
+                        <rule name="8">
+                            <value>featured</value>
+                            <actions>
+                                <action name="0">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_category</target>
+                                    <callback>hide</callback>
+                                </action>
+                                <action name="1">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_attribute_set</target>
+                                    <callback>hide</callback>
+                                </action>
+                                <action name="2">
+                                    <target>scr1be_slider_form.scr1be_slider_form.source.source_skus</target>
+                                    <callback>hide</callback>
+                                </action>
+                            </actions>
+                        </rule>
+                    </rules>
+                    <enabled>true</enabled>
+                </switcherConfig>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Scr1be\HyvaProductSlider\Model\Source\SourceTypes"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+        <field name="source_category" sortOrder="20" formElement="select">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Category</label>
+                <dataScope>source_category</dataScope>
+                <notice translate="true">Anchor categories include their subcategories, exactly as the
+                    category page does.</notice>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Scr1be\HyvaProductSlider\Model\Source\CategoryOptions"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+        <field name="source_attribute_set" sortOrder="30" formElement="select">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Attribute Set</label>
+                <dataScope>source_attribute_set</dataScope>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Scr1be\HyvaProductSlider\Model\Source\AttributeSetOptions"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+        <field name="source_skus" sortOrder="40" formElement="textarea">
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">SKUs</label>
+                <notice translate="true">One per line or comma separated. Slides are rendered in this order.
+                    Unknown SKUs are reported when you save.</notice>
+                <dataScope>source_skus</dataScope>
+            </settings>
+        </field>
+        <field name="product_limit" sortOrder="50" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">12</item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                    <rule name="validate-digits" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>number</dataType>
+                <label translate="true">Number Of Products</label>
+                <notice translate="true">Must be larger than the widest slide count below, or there is nothing
+                    to scroll to.</notice>
+                <dataScope>product_limit</dataScope>
+            </settings>
+        </field>
+    </fieldset>
+
+    <fieldset name="layout" sortOrder="30">
+        <settings>
+            <label translate="true">Layout &amp; Behaviour</label>
+        </settings>
+        <field name="slides_mobile" sortOrder="10" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">1</item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="validate-digits" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>number</dataType>
+                <label translate="true">Slides — Mobile</label>
+                <notice translate="true">Below 40rem.</notice>
+                <dataScope>slides_mobile</dataScope>
+            </settings>
+        </field>
+        <field name="slides_tablet" sortOrder="20" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">2</item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="validate-digits" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>number</dataType>
+                <label translate="true">Slides — Tablet</label>
+                <notice translate="true">From 40rem (Tailwind's sm).</notice>
+                <dataScope>slides_tablet</dataScope>
+            </settings>
+        </field>
+        <field name="slides_desktop" sortOrder="30" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">4</item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="validate-digits" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>number</dataType>
+                <label translate="true">Slides — Desktop</label>
+                <notice translate="true">From 64rem (Tailwind's lg).</notice>
+                <dataScope>slides_desktop</dataScope>
+            </settings>
+        </field>
+        <field name="slides_wide" sortOrder="40" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">5</item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="validate-digits" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>number</dataType>
+                <label translate="true">Slides — Wide</label>
+                <notice translate="true">From 80rem (Tailwind's xl).</notice>
+                <dataScope>slides_wide</dataScope>
+            </settings>
+        </field>
+        <field name="autoplay" sortOrder="50" formElement="checkbox">
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Autoplay</label>
+                <notice translate="true">Pauses on hover, on keyboard focus, while the tab is hidden, and
+                    entirely when the visitor asked for reduced motion.</notice>
+                <dataScope>autoplay</dataScope>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="number">0</map>
+                            <map name="true" xsi:type="number">1</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+        <field name="autoplay_delay" sortOrder="60" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">5000</item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="validate-digits" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>number</dataType>
+                <label translate="true">Autoplay Delay (ms)</label>
+                <dataScope>autoplay_delay</dataScope>
+            </settings>
+        </field>
+        <field name="is_loop" sortOrder="70" formElement="checkbox">
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Loop</label>
+                <dataScope>is_loop</dataScope>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="number">0</map>
+                            <map name="true" xsi:type="number">1</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+        <field name="show_social_proof" sortOrder="80" formElement="checkbox">
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Show Purchase Line</label>
+                <notice translate="true">"17 minutes ago, Anna from Austin bought this", fetched after the page
+                    renders so the slider itself stays cacheable. Needs the global switch under Stores →
+                    Configuration → scr1be → Product Slider.</notice>
+                <dataScope>show_social_proof</dataScope>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="number">0</map>
+                            <map name="true" xsi:type="number">1</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+    </fieldset>
+</form>

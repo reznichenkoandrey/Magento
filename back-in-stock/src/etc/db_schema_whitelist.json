@@ -1,0 +1,33 @@
+{
+    "product_alert_stock": {
+        "column": {
+            "popup_status": true
+        },
+        "index": {
+            "SCR1BE_BACK_IN_STOCK_CUSTOMER_ID_WEBSITE_ID_POPUP_STATUS": true
+        }
+    },
+    "scr1be_push_device_token": {
+        "column": {
+            "token_id": true,
+            "token_hash": true,
+            "token": true,
+            "customer_id": true,
+            "website_id": true,
+            "platform": true,
+            "is_active": true,
+            "deactivated_reason": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {
+            "SCR1BE_PUSH_DEVICE_TOKEN_CUSTOMER_ID_WEBSITE_ID_IS_ACTIVE": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "SCR1BE_PUSH_DEVICE_TOKEN_TOKEN_HASH": true,
+            "SCR1BE_PUSH_DEVICE_TOKEN_CUSTOMER_ID_CUSTOMER_ENTITY_ENTITY_ID": true,
+            "SCR1BE_PUSH_DEVICE_TOKEN_WEBSITE_ID_STORE_WEBSITE_WEBSITE_ID": true
+        }
+    }
+}

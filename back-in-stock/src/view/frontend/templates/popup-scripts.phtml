@@ -1,0 +1,41 @@
+<?php
+declare(strict_types=1);
+
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Magento\Framework\Escaper;
+use Scr1be\BackInStock\Block\PopupScripts;
+
+/** @var PopupScripts $block */
+/** @var Escaper $escaper */
+
+/**
+ * @var HyvaCsp|null $hyvaCsp Hyvä's template engine plugin assigns this variable only when the
+ *      current theme is a Hyvä theme, so it is checked rather than assumed. This block hangs off
+ *      `head.additional`, which every theme has — including the ones that are not Hyvä.
+ */
+
+if (!$block->isEnabled()) {
+    return;
+}
+?>
+<?php /* Serialised with JSON_HEX_TAG, so no url in it can close the element it travels in. */ ?>
+<script type="importmap">
+<?= /* @noEscape */ $block->getImportMapJson() ?>
+</script>
+<?php
+/**
+ * Immediately after the element, because registerInlineScript() acts on the *last* script in the
+ * output buffer. An import map is an inline script and is subject to script-src like any other.
+ */
+if (isset($hyvaCsp)) {
+    $hyvaCsp->registerInlineScript();
+}
+?>
+<?php /*
+    Data, not code: `application/json` is a media type no engine executes, so this needs no CSP
+    treatment at all.
+*/ ?>
+<script type="application/json" data-scr1be-back-in-stock-config>
+<?= /* @noEscape */ $block->getConfigJson() ?>
+</script>
+<script type="module" src="<?= $escaper->escapeUrl($block->getEntryScriptUrl()) ?>"></script>

@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <!--
+          The sprite goes as early in the body as Hyvä offers, because a <use> resolves against
+          symbols already in the document. `after.body.start` is a container Hyvä's own
+          Magento_Theme/layout/default.xml already adds first-paint blocks to.
+        -->
+        <referenceContainer name="after.body.start">
+            <block class="Scr1be\StoreSwitcher\Block\FlagSpriteBlock"
+                   name="scr1be.store.switcher.flags"
+                   template="Scr1be_StoreSwitcher::switcher/flags.phtml"/>
+        </referenceContainer>
+        <!--
+          `header-content.additional` rather than `header-content` itself: Hyvä's header.phtml
+          renders its children by alias (getChildHtml('logo'), getChildHtml('topmenu'), …), so a
+          block added straight to the header block would be built and then never printed. The
+          container is the extension point the theme provides for exactly this.
+        -->
+        <referenceContainer name="header-content.additional">
+            <block class="Scr1be\StoreSwitcher\Block\DesktopSwitcher"
+                   name="scr1be.store.switcher.desktop"
+                   template="Scr1be_StoreSwitcher::switcher/desktop.phtml"/>
+            <block class="Scr1be\StoreSwitcher\Block\DrawerPayload"
+                   name="scr1be.store.switcher.drawer"
+                   template="Scr1be_StoreSwitcher::switcher/drawer.phtml"
+                   after="scr1be.store.switcher.desktop"/>
+        </referenceContainer>
+        <!--
+          Hyvä's default theme puts its own two switchers in the footer
+          (Magento_Store/layout/default.xml adds `store-switcher` and `store-language-switcher`
+          under `footer-content`). Leaving them in place would give a storefront two switchers that
+          disagree about where they send you, so this module takes ownership of the job rather than
+          sitting next to it. Deleting these two lines in a theme brings the footer pair back.
+        -->
+        <referenceBlock name="store-switcher" remove="true"/>
+        <referenceBlock name="store-language-switcher" remove="true"/>
+        <referenceContainer name="before.body.end">
+            <block class="Scr1be\StoreSwitcher\Block\SwitcherScripts"
+                   name="scr1be.store.switcher.scripts"
+                   template="Scr1be_StoreSwitcher::switcher/scripts.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

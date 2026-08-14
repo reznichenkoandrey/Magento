@@ -1,0 +1,21 @@
+<?php
+/**
+ * Copyright (c) 2026 scr1be. MIT licensed.
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+use Scr1be\StoreSeo\ViewModel\Canonical;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+/** @var Canonical $canonical */
+$canonical = $block->getData('canonical_view_model');
+$canonicalUrl = $canonical->getCanonicalUrl();
+?>
+<?php if ($canonicalUrl !== null): ?>
+<link rel="canonical" href="<?= $escaper->escapeUrl($canonicalUrl) ?>"/>
+<?php endif; ?>

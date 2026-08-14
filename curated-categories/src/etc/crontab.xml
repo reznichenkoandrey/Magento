@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <!--
+          Nightly, early, and deliberately not more often. The ranking is a rolling 30-day window, so
+          an hour of trading cannot move the top two dozen by anything a shopper would notice — and
+          every reconcile that reorders the category writes into two mview changelogs, which the
+          indexer then has to consume.
+        -->
+        <job name="scr1be_curated_bestsellers"
+             instance="Scr1be\CuratedCategories\Cron\ReconcileBestsellers"
+             method="execute">
+            <schedule>15 3 * * *</schedule>
+        </job>
+
+        <!--
+          Hourly, and this one is a self-heal rather than the primary path: the stock-item observer
+          already puts a product on the New page the moment it becomes buyable. What the cron
+          catches is everything the event cannot — products ageing out of the window, an import run
+          with events disabled, a request that died between the stock write and the category write.
+
+          Coming Soon rides the same schedule because it is driven by a date passing, and an hour is
+          the smallest unit anyone types into a date field.
+        -->
+        <job name="scr1be_curated_hourly"
+             instance="Scr1be\CuratedCategories\Cron\ReconcileHourly"
+             method="execute">
+            <schedule>5 * * * *</schedule>
+        </job>
+    </group>
+</config>

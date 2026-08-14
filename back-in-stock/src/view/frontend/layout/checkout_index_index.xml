@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+  No popup on checkout.
+
+  Two reasons, and they point the same way. Commercially, a modal offering more products over a
+  payment form is the definition of a distraction on the one page where distraction has a price.
+  Technically, `Magento_Csp` treats this action as a payment page — `Magento\Csp\Model\SubresourceIntegrity\SriEnabledActions`
+  is configured in `Magento_Csp/etc/di.xml` with exactly `checkout_index_index`,
+  `checkout_onepage_success`, `multishipping_checkout_billing` and the two admin order-create
+  actions — and a shop tightening its policy there should not have to discover this module's inline
+  import map while doing it.
+
+  Removing the scripts block as well as the dialog is the point: leaving the import map behind would
+  keep the CSP surface while removing the feature it was there for.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="scr1be.back_in_stock.popup" remove="true"/>
+        <referenceBlock name="scr1be.back_in_stock.scripts" remove="true"/>
+    </body>
+</page>

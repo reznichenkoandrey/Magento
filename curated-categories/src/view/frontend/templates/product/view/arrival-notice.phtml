@@ -1,0 +1,43 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Catalog\Block\Product\View;
+use Magento\Framework\Escaper;
+use Scr1be\CuratedCategories\ViewModel\ArrivalNotice;
+
+/** @var View $block */
+/** @var Escaper $escaper */
+
+/** @var ArrivalNotice $arrivalNotice */
+$arrivalNotice = $block->getData('arrival_notice');
+$product = $block->getProduct();
+
+// The date decides whether anything renders — the same question, asked the same way, that the Coming
+// Soon adapter asks when it picks the category's members. There is no second condition here that
+// could fall out of step with it.
+$restockDate = $arrivalNotice->getRestockDate($product);
+
+if ($restockDate === null) {
+    return;
+}
+
+// Empty when the merchant has cleared the message: a shop that wants the category without the PDP
+// line gets it by blanking the field, not by editing a template.
+$message = $arrivalNotice->getMessage($product);
+
+if ($message === '') {
+    return;
+}
+?>
+<p class="scr1be-arrival-notice mt-2 flex items-start gap-x-2 text-sm text-gray-700" role="status">
+    <svg class="w-4 h-4 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.5 2.5a1 1 0 001.414-1.414L11 9.586V6z"
+              clip-rule="evenodd"/>
+    </svg>
+    <?php // A machine-readable date beside the human sentence — the same fact, for the reader that
+          // is a crawler rather than a shopper. ?>
+    <time datetime="<?= $escaper->escapeHtmlAttr($restockDate->format('Y-m-d')) ?>">
+        <?= $escaper->escapeHtml($message) ?>
+    </time>
+</p>

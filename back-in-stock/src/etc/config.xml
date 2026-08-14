@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!--
+  Everything off by default.
+
+  A module that starts showing modals to customers the moment it is installed is a module that gets
+  uninstalled. The popup is switched on deliberately, and the push channel needs credentials before
+  it can do anything at all — so the only values here that are not "off" are the two that decide what
+  a switched-on popup looks like.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scr1be_back_in_stock>
+            <popup>
+                <enabled>0</enabled>
+                <max_items>6</max_items>
+                <low_stock_threshold>5</low_stock_threshold>
+            </popup>
+            <push>
+                <enabled>0</enabled>
+                <message_title>Back in stock</message_title>
+            </push>
+        </scr1be_back_in_stock>
+    </default>
+</config>

@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="100">
+            <label>scr1be</label>
+        </tab>
+        <section id="scr1be_product_card" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Product Card</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_HyvaProductCard::config</resource>
+
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable card decorations</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Off returns every renderer to the data core and Hyvä would have produced on their own: no badges, no srcset ladder, no stepper rules. The GraphQL fields keep resolving, with empty payloads.</comment>
+                </field>
+            </group>
+
+            <group id="badges" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Badges</label>
+                <field id="new_enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show "New" badge</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Driven by the product's <code>news_from_date</code> / <code>news_to_date</code> window, evaluated in the store's own timezone.]]></comment>
+                </field>
+                <field id="sale_enabled" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show "Sale" badge</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Compares the rendered final price against the regular price, so catalogue price rules count, not only special prices.</comment>
+                </field>
+                <field id="sale_min_percent" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Minimum discount to badge (%)</label>
+                    <validate>validate-digits</validate>
+                    <comment>A 0.4% rounding artefact is not a sale. Below this percentage the card shows no badge and no strike-through. Clamped to 0-100.</comment>
+                    <depends>
+                        <field id="sale_enabled">1</field>
+                    </depends>
+                </field>
+                <field id="low_stock_enabled" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show "Low stock" badge</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="low_stock_threshold" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Low stock threshold</label>
+                    <validate>validate-digits</validate>
+                    <comment>Salable quantity at or below which the card calls the product low on stock. Only reached on the stock endpoint and the PDP, where a real quantity is available — a listing card never invents one.</comment>
+                    <depends>
+                        <field id="low_stock_enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+
+            <group id="media" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Media</label>
+                <field id="srcset_widths" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Srcset widths</label>
+                    <comment><![CDATA[Comma-separated pixel widths, e.g. <code>240,320,480,640</code>. Each one becomes a resize target, so keep the ladder short — four rungs cover every breakpoint a grid actually renders at.]]></comment>
+                </field>
+                <field id="sizes" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Sizes attribute</label>
+                    <comment><![CDATA[Emitted verbatim as the <code>sizes</code> attribute. It has to describe your grid, not the image: the browser picks a srcset rung before layout exists.]]></comment>
+                </field>
+                <field id="hover_enabled" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable hover image</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="hover_max_products" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Hover images per page (ceiling)</label>
+                    <validate>validate-digits</validate>
+                    <comment>How many cards on one page may carry a hover image. Each one is a second generated file and a second request for a picture most shoppers never see; the cards past the ceiling render with the primary image only.</comment>
+                    <depends>
+                        <field id="hover_enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+
+            <group id="stock" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Stock endpoint</label>
+                <field id="endpoint_ttl" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Cache lifetime (seconds)</label>
+                    <validate>validate-digits</validate>
+                    <comment>Public max-age on the stock status endpoint. The response carries no session and no customer data, so a CDN may serve it to everyone; this is how stale it is allowed to be. 0 disables caching of the endpoint.</comment>
+                </field>
+            </group>
+
+            <group id="analytics" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Analytics</label>
+                <field id="ga4_enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Emit GA4 list context</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment><![CDATA[Adds <code>item_list_id</code> / <code>item_list_name</code> and an item payload to every card, and dispatches <code>scr1be-card:ga4</code> browser events for a tag manager to pick up. No vendor script is loaded.]]></comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

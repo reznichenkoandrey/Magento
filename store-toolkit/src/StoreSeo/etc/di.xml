@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Scr1be\StoreSeo\Model\Entity\StoreAvailability\CheckerPool">
+        <arguments>
+            <!--
+              Keyed by url_rewrite.entity_type, so a third-party module that generates rewrites for
+              its own entity type registers a checker here and gets hreflang for free. The keys are
+              the literals behind ProductUrlRewriteGenerator::ENTITY_TYPE,
+              CategoryUrlRewriteGenerator::ENTITY_TYPE and CmsPageUrlRewriteGenerator::ENTITY_TYPE;
+              PHP code reads them through Model\Entity\EntityTypes rather than retyping them.
+            -->
+            <argument name="checkers" xsi:type="array">
+                <item name="product" xsi:type="object">Scr1be\StoreSeo\Model\Entity\StoreAvailability\ProductChecker</item>
+                <item name="category" xsi:type="object">Scr1be\StoreSeo\Model\Entity\StoreAvailability\CategoryChecker</item>
+                <item name="cms-page" xsi:type="object">Scr1be\StoreSeo\Model\Entity\StoreAvailability\CmsPageChecker</item>
+                <item name="home" xsi:type="object">Scr1be\StoreSeo\Model\Entity\StoreAvailability\HomeChecker</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="scr1be_seo_robots_publish" xsi:type="object">Scr1be\StoreSeo\Console\Command\PublishRobotsCommand</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

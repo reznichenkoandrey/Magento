@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Scr1be\StoreClosure\Model\ClosedRouteRegistry">
+        <arguments>
+            <argument name="routes" xsi:type="array">
+                <item name="checkout" xsi:type="string">checkout</item>
+                <item name="multishipping" xsi:type="string">multishipping</item>
+            </argument>
+            <argument name="fullActionNames" xsi:type="array">
+                <!--
+                  Only the actions that start a session or create an account. A customer who is
+                  already signed in keeps their dashboard and their order history: locking those
+                  during a closure creates support requests instead of preventing them.
+                -->
+                <item name="login" xsi:type="string">customer_account_login</item>
+                <item name="login_post" xsi:type="string">customer_account_loginpost</item>
+                <item name="create" xsi:type="string">customer_account_create</item>
+                <item name="create_post" xsi:type="string">customer_account_createpost</item>
+            </argument>
+        </arguments>
+    </type>
+    <!--
+      Global, not frontend-only: Magento\Quote\Api\CartManagementInterface is reached from the
+      webapi_rest and graphql areas as well as from the storefront, and a plugin declared under
+      etc/frontend/di.xml would leave both of those wide open. That is the hole this closes.
+    -->
+    <type name="Magento\Quote\Api\CartManagementInterface">
+        <plugin name="scr1be_store_closure_block_place_order"
+                type="Scr1be\StoreClosure\Plugin\BlockPlaceOrder"
+                sortOrder="10"/>
+    </type>
+</config>

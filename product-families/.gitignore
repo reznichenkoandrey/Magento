@@ -1,0 +1,10 @@
+.DS_Store
+.idea/
+.vscode/
+*.log
+vendor/
+node_modules/
+generated/
+var/
+pub/static/
+pub/media/

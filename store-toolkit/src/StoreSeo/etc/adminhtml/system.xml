@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="400">
+            <label>scr1be</label>
+        </tab>
+        <section id="scr1be_seo" translate="label" type="text" sortOrder="10"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Store Toolkit: SEO</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_StoreSeo::config</resource>
+            <group id="canonical" translate="label" type="text" sortOrder="10"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Canonical</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>
+                        Off: no canonical link is emitted by this module. Magento's own canonical
+                        settings under Catalog &gt; Search Engine Optimization are unaffected either
+                        way — leave both on and the page gets two canonicals, which is worse than
+                        none, so pick one.
+                    </comment>
+                </field>
+                <field id="query_whitelist" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Query parameters kept in the canonical</label>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>
+                        Comma separated. Everything not listed is dropped. `p` (the pager) is
+                        listed by default because page 2 of a category really is a different
+                        document; a layered-navigation filter is not. `___store`, `___from_store`,
+                        `uenc` and `SID` are dropped whatever is typed here.
+                    </comment>
+                </field>
+            </group>
+            <group id="hreflang" translate="label" type="text" sortOrder="20"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Hreflang</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>
+                        Emitted on product, category, CMS page and home pages only — the four page
+                        types where "the same document in another language" is a question with an
+                        answer. Groups of fewer than two distinct locales are suppressed.
+                    </comment>
+                </field>
+                <field id="x_default_store" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="0" showInStore="0" canRestore="1">
+                    <label>Primary store code for x-default</label>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>
+                        Store view code, e.g. `default`. Where this page exists in that store, it
+                        gets x-default. Where it does not, the fallback is a store sharing the
+                        primary's language, then the first alternate. Left blank, the first
+                        alternate always wins. Default scope only: an hreflang group spans the
+                        whole installation, so its primary cannot be a per-website answer.
+                    </comment>
+                </field>
+            </group>
+            <group id="robots" translate="label" type="text" sortOrder="30"
+                   showInDefault="1" showInWebsite="1" showInStore="0">
+                <label>robots.txt</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                    <label>Publish a robots.txt file</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>
+                        Off by default, and switching it off deletes the published file rather than
+                        emptying it. Website scope only: robots.txt is addressed by host.
+                    </comment>
+                </field>
+                <field id="content" translate="label comment" type="textarea" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="0" canRestore="1">
+                    <label>Content</label>
+                    <backend_model>Scr1be\StoreSeo\Model\Config\Backend\RobotsContent</backend_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                    <comment>
+                        Validated on save: every line has to be a "Directive: value" pair, group
+                        directives have to follow a User-agent line, and a Sitemap has to be an
+                        absolute URL. Saved content is written to
+                        pub/media/scr1be/robots/&lt;website_code&gt;.txt; see the module README for
+                        the one webserver rule that makes /robots.txt serve it.
+                    </comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

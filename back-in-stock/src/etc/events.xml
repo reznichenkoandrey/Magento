@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+  Global, for the same reason the plugin that dispatches this event is global: the alert is marked
+  sent by a cron process, and an observer registered in `etc/frontend/events.xml` would never run.
+
+  The event fires exactly once per alert, from a compare-and-set in
+  `Scr1be\BackInStock\Plugin\PopupStateMachine`, so the observer needs no idempotency of its own.
+  Removing this file is all it takes to strip the push channel out of a build.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="scr1be_back_in_stock_alert_queued">
+        <observer name="scr1be_back_in_stock_push"
+                  instance="Scr1be\BackInStock\Observer\PushOnAlertQueued"/>
+    </event>
+</config>

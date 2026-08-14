@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Scr1be\HyvaProductSlider\Api\Data\SliderInterface"
+                type="Scr1be\HyvaProductSlider\Model\Slider"/>
+    <preference for="Scr1be\HyvaProductSlider\Api\SliderRepositoryInterface"
+                type="Scr1be\HyvaProductSlider\Model\SliderRepository"/>
+    <preference for="Scr1be\HyvaProductSlider\Api\Data\SliderSearchResultsInterface"
+                type="Magento\Framework\Api\SearchResults"/>
+
+    <!--
+        The nine sources. The array key is the value stored in `scr1be_slider.source_type`, which is
+        also what the admin dropdown offers and what `Pool::find()` looks up — one registry, so a
+        tenth source is one class and one line here.
+    -->
+    <type name="Scr1be\HyvaProductSlider\Model\ProductSource\Pool">
+        <arguments>
+            <argument name="sources" xsi:type="array">
+                <item name="new" xsi:type="object">Scr1be\HyvaProductSlider\Model\ProductSource\NewProducts</item>
+                <item name="bestsellers" xsi:type="object">Scr1be\HyvaProductSlider\Model\ProductSource\Bestsellers</item>
+                <item name="deals" xsi:type="object">Scr1be\HyvaProductSlider\Model\ProductSource\Deals</item>
+                <item name="most_viewed" xsi:type="object">Scr1be\HyvaProductSlider\Model\ProductSource\MostViewed</item>
+                <item name="recently_bought" xsi:type="object">Scr1be\HyvaProductSlider\Model\ProductSource\RecentlyBought</item>
+                <item name="category" xsi:type="object">Scr1be\HyvaProductSlider\Model\ProductSource\CategoryProducts</item>
+                <item name="attribute_set" xsi:type="object">Scr1be\HyvaProductSlider\Model\ProductSource\AttributeSetProducts</item>
+                <item name="manual" xsi:type="object">Scr1be\HyvaProductSlider\Model\ProductSource\ManualSkus</item>
+                <item name="featured" xsi:type="object">Scr1be\HyvaProductSlider\Model\ProductSource\Featured</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!--
+        The grid's data source. Registering a collection here is not optional:
+        `DataProvider\CollectionFactory::getReport()` looks the listing's data-source name up in this
+        map and throws `Not registered handle %s` when it is absent — so a missing entry is an empty
+        grid with an exception behind it, not a grid with a default collection.
+    -->
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="scr1be_slider_listing_data_source" xsi:type="string">
+                    Scr1be\HyvaProductSlider\Model\ResourceModel\Slider\Grid\Collection
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Scr1be\HyvaProductSlider\Model\ResourceModel\Slider\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">scr1be_slider</argument>
+            <argument name="eventPrefix" xsi:type="string">scr1be_slider_grid_collection</argument>
+            <argument name="eventObject" xsi:type="string">slider_grid_collection</argument>
+            <argument name="resourceModel" xsi:type="string">
+                Scr1be\HyvaProductSlider\Model\ResourceModel\Slider
+            </argument>
+        </arguments>
+    </type>
+</config>
