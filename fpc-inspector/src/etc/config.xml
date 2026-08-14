@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <scr1be_fpc_inspector>
+            <general>
+                <!--
+                  Off by default, and that is not caution for its own sake: the module writes a
+                  file on the hot path of every storefront request. It is a lamp you switch on
+                  over one page for a few minutes, not a monitor you leave running.
+                -->
+                <enabled>0</enabled>
+                <uri_filter></uri_filter>
+                <stack_depth>12</stack_depth>
+                <log_vary>1</log_vary>
+                <log_no_cache>1</log_no_cache>
+            </general>
+        </scr1be_fpc_inspector>
+    </default>
+</config>

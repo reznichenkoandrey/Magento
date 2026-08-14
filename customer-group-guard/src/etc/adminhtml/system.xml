@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="scr1be" translate="label" sortOrder="100">
+            <label>scr1be</label>
+        </tab>
+        <section id="scr1be_customer_group_guard" translate="label" sortOrder="40"
+                 showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Customer Group Guard</label>
+            <tab>scr1be</tab>
+            <resource>Scr1be_CustomerGroupGuard::config</resource>
+
+            <group id="general" translate="label" type="text" sortOrder="10"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Group Change Enforcement</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable guard</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Master switch. Off is core behaviour: a customer whose group an admin changed keeps browsing, and checking out, under the group they logged in with.</comment>
+                </field>
+                <field id="force_logout" translate="label comment" type="select" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Sign the customer out after a group change</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>The soft path. Adds a customer-data section that compares the group the browser was signed in under with the group the customer is in now, and signs them out when the two disagree. Off leaves the place-order guard as the only enforcement.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="block_place_order" translate="label comment" type="select" sortOrder="30"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Refuse orders placed from a stale cart</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>The hard path. Refuses a place-order whose cart still carries the old group, before any order row is written. Covers the storefront checkout, REST and GraphQL. Off means a stale cart can still be turned into an order at the old group's prices.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

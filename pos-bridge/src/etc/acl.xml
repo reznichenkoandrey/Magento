@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <!--
+                  Both endpoint resources hang off Magento_Customer::manage rather than off a tab of
+                  their own. That is where an administrator already goes to decide who may see and
+                  edit customers, and a permission that grants reading every customer's phone number
+                  belongs next to it, not in a corner labelled with this module's name.
+
+                  Impersonation is a separate child because it is a categorically different power:
+                  looking a shopper up is reading, acting as them is writing — orders, addresses and
+                  payment attempts under their identity. A shop that wants the lookup on every
+                  terminal and act-as-customer only at the service desk needs those to be two ticks.
+                -->
+                <resource id="Magento_Customer::customer">
+                    <resource id="Magento_Customer::manage">
+                        <resource id="Scr1be_PosBridge::terminal" title="POS Bridge: customer lookup"
+                                  translate="title" sortOrder="60">
+                            <resource id="Scr1be_PosBridge::impersonate" title="POS Bridge: act as customer"
+                                      translate="title" sortOrder="10"/>
+                        </resource>
+                    </resource>
+                </resource>
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <resource id="Scr1be_PosBridge::config" title="POS Bridge"
+                                      translate="title" sortOrder="130"/>
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

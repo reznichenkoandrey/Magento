@@ -1,0 +1,138 @@
+<?php
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Magento\Catalog\Block\Product\View;
+use Magento\Framework\Escaper;
+use Scr1be\TierPriceLabel\ViewModel\TierLadder;
+
+/** @var View $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+$tierLadder = $block->getData('tier_ladder_view_model');
+$product = $block->getProduct();
+
+if (!$tierLadder instanceof TierLadder || $product === null || !$tierLadder->hasLadder($product)) {
+    return;
+}
+
+$hyvaCsp = $viewModels->require(HyvaCsp::class);
+?>
+<div class="scr1be-tier-ladder mt-6 border border-container rounded"
+     x-data="scr1beTierLadder(<?= $escaper->escapeHtmlAttr($tierLadder->getCalculatorPayload($product)) ?>)">
+    <table class="w-full text-sm">
+        <caption class="sr-only"><?= $escaper->escapeHtml(__('Quantity discounts')) ?></caption>
+        <thead>
+            <tr>
+                <th scope="col" class="p-2 text-left"><?= $escaper->escapeHtml(__('Quantity')) ?></th>
+                <th scope="col" class="p-2 text-right"><?= $escaper->escapeHtml(__('Price per item')) ?></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($tierLadder->getLadder($product) as $rung): ?>
+                <tr class="border-t border-container"
+                    data-tier-qty="<?= $escaper->escapeHtmlAttr((string) $rung->getQty()) ?>">
+                    <td class="p-2"><?= $escaper->escapeHtml(__('%1+', $tierLadder->formatQty($rung->getQty()))) ?></td>
+                    <td class="p-2 text-right"><?= $escaper->escapeHtml($rung->getFormattedValue()) ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    <p class="p-2 border-t border-container">
+        <span><?= $escaper->escapeHtml(__('Your price at this quantity:')) ?></span>
+        <span class="font-semibold" x-text="unitPrice"></span>
+        <span><?= $escaper->escapeHtml(__('each')) ?></span>
+        <span class="text-secondary"><?= $escaper->escapeHtml(__('Total:')) ?></span>
+        <span class="text-secondary" x-text="total"></span>
+    </p>
+</div>
+<script>
+    'use strict';
+
+    /**
+     * Rows above are server-rendered so the table survives with JavaScript off; this component
+     * only adds the live "what do I pay for N of them" line and the active-row highlight.
+     *
+     * Every binding in the markup is a bare property read (x-text="unitPrice") and every state
+     * change happens here, imperatively — nothing in the DOM evaluates an expression, which is
+     * what keeps the template usable under a strict Content Security Policy.
+     */
+    function scr1beTierLadder(config) {
+        const QTY_INPUT_ID = 'qty';
+        const DEFAULT_QTY = 1;
+        const ACTIVE_ROW_CLASS = 'font-semibold';
+
+        return {
+            unitPrice: '',
+            total: '',
+            qty: DEFAULT_QTY,
+            formatter: null,
+
+            init() {
+                this.formatter = new Intl.NumberFormat(config.locale, {
+                    style: 'currency',
+                    currency: config.currency
+                });
+
+                // The qty field belongs to the core add-to-cart form, not to this component.
+                // Listening to it keeps the two in sync without taking ownership of an input
+                // that other modules also read.
+                const qtyInput = document.getElementById(QTY_INPUT_ID);
+                if (qtyInput) {
+                    qtyInput.addEventListener('input', this.onQtyInput.bind(this));
+                    this.qty = this.readQty(qtyInput.value);
+                }
+
+                this.refresh();
+            },
+
+            onQtyInput(event) {
+                this.qty = this.readQty(event.target.value);
+                this.refresh();
+            },
+
+            readQty(rawValue) {
+                const qty = parseFloat(rawValue);
+
+                return isNaN(qty) || qty <= 0 ? DEFAULT_QTY : qty;
+            },
+
+            /**
+             * Cheapest rung the shopper has already reached — the same rule the cart applies,
+             * which is why it is a reduce over all reached rungs and not "the last one".
+             */
+            resolveRung(qty) {
+                return config.rungs.reduce(function (best, rung) {
+                    if (rung.qty > qty) {
+                        return best;
+                    }
+
+                    return best === null || rung.value < best.value ? rung : best;
+                }, null);
+            },
+
+            refresh() {
+                const rung = this.resolveRung(this.qty);
+                // A rung is only a discount while it undercuts what the shopper would pay
+                // anyway: a special price can temporarily beat the whole ladder.
+                const unitPrice = rung !== null && rung.value < config.basePrice ? rung.value : config.basePrice;
+
+                this.unitPrice = this.formatter.format(unitPrice);
+                this.total = this.formatter.format(unitPrice * this.qty);
+                this.highlight(unitPrice < config.basePrice ? rung : null);
+            },
+
+            highlight(activeRung) {
+                this.$el.querySelectorAll('[data-tier-qty]').forEach(function (row) {
+                    const isActive = activeRung !== null && parseFloat(row.dataset.tierQty) === activeRung.qty;
+
+                    row.classList.toggle(ACTIVE_ROW_CLASS, isActive);
+                    row.dataset.active = isActive ? 'true' : 'false';
+                });
+            }
+        };
+    }
+</script>
+<?php $hyvaCsp->registerInlineScript(); ?>

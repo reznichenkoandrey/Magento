@@ -1,0 +1,9 @@
+{
+    "name": "@scr1be/customer-group-guard",
+    "description": "ES module scope for the storefront JavaScript, plus the runner for its spec",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "test": "node --test Test/Js/force-logout.spec.js"
+    }
+}
