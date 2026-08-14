@@ -9,26 +9,32 @@ The goal of this repo is not to bundle a "kitchen sink" — it's to show **how I
 | Folder | Approach | What it demonstrates |
 |---|---|---|
 | [`hyva-quick-view/`](hyva-quick-view/) | Full Magento 2 module — PHP controller + ViewModel + Hyvä `.phtml` + Alpine modal | End-to-end backend → frontend slice: routed JSON action, ViewModel, layout XML, Alpine focus-trapped modal |
-| [`hyva-mega-menu/`](hyva-mega-menu/) | Hyvä child theme + companion module | Idiomatic theme/module split — `theme/` handles rendering, `module/` ships the EAV attribute + ViewModel for the featured-image slot |
+| [`hyva-mega-menu/`](hyva-mega-menu/) | One server-rendered tree, relocated between two docks by `matchMedia` | Desktop Miller columns and a mobile accordion from a single DOM tree — L1/L2 as real anchors, L3 from a JSON island, strictly CSP-safe Alpine |
 | [`hyva-compare-drawer/`](hyva-compare-drawer/) | Client-side UX widget — Alpine store + `localStorage` | When server round-trips aren't worth it: persisted state, cross-tab sync via `window.storage`, drag-to-reorder |
 | [`hyva-graphql-search/`](hyva-graphql-search/) | Headless instant search against stock Magento GraphQL | API-first frontend: debounce, `AbortController` for race-free queries, in-memory cache, keyboard nav |
 | [`hyva-lazy-images/`](hyva-lazy-images/) | Performance — `<picture>` with AVIF/WebP/LQIP + IntersectionObserver | Core Web Vitals work: CLS=0 via explicit dimensions, AVIF-first srcsets, LQIP base64 placeholders |
 
+Eighteen further projects — from a silent anti-carding guard to a curated-category engine, a headless
+API suite and a CMS-content-as-code toolkit — are listed with their briefs in
+[`ROADMAP.md`](ROADMAP.md), and their sources are in this repository alongside the five above.
+
 ## Live demo (Magento 2.4.8-p4 + Hyvä 1.4)
 
-The portfolio is wired into a real Magento storefront with Magento sample data (Luma catalog, 2,040 products). 4 of the 5 modules are active and verified:
+The portfolio runs on a real Magento storefront with sample data (Luma catalog, 2,046 products),
+all thirty modules enabled. Screenshots are from that install, not mockups:
 
 | | Module | What's shown |
 |---|---|---|
-| ![Storefront](demo-screenshots/01-storefront-category.png) | hyva-graphql-search | Search input at the very top of the header — injected into Hyvä's `header.container` |
-| ![Cards with buttons](demo-screenshots/04-cards-with-buttons.png) | hyva-quick-view + hyva-compare-drawer | Both modules inject a button into Hyvä's `catalog.list.item.addto` slot on every product card — Compare (scales icon) and Quick view (eye icon) |
-| ![Quick view modal](demo-screenshots/02-quickview-modal.png) | hyva-quick-view | Modal opens with real product (Joust Duffle Bag) — full Hyvä-rendered body, focus-trapped, `aria-modal`, add-to-cart URL via `Checkout\Helper\Cart` |
-| ![Compare drawer](demo-screenshots/03-compare-drawer.png) | hyva-compare-drawer | Floating drawer bottom-right, three products added, `localStorage` persistence — survives reload and cross-tab sync |
-| ![Compare side-by-side page](demo-screenshots/05-compare-page.png) | hyva-compare-drawer | Dedicated `/scr1be-compare` page rendered entirely from the same Alpine `$store.compare` the drawer reads — own route, own controller, no PHP-side data fetch |
+| ![Mega menu](demo-screenshots/w2-01-mega-menu-home.png) | hyva-mega-menu | The header nav rendered from one tree — real anchors, docked to the desktop bar. The same tree is the mobile drawer's accordion; nothing is duplicated in markup or in JS |
+| ![Category cards](demo-screenshots/w2-02-category-cards.png) | hyva-product-card + quick-view + compare-drawer | Every card carries the same ViewModel-fed data the GraphQL layer serves, plus the two injected buttons in Hyvä's `catalog.list.item.addto` slot |
+| ![Quick view](demo-screenshots/w2-03-quick-view.png) | hyva-quick-view | Modal over a real product, body rendered by Magento and fetched as JSON — focus-trapped, `aria-modal`, form key and `uenc` handled the way Hyvä's own add-to-cart forms do |
+| ![Compare drawer](demo-screenshots/w2-04-compare-drawer.png) | hyva-compare-drawer | Floating drawer with `localStorage` persistence, per-item removal and an LRU cap; the card button flips to "In compare" from the same Alpine store |
+| ![Instant search](demo-screenshots/w2-05-instant-search.png) | hyva-graphql-search | Debounced autocomplete over stock Magento GraphQL — eight matches for "bag", thumbnails and prices from the same query, match highlighting done by escaping text first and injecting `<mark>` after |
+
+Earlier screenshots of the same three storefront modules, taken on the previous install, are kept in
+[`demo-screenshots/`](demo-screenshots/) as `01`–`05`.
 
 `hyva-lazy-images` is installed and visible in **Stores → Configuration → scr1be → Lazy Images** but isn't actively rendering picture elements in the demo (the CDN passthrough is left unconfigured — there's no point spinning up imgproxy for a screenshots-only demo).
-
-`hyva-mega-menu` is a known compat gap on Hyvä 1.4 — see that subfolder's README for the rewrite path. The demo runs `Hyva/default` so the rest of the storefront is unaffected.
 
 ## Why this layout
 
