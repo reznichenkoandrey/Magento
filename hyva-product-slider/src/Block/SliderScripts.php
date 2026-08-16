@@ -16,17 +16,29 @@ use Scr1be\HyvaProductSlider\Model\Config;
  * map printed below that is a map the browser rejects. Rendering from `head.additional` puts it in
  * front of every module script on the page.
  *
+ * **It is the only map the storefront prints.** Firefox installs the first import map a document
+ * declares and rejects every one after it; this module's used to be the third of three, so the
+ * slider silently never resolved its engine. The mega menu and the product card now import their
+ * siblings relatively and print no map at all. This one stays because the engine specifier below is
+ * a deliberate seam rather than internal plumbing.
+ *
  * **It must not travel inside a cached block.** An import map is an inline script, so a strict-CSP
  * storefront needs a hash for it, and the hash is registered while the template runs. A map rendered
  * from inside the slider block — which does carry a cache lifetime — would eventually be served from
  * cache with no hash behind it and be blocked. This block has no lifetime, and the three lines it
  * renders are why that costs nothing.
  *
+ * **Both stay global, unlike the product card's bundle.** Gating them on a slider having rendered was
+ * tried through Hyvä's `BlockJsDependencies`, which renders the dependency from `before.body.end` —
+ * and a `<script type="module">` is deferred, so it then ran after Alpine had already walked the page
+ * looking for a component nobody had registered. A widget can also be dropped on any page, which the
+ * layout cannot see. Three lines of markup and one small module is the price of both.
+ *
  * **The aliases are a di.xml argument, not a constant.** That is what makes the slider engine
  * swappable: `scr1be-product-slider/engine.js` is a bare specifier bound here to the module's own
  * scroll-snap engine, and a project that wants a different one rebinds the specifier in di.xml
- * without touching a template or a component. The contract the replacement must satisfy is in the
- * README.
+ * without touching a template or a component. That seam is the reason this module keeps a map at all
+ * when the other two dropped theirs. The contract the replacement must satisfy is in the README.
  */
 class SliderScripts extends Template
 {

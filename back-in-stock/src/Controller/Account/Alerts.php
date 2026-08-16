@@ -21,6 +21,14 @@ use Magento\Framework\View\Result\PageFactory;
  * matched against the *action name alone*, not the full route, and it contains `index`, `login`,
  * `create` and friends. An account controller called `Index` in any module's own route would
  * therefore be public. This one is called `Alerts`.
+ *
+ * **`execute()` deliberately declares no return type**, which is why the `@return` tag carries the
+ * contract instead. The same plugin that produces the login redirect returns *nothing* while doing
+ * it — `$this->session->authenticate()` writes the redirect onto the response and answers `false`,
+ * so `aroundExecute()` falls out of its `if` with an implicit `null`. A narrowed `: Page` here is
+ * copied onto the generated interceptor, and the guest who was supposed to be redirected gets a
+ * TypeError and an HTTP 500 instead. Core's own account controllers — `Customer\Account\Index`,
+ * `Account\Edit`, `Wishlist\Index\Index` — are untyped for exactly this reason.
  */
 class Alerts implements AccountInterface, HttpGetActionInterface
 {
@@ -29,7 +37,10 @@ class Alerts implements AccountInterface, HttpGetActionInterface
     ) {
     }
 
-    public function execute(): Page
+    /**
+     * @return Page|null Null whenever the customer plugin short-circuits with a login redirect.
+     */
+    public function execute()
     {
         $page = $this->pageFactory->create();
         $page->getConfig()->getTitle()->set(__('My Product Alerts'));

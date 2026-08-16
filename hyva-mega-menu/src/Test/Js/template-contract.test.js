@@ -34,6 +34,7 @@ const read = (relativePath) => readFileSync(join(MODULE_ROOT, relativePath), 'ut
 const TEMPLATE = read('view/frontend/templates/html/header/mega-menu.phtml');
 const STYLESHEET = read('view/frontend/tailwind/module.css');
 const SCRIPTS_BLOCK = read('Block/MenuScripts.php');
+const SCRIPTS_TEMPLATE = read('view/frontend/templates/html/header/menu-scripts.phtml');
 const PACKAGE = JSON.parse(read('package.json'));
 
 describe('the template renders what the adapter looks for', () => {
@@ -102,27 +103,36 @@ describe('the stylesheet and the adapter agree on geometry', () => {
     });
 });
 
-describe('the import map and the exports map resolve the same specifiers', () => {
-    it('binds every specifier the exports map declares', () => {
-        Object.keys(PACKAGE.exports).forEach((subpath) => {
-            const specifier = PACKAGE.name + subpath.replace(/^\./, '');
+describe('the browser resolves the module graph without an import map', () => {
+    /**
+     * A document installs the first import map it sees and Firefox rejects the rest, so a page
+     * carrying this module beside any other one that prints its own loses whichever came second —
+     * silently, with no server-side error and none in Chrome, which merges them. The rule is
+     * therefore absolute rather than a preference: this module prints no map, and nothing it ships
+     * imports by a specifier that would need one.
+     */
+    it('prints no import map', () => {
+        assert.ok(!SCRIPTS_TEMPLATE.includes('type="importmap"'));
+        // The block would have to build the map for the template to print one, so the absence of a
+        // serialised `imports` key is the half that survives someone rewriting the template.
+        assert.ok(!/['"]imports['"]\s*=>/.test(SCRIPTS_BLOCK));
+    });
 
-            assert.ok(
-                SCRIPTS_BLOCK.includes(`'${specifier}'`),
-                `${specifier} resolves under node --test but not in the browser`
-            );
+    it('imports every sibling by relative path', () => {
+        Object.values(PACKAGE.exports).forEach((file) => {
+            const source = read(file.replace(/^\.\//, ''));
+            const bare = source.match(/from\s+'(?!\.)([^']+)'/g) ?? [];
+
+            assert.deepEqual(bare, [], `${file} still imports by bare specifier: ${bare.join(', ')}`);
         });
     });
 
-    it('points both maps at the same files', () => {
-        Object.entries(PACKAGE.exports).forEach(([subpath, file]) => {
-            const specifier = PACKAGE.name + subpath.replace(/^\./, '');
-            const [, viewFile] = new RegExp(`'${specifier}' => '([^']+)'`).exec(SCRIPTS_BLOCK);
+    it('serves the entry module from the file the exports map calls register.js', () => {
+        const [, viewFile] = /ENTRY_FILE = '([^']+)'/.exec(SCRIPTS_BLOCK);
 
-            assert.equal(
-                viewFile.replace('Scr1be_HyvaMegaMenu::', ''),
-                file.replace('./view/frontend/web/', '')
-            );
-        });
+        assert.equal(
+            viewFile.replace('Scr1be_HyvaMegaMenu::', ''),
+            PACKAGE.exports['./register.js'].replace('./view/frontend/web/', '')
+        );
     });
 });
