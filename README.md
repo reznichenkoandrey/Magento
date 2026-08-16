@@ -57,7 +57,7 @@ bin/magento setup:upgrade
 ## Stack across all projects
 
 - **Backend:** PHP 8.2+, Magento 2.4.6+
-- **Frontend:** [Hyvä Theme](https://hyva.io) 1.3+, Alpine.js 3, Tailwind CSS 3
+- **Frontend:** [Hyvä Theme](https://hyva.io) 1.4, Alpine.js 3, Tailwind CSS 4
 - **No legacy:** no jQuery, no RequireJS, no KnockoutJS, no UI components
 
 ## About
