@@ -14,8 +14,17 @@
             It is also, honestly, a fork of Hyvä's `product/list/item.phtml`. The template it
             replaces reproduces Hyvä's structure deliberately (same form, same child blocks, same
             order) so third-party injections keep working, and the README says what to re-check
-            after a Hyvä upgrade. Delete this one file to go back to the stock card — the ViewModel
-            layer, the GraphQL fields and the minicart plugins are unaffected.
+            after a Hyvä upgrade.
+
+            **This instruction alone does not take effect, and is kept as the statement of intent.**
+            Hyvä declares `product_list_item` in the *theme*, and
+            `View\Layout\File\Collector\Aggregated::getFiles()` collects every module file before it
+            loops over the inherited themes — so the theme's declaration is merged last and puts its
+            own template back, without an error anywhere. `Observer\ApplyCardTemplate` re-applies
+            the template on `layout_generate_blocks_after`, which is what actually makes the card
+            render. To go back to the stock card, switch the module off in configuration
+            (`scr1be_product_card/general/enabled`); the observer checks it first. The ViewModel
+            layer, the GraphQL fields and the minicart plugins are unaffected either way.
         -->
         <referenceBlock name="product_list_item" template="Scr1be_HyvaProductCard::product/list/card.phtml"/>
     </body>

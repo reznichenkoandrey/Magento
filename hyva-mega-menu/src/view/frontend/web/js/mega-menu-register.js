@@ -7,13 +7,15 @@
  * to drift when a browser, a theme or the template changes, which is why the seams are exported
  * and specced rather than left as an implementation detail of a side-effecting module.
  *
- * The specifiers above resolve twice over, and deliberately to the same files both times: in the
- * browser through the import map the block renders, and under `node --test` through the `exports`
- * map in this module's package.json. The specs therefore import exactly what the storefront
- * imports, and there is no build step in between to disagree with.
+ * Siblings are imported by relative path, so the browser resolves them against this file's own url
+ * and the module needs no import map at all. That is not a style preference: a document may install
+ * only one import map before its first module script, Firefox rejects every map after that one, and
+ * a storefront running three Hyvä modules that each print their own gets two of them silently
+ * dropped. The `exports` map in package.json still names the same files for `node --test`, so the
+ * specs import exactly what the storefront imports.
  */
-import { ACTION_BRANCH, ACTION_DRAWER_OPEN, ACTION_TOP, megaMenu } from 'scr1be-mega-menu/component.js';
-import { PLACEMENT_DESKTOP, PLACEMENT_MOBILE, createMenuState } from 'scr1be-mega-menu/state.js';
+import { ACTION_BRANCH, ACTION_DRAWER_OPEN, ACTION_TOP, megaMenu } from './mega-menu.js';
+import { PLACEMENT_DESKTOP, PLACEMENT_MOBILE, createMenuState } from './menu-state.js';
 
 /** Must match the x-data expression in mega-menu.phtml. */
 export const COMPONENT_NAME = 'scr1beMegaMenu';

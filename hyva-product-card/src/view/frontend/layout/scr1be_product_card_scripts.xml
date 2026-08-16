@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+  The endpoint config and the entry module, for the pages that can actually show a card.
+
+  **Why a handle of its own rather than `default`.** These two tags used to render on every page —
+  the cart, the checkout, the login form, every CMS page — because the block was declared in the
+  module's `default.xml`. Nothing on those pages reads either one.
+
+  **Why not `catalog_list_item`, where the renderer lives.** That handle is included from `default`
+  whenever Page Builder is installed, which is most storefronts, so declaring the scripts there
+  would put them straight back on every page.
+
+  **Why still in the head, and not gated on a card having rendered.** Hyvä's `BlockJsDependencies`
+  renders a dependency from `before.body.end`, and `<script type="module">` is deferred: deferred
+  scripts execute in document order, so an entry module rendered after Hyvä's Alpine tag runs after
+  Alpine has already walked the DOM. That was tried, and every card on the page reported
+  `scr1beProductCard is not defined`. In the head it is ahead of Alpine, which is the whole
+  requirement.
+
+  A product-list widget dropped on a page outside these handles still renders its cards server-side;
+  it just arrives without the interactive layer. Opt that page in by adding its handle here.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="head.additional">
+            <block class="Scr1be\HyvaProductCard\Block\CardScripts"
+                   name="scr1be.product.card.scripts"
+                   template="Scr1be_HyvaProductCard::product/card/scripts.phtml"/>
+        </referenceContainer>
+    </body>
+</page>

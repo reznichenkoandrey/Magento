@@ -19,7 +19,7 @@
  * out of a reactive proxy, which is the kind of thing that is invisible until a menu has three
  * hundred entries.
  */
-import { PLACEMENT_DESKTOP, PLACEMENT_MOBILE } from 'scr1be-mega-menu/state.js';
+import { PLACEMENT_DESKTOP, PLACEMENT_MOBILE } from './menu-state.js';
 
 export const ACTION_DRAWER_OPEN = 'drawer-open';
 export const ACTION_DRAWER_CLOSE = 'drawer-close';

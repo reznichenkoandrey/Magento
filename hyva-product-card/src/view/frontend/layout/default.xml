@@ -7,13 +7,9 @@
         and — when Page Builder is installed — from `default`. A widget can be dropped anywhere, so
         the handle is pulled in globally here; layout merging makes a second include a no-op on the
         pages that already had it.
+
+        The *scripts* are not pulled in with it. They live in `scr1be_product_card_scripts`, which
+        only the listing handles include — see that file for why the two are separated.
     -->
     <update handle="catalog_list_item"/>
-    <body>
-        <referenceContainer name="head.additional">
-            <block class="Scr1be\HyvaProductCard\Block\CardScripts"
-                   name="scr1be.product.card.scripts"
-                   template="Scr1be_HyvaProductCard::product/card/scripts.phtml"/>
-        </referenceContainer>
-    </body>
 </page>
