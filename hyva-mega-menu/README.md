@@ -411,6 +411,12 @@ definitions instead of failing on a duplicate.
 
 ## Install
 
+**Needs Hyvä 1.4 or newer** — not for its PHP, which calls into no Hyvä class, but for
+`view/frontend/tailwind/module.css`: it uses `@source`, a Tailwind 4 directive. Tailwind 4 arrived
+in `hyva-themes/magento2-default-theme` 1.4.0 (2025-11-10); the 1.3 line is still maintained and
+still on Tailwind 3, where that stylesheet does not compile. The theme is a `suggest` rather than a
+`require` because the menu itself renders on any theme — it just arrives unstyled.
+
 ```bash
 # from your Magento 2 root
 composer config repositories.scr1be-hyva-mega-menu path /path/to/Magento/hyva-mega-menu/src

@@ -484,6 +484,11 @@ src/
 
 ## Install
 
+**Requires Hyvä 1.4 or newer** (`hyva-themes/magento2-theme-module: ^1.4`). The PHP would run on
+1.3, but `view/frontend/tailwind/module.css` uses `@source`, a Tailwind 4 directive. Tailwind 4
+arrived in `hyva-themes/magento2-default-theme` 1.4.0 (2025-11-10); the 1.3 line is still maintained
+and still on Tailwind 3, where that stylesheet does not compile.
+
 ```bash
 # from your Magento 2 root
 composer config repositories.scr1be path /path/to/Magento/hyva-product-slider/src
