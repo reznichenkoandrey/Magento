@@ -57,7 +57,7 @@ bin/magento setup:upgrade
 ## Stack across all projects
 
 - **Backend:** PHP 8.2+, Magento 2.4.6+
-- **Frontend:** [Hyvä Theme](https://hyva.io) 1.4, Alpine.js 3, Tailwind CSS 4
+- **Frontend:** [Hyvä Theme](https://hyva.io) 1.3+, Alpine.js 3, Tailwind CSS 4 — except the three that ship a Tailwind stylesheet (`hyva-mega-menu`, `hyva-product-card`, `hyva-product-slider`), which need **Hyvä 1.4+**: Tailwind 4 landed in theme 1.4.0, and the still-maintained 1.3 line is still on Tailwind 3
 - **No legacy:** no jQuery, no RequireJS, no KnockoutJS, no UI components
 
 ## About
