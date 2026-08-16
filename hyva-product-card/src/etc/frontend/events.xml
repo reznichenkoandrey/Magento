@@ -11,4 +11,15 @@
         <observer name="scr1be_product_card_preload_qty_rules"
                   instance="Scr1be\HyvaProductCard\Observer\PreloadQtyRules"/>
     </event>
+    <!--
+        Dispatched by Magento\Framework\View\Layout\Builder::generateLayoutBlocks() straight after
+        generateElements(), with the layout under the key `layout` — the first moment the renderer
+        block exists and the last one before anything renders. That is where the card template has
+        to be applied, because the theme's own layout file is merged after every module's and puts
+        Hyvä's template back. See the observer for the full mechanism.
+    -->
+    <event name="layout_generate_blocks_after">
+        <observer name="scr1be_product_card_apply_template"
+                  instance="Scr1be\HyvaProductCard\Observer\ApplyCardTemplate"/>
+    </event>
 </config>
