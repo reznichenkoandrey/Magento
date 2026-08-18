@@ -17,10 +17,13 @@ use Scr1be\HyvaProductSlider\Model\Config;
  * front of every module script on the page.
  *
  * **It is the only map the storefront prints.** Firefox installs the first import map a document
- * declares and rejects every one after it; this module's used to be the third of three, so the
- * slider silently never resolved its engine. The mega menu and the product card now import their
- * siblings relatively and print no map at all. This one stays because the engine specifier below is
- * a deliberate seam rather than internal plumbing.
+ * declares and rejects every one after it; this module's used to be one of four, so the slider
+ * silently never resolved its engine. The mega menu and the product card dropped theirs in that
+ * sweep. `Scr1be_BackInStock` kept one for longer — it renders from `default.xml`, i.e. on every
+ * page, behind this block, so it was never the map that got installed and nothing pointed at it;
+ * a second pass over the module found it and removed it. All three now import their siblings
+ * relatively. This one stays because the engine specifier below is a deliberate seam rather than
+ * internal plumbing.
  *
  * **It must not travel inside a cached block.** An import map is an inline script, so a strict-CSP
  * storefront needs a hash for it, and the hash is registered while the template runs. A map rendered
@@ -38,7 +41,7 @@ use Scr1be\HyvaProductSlider\Model\Config;
  * swappable: `scr1be-product-slider/engine.js` is a bare specifier bound here to the module's own
  * scroll-snap engine, and a project that wants a different one rebinds the specifier in di.xml
  * without touching a template or a component. That seam is the reason this module keeps a map at all
- * when the other two dropped theirs. The contract the replacement must satisfy is in the README.
+ * when the other three dropped theirs. The contract the replacement must satisfy is in the README.
  */
 class SliderScripts extends Template
 {

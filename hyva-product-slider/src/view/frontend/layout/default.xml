@@ -18,9 +18,11 @@
 
                 `before="-"` puts the map ahead of the mega menu's module tag, which is also written
                 into this container. It is the only import map the storefront prints — Firefox
-                installs the first one a document declares and rejects the rest, so the mega menu
-                and the product card now import their siblings relatively and print none. This one
-                stays because its engine specifier is a rebindable seam (see SliderScripts).
+                installs the first one a document declares and rejects the rest, so the mega menu,
+                the product card and the back-in-stock popup all import their siblings relatively
+                and print none. The last of those kept a map until a second pass found it: rendered
+                from its own `default.xml`, behind this block, it was never the one installed. This
+                one stays because its engine specifier is a rebindable seam (see SliderScripts).
             -->
             <block class="Scr1be\HyvaProductSlider\Block\SliderScripts"
                    name="scr1be.slider.scripts"

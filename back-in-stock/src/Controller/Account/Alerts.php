@@ -17,10 +17,15 @@ use Magento\Framework\View\Result\PageFactory;
  * account page in Magento gets its login redirect. Re-implementing the check here would be a second
  * opinion about who is logged in.
  *
- * One detail worth knowing before naming an action in this route: that plugin's allow-list is
- * matched against the *action name alone*, not the full route, and it contains `index`, `login`,
- * `create` and friends. An account controller called `Index` in any module's own route would
- * therefore be public. This one is called `Alerts`.
+ * One detail worth knowing before naming an action in this route: `isActionAllowed()` matches
+ * `$this->request->getActionName()` against the allow-list with `/^(…)$/i` — the *action name
+ * alone*, with no reference to the route it belongs to. The list is the account-entry set —
+ * `create`, `login`, `loginpost`, `logoutsuccess`, `forgotpassword`, `forgotpasswordpost`,
+ * `resetpassword`, `resetpasswordpost`, `confirm`, `confirmation`, `createpassword`, `createpost`
+ * (Magento_Customer/etc/frontend/di.xml, and nothing else in core adds to it). So an action named
+ * `Confirm` or `Login` in *any* module's own account route is public without meaning to be, while
+ * every other name — `Index` included, since it is not on that list — gets the redirect. This one
+ * is called `Alerts`, which is on nobody's list.
  *
  * **`execute()` deliberately declares no return type**, which is why the `@return` tag carries the
  * contract instead. The same plugin that produces the login redirect returns *nothing* while doing

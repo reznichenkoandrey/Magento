@@ -9,11 +9,20 @@ use Magento\Framework\View\Element\Template\Context;
 use Scr1be\BackInStock\Model\Config;
 
 /**
- * The import map, the endpoint config and the entry module tag.
+ * The endpoint config and the entry module tag, in the page head.
  *
- * **The map has to come first.** A document may install exactly one import map, and only before the
- * first module script begins loading. Hyvä loads Alpine as a module from `before.body.end`, so a map
- * printed anywhere below that is a map the browser rejects — hence `head.additional`.
+ * **There is deliberately no import map.** The entry module imports its siblings by relative path,
+ * so the map this block used to print bound three specifiers nothing asked for. It was not free: a
+ * document installs the first import map it declares and Firefox rejects every one after it, and
+ * this block renders from `default.xml` — every page, after the slider's map, which is ordered
+ * `before="-"` in the same container. The map was therefore never installed in Firefox, while
+ * standing ready to swallow the first real bare specifier this module added. The one remaining map
+ * on the storefront belongs to `Scr1be_HyvaProductSlider`, whose engine specifier is a rebindable
+ * di.xml seam rather than plumbing.
+ *
+ * `package.json` still exports the same three names. That map is the Node half only — it is what
+ * lets the specs import exactly the files the storefront loads, under `node --test`, where relative
+ * paths from a spec directory would name something else.
  *
  * **It carries no per-customer data.** Endpoint urls and nothing else. Everything about the customer
  * arrives through the customer-data section, which is what keeps this block cacheable along with the
@@ -22,17 +31,15 @@ use Scr1be\BackInStock\Model\Config;
 class PopupScripts extends Template
 {
     /**
-     * Bare specifiers, bound here to the published static files and in package.json to the source
-     * files. Both maps exist so the same specifiers resolve in a browser and under `node --test`; if
-     * you rename one, rename the other.
+     * The published file behind the entry module.
+     *
+     * Resolved through `getViewFileUrl()` rather than written out: the asset repository is what puts
+     * the deployment's static version into the url, respects a separate static domain, and appends
+     * `.min` via `Asset\Minification::addMinifiedSign()` when `dev/js/minify_files` is on outside
+     * developer mode. A hand-written path is how a module works in developer mode and 404s in
+     * production.
      */
-    private const SCRIPT_ALIASES = [
-        'scr1be-back-in-stock/register.js' => 'Scr1be_BackInStock::js/popup-register.js',
-        'scr1be-back-in-stock/popup.js' => 'Scr1be_BackInStock::js/popup.js',
-        'scr1be-back-in-stock/client.js' => 'Scr1be_BackInStock::js/alert-client.js',
-    ];
-
-    private const ENTRY_ALIAS = 'scr1be-back-in-stock/register.js';
+    private const ENTRY_FILE = 'Scr1be_BackInStock::js/popup-register.js';
 
     public function __construct(
         Context $context,
@@ -48,26 +55,9 @@ class PopupScripts extends Template
         return $this->config->isPopupEnabled((int)$this->_storeManager->getStore()->getId());
     }
 
-    /**
-     * Every target comes from `getViewFileUrl()`, which resolves through the asset repository — so
-     * the urls carry the deployment's static version, respect a separate static domain, and get
-     * `.min` appended when `dev/js/minify_files` is on outside developer mode. Hand-written paths are
-     * how a module works in developer mode and 404s in production.
-     */
-    public function getImportMapJson(): string
-    {
-        $imports = [];
-
-        foreach (self::SCRIPT_ALIASES as $specifier => $fileId) {
-            $imports[$specifier] = $this->getViewFileUrl($fileId);
-        }
-
-        return $this->jsonSerializer->serialize(['imports' => $imports]);
-    }
-
     public function getEntryScriptUrl(): string
     {
-        return $this->getViewFileUrl(self::SCRIPT_ALIASES[self::ENTRY_ALIAS]);
+        return $this->getViewFileUrl(self::ENTRY_FILE);
     }
 
     /**
