@@ -28,18 +28,18 @@ Rules for every Wave 2 project:
 | 8 | `hyva-mega-menu` v2 | 2b | built · reviewed |
 | 9 | `hyva-product-card` | 2b | built · reviewed |
 | 10 | `hyva-product-slider` | 2b | built · reviewed |
-| 11 | `curated-categories` | 2b | built |
-| 12 | `product-families` | 2b | built |
+| 11 | `curated-categories` | 2b | built · reviewed |
+| 12 | `product-families` | 2b | built · reviewed |
 | 13 | `back-in-stock` | 2b | built · reviewed |
-| 14 | `hyva-media` | 2b | built |
-| 15 | `store-toolkit` | 2b | built |
+| 14 | `hyva-media` | 2b | built · reviewed |
+| 15 | `store-toolkit` | 2b | built · reviewed |
 | 16 | `headless-api-suite` | 2c | built · reviewed |
 | 17 | `content-as-code` | 2c | built · reviewed |
 | 18 | `signed-document-delivery` | 2c | built · reviewed |
 
 All eighteen are written and installed on the demo stand, where the thirty modules they
-add up to are enabled together. "Built" without "reviewed" means the module has not yet
-had the second pass described below.
+add up to are enabled together, and all eighteen have now had the second pass described
+below.
 
 Wave 2a = compact, high value-per-line. Wave 2b = full features with admin + frontend.
 Wave 2c = large suites. Order within a wave is the build order.
