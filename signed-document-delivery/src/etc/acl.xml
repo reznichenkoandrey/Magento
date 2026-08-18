@@ -5,17 +5,34 @@
         <resources>
             <resource id="Magento_Backend::admin">
                 <resource id="Magento_Backend::stores">
-                    <resource id="Magento_Config::config">
+                    <resource id="Magento_Backend::stores_settings">
                         <!--
-                          Its own resource rather than riding on Magento_Config::config. The two
-                          settings behind it are the lifetime of a signing credential and the
-                          lifetime of a directory of customer paperwork; an admin role that may
-                          edit shipping methods has no reason to be able to widen either.
+                          The chain down to Magento_Config::config is re-declared exactly as core
+                          nests it — admin → stores → stores_settings → config
+                          (module-config/etc/acl.xml). These ancestors carry no title on purpose:
+                          they already have one where core declares them, and repeating it here
+                          would be a second definition of somebody else's node.
+
+                          The nesting is not cosmetic. Acl merges every module's tree into one
+                          document validated against acl.xsd, whose uniqueResourceId constraint
+                          allows an id to appear once. Hanging config off `stores` instead of
+                          `stores_settings` puts the same id in two different branches, and the
+                          merged document then fails validation with "Duplicate key-sequence
+                          ['Magento_Config::config']" — which aborts Acl construction for the whole
+                          installation, so every admin page dies while the storefront stays healthy.
                         -->
-                        <resource id="Scr1be_SignedDocumentDelivery::config"
-                                  title="Signed Document Delivery Section"
-                                  translate="title"
-                                  sortOrder="140"/>
+                        <resource id="Magento_Config::config">
+                            <!--
+                              Its own resource rather than riding on Magento_Config::config. The two
+                              settings behind it are the lifetime of a signing credential and the
+                              lifetime of a directory of customer paperwork; an admin role that may
+                              edit shipping methods has no reason to be able to widen either.
+                            -->
+                            <resource id="Scr1be_SignedDocumentDelivery::config"
+                                      title="Signed Document Delivery Section"
+                                      translate="title"
+                                      sortOrder="140"/>
+                        </resource>
                     </resource>
                 </resource>
             </resource>
