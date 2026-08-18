@@ -34,7 +34,7 @@ Rules for every Wave 2 project:
 | 14 | `hyva-media` | 2b | built |
 | 15 | `store-toolkit` | 2b | built |
 | 16 | `headless-api-suite` | 2c | built · reviewed |
-| 17 | `content-as-code` | 2c | built |
+| 17 | `content-as-code` | 2c | built · reviewed |
 | 18 | `signed-document-delivery` | 2c | built |
 
 All eighteen are written and installed on the demo stand, where the thirty modules they
