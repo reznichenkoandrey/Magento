@@ -17,9 +17,14 @@ use Magento\Framework\Setup\Patch\DataPatchInterface;
  * in an attribute set — is already recorded somewhere in Magento. "We want this on the home page" is
  * not; it is an editorial decision with no other home, so it gets a column.
  *
- * `used_in_product_listing` matters more than it looks: it puts the attribute in the set that
- * `Catalog\Model\ResourceModel\Product\Collection::addAttributeToSelect()` treats as list data, so a
- * template can read the flag off a listing product without a second load.
+ * `used_in_product_listing` matters more than it looks. The column is read by
+ * `Catalog\Model\ResourceModel\Config::getAttributesUsedInListing()`, whose `WHERE
+ * used_in_product_listing = 1` is the whole selection; `Catalog\Model\Config::getProductAttributes()`
+ * caches the resulting codes, and the listing callers — `AbstractProduct::_addProductAttributesAndPrices()`,
+ * both `Layer\*\CollectionFilter`s, `ListCompare`, `Crosssell` — pass that list to
+ * `addAttributeToSelect()`. `addAttributeToSelect()` itself knows nothing about the flag; it just
+ * receives the names. Setting it is therefore what lets a template read the flag off a listing
+ * product without a second load.
  */
 class AddFeaturedAttribute implements DataPatchInterface
 {
