@@ -30,7 +30,7 @@ Rules for every Wave 2 project:
 | 10 | `hyva-product-slider` | 2b | built · reviewed |
 | 11 | `curated-categories` | 2b | built |
 | 12 | `product-families` | 2b | built |
-| 13 | `back-in-stock` | 2b | built |
+| 13 | `back-in-stock` | 2b | built · reviewed |
 | 14 | `hyva-media` | 2b | built |
 | 15 | `store-toolkit` | 2b | built |
 | 16 | `headless-api-suite` | 2c | built |
