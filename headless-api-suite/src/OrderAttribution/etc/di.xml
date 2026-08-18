@@ -20,4 +20,27 @@
             </argument>
         </arguments>
     </virtualType>
+
+    <!--
+        The grid's data source, registered globally and deliberately not in etc/adminhtml/di.xml
+        even though the grid only ever renders there.
+
+        Array arguments merge item by item between modules within one scope, but an area scope is
+        applied over the global one as a layer: declaring `collections` in the adminhtml area
+        replaces the global list outright instead of adding to it. Doing that here left the
+        adminhtml layer holding this one handle and none of the others — not this repo's slider
+        grid, and not core's own cms_page_listing_data_source, customer_listing_data_source and
+        the rest. Every one of those grids answered "Not registered handle …" with an exception
+        behind it, across the whole installation, while the storefront stayed perfectly healthy.
+
+        The virtual type it points at stays in the adminhtml file: a virtual type is a definition,
+        not an array element, so the layering does not apply to it.
+    -->
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="scr1be_order_source_listing_data_source" xsi:type="string">Scr1beOrderSourceGridCollection</item>
+            </argument>
+        </arguments>
+    </type>
 </config>
