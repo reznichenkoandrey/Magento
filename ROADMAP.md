@@ -33,7 +33,7 @@ Rules for every Wave 2 project:
 | 13 | `back-in-stock` | 2b | built · reviewed |
 | 14 | `hyva-media` | 2b | built |
 | 15 | `store-toolkit` | 2b | built |
-| 16 | `headless-api-suite` | 2c | built |
+| 16 | `headless-api-suite` | 2c | built · reviewed |
 | 17 | `content-as-code` | 2c | built |
 | 18 | `signed-document-delivery` | 2c | built |
 
