@@ -27,7 +27,7 @@ Rules for every Wave 2 project:
 | 7 | `fpc-inspector` | 2a | built · reviewed |
 | 8 | `hyva-mega-menu` v2 | 2b | built · reviewed |
 | 9 | `hyva-product-card` | 2b | built · reviewed |
-| 10 | `hyva-product-slider` | 2b | built |
+| 10 | `hyva-product-slider` | 2b | built · reviewed |
 | 11 | `curated-categories` | 2b | built |
 | 12 | `product-families` | 2b | built |
 | 13 | `back-in-stock` | 2b | built |
