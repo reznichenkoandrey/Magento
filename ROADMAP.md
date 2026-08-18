@@ -35,7 +35,7 @@ Rules for every Wave 2 project:
 | 15 | `store-toolkit` | 2b | built |
 | 16 | `headless-api-suite` | 2c | built · reviewed |
 | 17 | `content-as-code` | 2c | built · reviewed |
-| 18 | `signed-document-delivery` | 2c | built |
+| 18 | `signed-document-delivery` | 2c | built · reviewed |
 
 All eighteen are written and installed on the demo stand, where the thirty modules they
 add up to are enabled together. "Built" without "reviewed" means the module has not yet
