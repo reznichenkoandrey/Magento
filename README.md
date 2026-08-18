@@ -30,6 +30,7 @@ all thirty modules enabled. Screenshots are from that install, not mockups:
 | ![Quick view](demo-screenshots/w2-03-quick-view.png) | hyva-quick-view | Modal over a real product, body rendered by Magento and fetched as JSON — focus-trapped, `aria-modal`, form key and `uenc` handled the way Hyvä's own add-to-cart forms do |
 | ![Compare drawer](demo-screenshots/w2-04-compare-drawer.png) | hyva-compare-drawer | Floating drawer with `localStorage` persistence, per-item removal and an LRU cap; the card button flips to "In compare" from the same Alpine store |
 | ![Instant search](demo-screenshots/w2-05-instant-search.png) | hyva-graphql-search | Debounced autocomplete over stock Magento GraphQL — eight matches for "bag", thumbnails and prices from the same query, match highlighting done by escaping text first and injecting `<mark>` after |
+| ![Product families](demo-screenshots/w2-06-product-families-pdp.png) | product-families | A family row derived from the catalogue, not from manual linking. The kill switch ships off and the key is a merchant decision — here it is `material`, and the page proves itself: *More Information* reads Wool, and *Teton Pullover Hoodie* (Wool, Fleece, Nylon) is in the row because it shares that one value |
 
 Earlier screenshots of the same three storefront modules, taken on the previous install, are kept in
 [`demo-screenshots/`](demo-screenshots/) as `01`–`05`.
