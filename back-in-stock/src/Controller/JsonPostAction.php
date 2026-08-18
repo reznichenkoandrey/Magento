@@ -15,7 +15,7 @@ use Magento\Framework\Data\Form\FormKey\Validator as FormKeyValidator;
  * The shared half of the three JSON endpoints: form-key validation that an XHR cannot skip.
  *
  * This is not belt and braces. `Magento\Framework\App\Request\CsrfValidator::validateRequest()`
- * reads, in full:
+ * falls back, for an action that is not `CsrfAwareActionInterface`, to:
  *
  * ```php
  * $valid = !$request->isPost()
