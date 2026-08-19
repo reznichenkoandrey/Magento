@@ -2,14 +2,24 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
+        <!--
+            The entry module and its configuration island, in the head.
+
+            `head.additional` rather than `before.body.end`: a `<script type="module">` is
+            deferred, deferred scripts execute in document order, and Hyvä's Alpine tag is the
+            first block in `before.body.end` — so an entry module rendered there would run after
+            Alpine had already walked the DOM looking for a component nobody had registered.
+        -->
+        <referenceContainer name="head.additional">
+            <block class="Scr1be\HyvaGraphqlSearch\Block\SearchScripts"
+                   name="scr1be.graphql.search.scripts"
+                   template="Scr1be_HyvaGraphqlSearch::search-scripts.phtml"/>
+        </referenceContainer>
         <referenceContainer name="header.container">
+            <!-- Markup only; the ViewModel it used to take is now read by SearchScripts in the head. -->
             <block name="scr1be.graphql.search"
                    template="Scr1be_HyvaGraphqlSearch::search-bar.phtml"
-                   before="-">
-                <arguments>
-                    <argument name="search_config" xsi:type="object">Scr1be\HyvaGraphqlSearch\ViewModel\SearchConfig</argument>
-                </arguments>
-            </block>
+                   before="-"/>
         </referenceContainer>
     </body>
 </page>
