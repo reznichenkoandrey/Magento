@@ -2,12 +2,28 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
     <menu>
+        <!--
+            `system_other_settings`, not `stores_other_settings`.
+
+            The ACL tree and the menu tree are separate hierarchies with deceptively parallel ids.
+            `Magento_Backend::stores_other_settings` is real — it is an ACL resource, declared in
+            module-backend/etc/acl.xml with the title "Other Settings" — but there is no menu node
+            of that name. The menu node behind the same "Stores → Other Settings" section kept its
+            historical id, `Magento_Backend::system_other_settings`, from when the section was
+            called System.
+
+            Naming the ACL id as a menu parent makes `Menu\Config::_initMenu()` throw
+            `OutOfRangeException: Specified invalid parent id`. That method builds on *every* admin
+            page, so a single wrong parent here does not break this screen — it takes the whole
+            backend down, including Configuration, and the storefront stays perfectly healthy while
+            it does. `resource` below is a different tree again and correctly names our own ACL id.
+        -->
         <add id="Scr1be_OrderAttribution::source"
              title="Order Attribution Sources"
              translate="title"
              module="Scr1be_OrderAttribution"
              sortOrder="100"
-             parent="Magento_Backend::stores_other_settings"
+             parent="Magento_Backend::system_other_settings"
              action="scr1be_orderattribution/source/index"
              resource="Scr1be_OrderAttribution::source"/>
     </menu>

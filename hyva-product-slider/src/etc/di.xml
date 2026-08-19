@@ -38,9 +38,7 @@
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
-                <item name="scr1be_slider_listing_data_source" xsi:type="string">
-                    Scr1be\HyvaProductSlider\Model\ResourceModel\Slider\Grid\Collection
-                </item>
+                <item name="scr1be_slider_listing_data_source" xsi:type="string">Scr1be\HyvaProductSlider\Model\ResourceModel\Slider\Grid\Collection</item>
             </argument>
         </arguments>
     </type>
