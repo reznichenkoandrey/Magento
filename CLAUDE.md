@@ -127,10 +127,21 @@ of finishing a change.
 php -l <file>                                  # every touched PHP/PHTML file
 xmllint --noout <file>.xml                     # every touched XML file
 vendor/bin/phpcs --standard=Magento2 --extensions=php,phtml <path>
+php tools/check-graphql-schemas.php            # whenever a .graphqls file changed
 ```
 
 Prefer fixing code over silencing a rule. No file-level ignores, and no inline suppression without a
 comment saying why the rule is wrong here rather than the code.
+
+The schema gate exists because nothing else observes what it checks. Magento splits `.graphqls`
+files with a regular expression rather than a parser, over raw content, with no word boundaries on
+the keyword alternation — so `type`, `input`, `enum` and the rest begin a declaration wherever they
+appear, comments included, and everything up to the next closing brace is swallowed. The result is
+an unterminated-string error that names no file and kills schema generation for every GraphQL
+request in the installation. `php -l` sees valid text, `xmllint` sees no XML, and no unit test
+parses a schema. Punctuation after the keyword defuses it; the gate is what tells you that you
+needed to. It reproduces core's pattern verbatim, so re-read `GraphQlReader::parseTypes()` on a
+Magento upgrade and update the script if it moved.
 
 ## Tests
 
