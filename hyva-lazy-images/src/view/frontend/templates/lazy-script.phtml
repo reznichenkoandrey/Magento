@@ -1,60 +1,16 @@
 <?php
 declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scr1be\HyvaLazyImages\Block\LazyScripts;
+
+/** @var LazyScripts $block */
+/** @var Escaper $escaper */
+
+/**
+ * One external module, nothing inline — so no `HyvaCsp::registerInlineScript()` call. The
+ * loader itself lives in `js/lazy-images.js` and is imported relatively by the entry module,
+ * so this page ships no import map either.
+ */
 ?>
-<script>
-    'use strict';
-    /**
-     * Native loading="lazy" handles the modern browsers. This script is the
-     * fallback for older Safari and odd corporate browsers — it only kicks in
-     * if IntersectionObserver exists AND a data-src attribute is found.
-     */
-    (function () {
-        if (!('IntersectionObserver' in window)) {
-            // Truly old browser — promote every data-src to src immediately
-            document.querySelectorAll('img[data-src]').forEach((img) => promoteImage(img));
-            return;
-        }
-
-        const observer = new IntersectionObserver(
-            (entries) => {
-                for (const entry of entries) {
-                    if (!entry.isIntersecting) continue;
-                    promoteImage(entry.target);
-                    observer.unobserve(entry.target);
-                }
-            },
-            { rootMargin: '200px 0px', threshold: 0.01 }
-        );
-
-        const observe = () => {
-            document.querySelectorAll('img[data-src]:not([data-lazy-bound])').forEach((img) => {
-                img.setAttribute('data-lazy-bound', '1');
-                observer.observe(img);
-            });
-        };
-
-        function promoteImage(img) {
-            const picture = img.closest('picture');
-            if (picture) {
-                picture.querySelectorAll('source[data-srcset]').forEach((source) => {
-                    source.srcset = source.dataset.srcset;
-                    source.removeAttribute('data-srcset');
-                });
-            }
-            if (img.dataset.srcsetJpg) {
-                img.srcset = img.dataset.srcsetJpg;
-                delete img.dataset.srcsetJpg;
-            }
-            if (img.dataset.src) {
-                img.src = img.dataset.src;
-                delete img.dataset.src;
-            }
-        }
-
-        observe();
-
-        // Re-scan on DOM mutations (Hyvä often swaps product list HTML via AJAX)
-        const mo = new MutationObserver(observe);
-        mo.observe(document.body, { childList: true, subtree: true });
-    })();
-</script>
+<script type="module" src="<?= $escaper->escapeUrl($block->getEntryScriptUrl()) ?>"></script>
