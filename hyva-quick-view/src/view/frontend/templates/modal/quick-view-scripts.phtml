@@ -1,0 +1,19 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scr1be\HyvaQuickView\Block\QuickViewScripts;
+
+/** @var QuickViewScripts $block */
+/** @var Escaper $escaper */
+
+/**
+ * The endpoint and the translated failure message as data, then the entry module. Nothing
+ * inline, so no `HyvaCsp::registerInlineScript()` call is needed — which is the reason this
+ * file exists rather than the `<script>` block that used to head the modal template.
+ */
+?>
+<script type="application/json" data-scr1be-quickview-config>
+<?= /* @noEscape */ $block->getConfigJson() ?>
+</script>
+<script type="module" src="<?= $escaper->escapeUrl($block->getEntryScriptUrl()) ?>"></script>

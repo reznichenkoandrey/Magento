@@ -2,8 +2,15 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
-        <referenceContainer name="before.body.end">
-            <block name="scr1be.lazy.images.script"
+        <!--
+            The head, like the other module scripts in this repo. Unlike them there is no Alpine
+            component to register, so the ordering against Hyvä's Alpine tag does not matter here
+            — but a module script is deferred either way, so the document is parsed by the time
+            the loader looks for `img[data-src]` and for `document.body` to observe.
+        -->
+        <referenceContainer name="head.additional">
+            <block class="Scr1be\HyvaLazyImages\Block\LazyScripts"
+                   name="scr1be.lazy.images.script"
                    template="Scr1be_HyvaLazyImages::lazy-script.phtml"/>
         </referenceContainer>
     </body>

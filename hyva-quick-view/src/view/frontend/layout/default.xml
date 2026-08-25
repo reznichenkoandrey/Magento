@@ -2,13 +2,21 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
+        <!--
+            Head, not `before.body.end`: a `<script type="module">` is deferred, deferred scripts
+            run in document order, and Hyvä's Alpine tag is the first block down there — so the
+            store would be registered after Alpine had already started.
+        -->
+        <referenceContainer name="head.additional">
+            <block class="Scr1be\HyvaQuickView\Block\QuickViewScripts"
+                   name="scr1be.quickview.scripts"
+                   template="Scr1be_HyvaQuickView::modal/quick-view-scripts.phtml"/>
+        </referenceContainer>
+        <!-- The dialog itself stays last in the document so its fixed overlay is not trapped
+             inside a stacking context created by a header or sticky bar above it. -->
         <referenceContainer name="before.body.end">
             <block name="hyva.quickview.modal"
-                   template="Scr1be_HyvaQuickView::modal/quick-view.phtml">
-                <arguments>
-                    <argument name="view_model" xsi:type="object">Scr1be\HyvaQuickView\ViewModel\QuickView</argument>
-                </arguments>
-            </block>
+                   template="Scr1be_HyvaQuickView::modal/quick-view.phtml"/>
         </referenceContainer>
     </body>
 </page>

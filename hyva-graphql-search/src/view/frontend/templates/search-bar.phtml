@@ -1,23 +1,20 @@
 <?php
 declare(strict_types=1);
 
-use Scr1be\HyvaGraphqlSearch\ViewModel\SearchConfig;
-
 /** @var \Magento\Framework\Escaper $escaper */
 /** @var \Magento\Framework\View\Element\Template $block */
 
-/** @var SearchConfig $searchConfig */
-$searchConfig = $block->getData('search_config');
+/**
+ * Markup only. The component behind `x-data` is registered by
+ * `Scr1be_HyvaGraphqlSearch::js/search-register.js`, and everything it needs to know —
+ * endpoints, page size, cache TTL, minimum query length — reaches it through the JSON island
+ * that `search-scripts.phtml` prints in the head. This template used to carry all of it, plus
+ * the component itself, in an inline script that registered no CSP hash.
+ */
 
-$graphqlUrl       = $searchConfig->getGraphqlEndpoint();
-$searchResultUrl  = $searchConfig->getSearchResultUrl();
-$productUrlSuffix = $searchConfig->getProductUrlSuffix();
-$minQuery         = $searchConfig->getMinQueryLength();
-$pageSize         = 8;
-$debounceMs       = 300;
-$cacheTtlMs       = 5 * 60 * 1000;
-?>
-<div x-data="initInstantSearch"
+/** Alpine debounces the keystroke; `search()` still enforces the minimum length server-side of it. */
+$debounceMs = 300;
+?><div x-data="scr1beInstantSearch"
      @click.outside="close()"
      @keydown.escape.window="close()"
      class="relative w-full max-w-md mx-auto">
@@ -110,165 +107,3 @@ $cacheTtlMs       = 5 * 60 * 1000;
         </template>
     </div>
 </div>
-
-<script>
-    'use strict';
-    const SCR1BE_GRAPHQL_URL = '<?= $escaper->escapeJs($graphqlUrl) ?>';
-    const SCR1BE_SEARCH_RESULT_URL = '<?= $escaper->escapeJs($searchResultUrl) ?>';
-    const SCR1BE_PRODUCT_URL_SUFFIX = '<?= $escaper->escapeJs($productUrlSuffix) ?>';
-    const SCR1BE_PAGE_SIZE = <?= (int) $pageSize ?>;
-    const SCR1BE_CACHE_TTL_MS = <?= (int) $cacheTtlMs ?>;
-    const SCR1BE_MIN_QUERY = <?= (int) $minQuery ?>;
-
-    const SCR1BE_QUERY = `
-        query InstantSearch($search: String!, $pageSize: Int!) {
-            products(search: $search, pageSize: $pageSize) {
-                total_count
-                items {
-                    uid
-                    name
-                    sku
-                    url_key
-                    small_image { url label }
-                    price_range { minimum_price { final_price { value currency } } }
-                }
-            }
-        }
-    `;
-
-    function initInstantSearch() {
-        return {
-            query: '',
-            results: [],
-            totalCount: 0,
-            /** Exposed so the empty state can gate on the same threshold search() enforces. */
-            minQuery: SCR1BE_MIN_QUERY,
-            loading: false,
-            error: '',
-            isOpen: false,
-            highlightIndex: -1,
-            controller: null,
-            cache: new Map(),
-
-            onFocus() {
-                if (this.results.length > 0) this.isOpen = true;
-            },
-
-            close() {
-                this.isOpen = false;
-                this.highlightIndex = -1;
-            },
-
-            reset() {
-                this.query = '';
-                this.results = [];
-                this.totalCount = 0;
-                this.error = '';
-                this.close();
-            },
-
-            async search() {
-                const trimmed = this.query.trim();
-                if (trimmed.length < SCR1BE_MIN_QUERY) {
-                    this.results = [];
-                    this.totalCount = 0;
-                    this.isOpen = false;
-                    return;
-                }
-
-                const cached = this.cache.get(trimmed);
-                if (cached && Date.now() - cached.timestamp < SCR1BE_CACHE_TTL_MS) {
-                    this.applyResults(cached.items, cached.totalCount);
-                    return;
-                }
-
-                this.controller?.abort();
-                this.controller = new AbortController();
-                this.loading = true;
-                this.error = '';
-                this.isOpen = true;
-
-                try {
-                    const response = await fetch(SCR1BE_GRAPHQL_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            query: SCR1BE_QUERY,
-                            variables: { search: trimmed, pageSize: SCR1BE_PAGE_SIZE },
-                        }),
-                        signal: this.controller.signal,
-                    });
-
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    const payload = await response.json();
-                    if (payload.errors?.length) throw new Error(payload.errors[0].message);
-
-                    const items = payload.data?.products?.items ?? [];
-                    const totalCount = payload.data?.products?.total_count ?? 0;
-
-                    this.cache.set(trimmed, { items, totalCount, timestamp: Date.now() });
-                    this.applyResults(items, totalCount);
-                } catch (error) {
-                    if (error.name === 'AbortError') return;
-                    this.error = error.message;
-                    this.results = [];
-                } finally {
-                    this.loading = false;
-                }
-            },
-
-            applyResults(items, totalCount) {
-                this.results = items;
-                this.totalCount = totalCount;
-                this.highlightIndex = items.length > 0 ? 0 : -1;
-            },
-
-            moveHighlight(delta) {
-                if (this.results.length === 0) return;
-                const next = (this.highlightIndex + delta + this.results.length) % this.results.length;
-                this.highlightIndex = next;
-            },
-
-            followHighlight() {
-                const item = this.results[this.highlightIndex];
-                if (item) window.location.href = this.productUrl(item);
-                else if (this.query.trim().length > 0) window.location.href = this.seeAllUrl();
-            },
-
-            productUrl(item) {
-                // url_key + admin-configured suffix. Both come from the server: the suffix
-                // out of catalog/seo/product_url_suffix (can be ".html", "", or anything else).
-                return `/${item.url_key}${SCR1BE_PRODUCT_URL_SUFFIX}`;
-            },
-
-            seeAllUrl() {
-                const sep = SCR1BE_SEARCH_RESULT_URL.includes('?') ? '&' : '?';
-                return SCR1BE_SEARCH_RESULT_URL + sep + 'q=' + encodeURIComponent(this.query.trim());
-            },
-
-            formatPrice(item) {
-                const price = item.price_range?.minimum_price?.final_price;
-                if (!price) return '';
-                return `${price.value.toFixed(2)} ${price.currency}`;
-            },
-
-            highlightMatch(text) {
-                const trimmed = this.query.trim();
-                if (!trimmed) return this.escape(text);
-                const escaped = this.escape(text);
-                const pattern = trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                return escaped.replace(new RegExp(`(${pattern})`, 'ig'), '<mark class="bg-yellow-200">$1</mark>');
-            },
-
-            escape(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            },
-        };
-    }
-
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('initInstantSearch', initInstantSearch);
-    });
-</script>

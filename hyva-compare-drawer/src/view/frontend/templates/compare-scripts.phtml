@@ -1,0 +1,19 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scr1be\HyvaCompareDrawer\Block\CompareScripts;
+
+/** @var CompareScripts $block */
+/** @var Escaper $escaper */
+
+/**
+ * Two tags, neither of them inline code: `application/json` is a media type no engine
+ * executes, and the module script is external. So no `HyvaCsp::registerInlineScript()` call —
+ * which is the whole reason this file replaced the inline store in `store.phtml`.
+ */
+?>
+<script type="application/json" data-scr1be-compare-config>
+<?= /* @noEscape */ $block->getConfigJson() ?>
+</script>
+<script type="module" src="<?= $escaper->escapeUrl($block->getEntryScriptUrl()) ?>"></script>

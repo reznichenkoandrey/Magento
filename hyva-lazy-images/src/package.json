@@ -1,0 +1,13 @@
+{
+    "name": "scr1be-lazy-images",
+    "description": "ES module scope for the storefront JavaScript. The browser resolves these files relatively and the page ships no import map; this exports map exists so the specs can name the same entry points under node --test.",
+    "private": true,
+    "type": "module",
+    "exports": {
+        "./register.js": "./view/frontend/web/js/lazy-register.js",
+        "./lazy-images.js": "./view/frontend/web/js/lazy-images.js"
+    },
+    "scripts": {
+        "test": "node --test \"Test/Js/*.test.js\""
+    }
+}
