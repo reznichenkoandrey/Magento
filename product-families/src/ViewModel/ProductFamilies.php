@@ -173,9 +173,13 @@ class ProductFamilies implements ArgumentInterface
      * swatch simply do not come back, which is what makes the text fallback in `buildChip()` the
      * natural default rather than a special case.
      *
+     * `value` is nullable, and not defensively so: `eav_attribute_option_swatch.value` is declared
+     * `nullable="true"` in `Magento_Swatches`' own `db_schema.xml`, so a row can exist with a type
+     * and no value at all.
+     *
      * @param array<int, Product> $members
      * @param FamilyDefinition[] $definitions
-     * @return array<int|string, array{type: int|string, value: string}>
+     * @return array<int|string, array{type: int|string, value: string|null}>
      */
     private function loadSwatches(array $members, array $definitions): array
     {
@@ -200,7 +204,7 @@ class ProductFamilies implements ArgumentInterface
     }
 
     /**
-     * @param array<int|string, array{type: int|string, value: string}> $swatches
+     * @param array<int|string, array{type: int|string, value: string|null}> $swatches
      * @return array{product_id: int, url: string, name: string, label: string,
      *               swatch_type: string, swatch_value: string}
      */
@@ -235,7 +239,7 @@ class ProductFamilies implements ArgumentInterface
     }
 
     /**
-     * @param array{type: int|string, value: string} $swatch
+     * @param array{type: int|string, value: string|null} $swatch
      * @return array{0: string, 1: string}
      */
     private function readSwatch(array $swatch): array
@@ -266,8 +270,9 @@ class ProductFamilies implements ArgumentInterface
             return '';
         }
 
+        // Never null — an unknown code comes back as an empty attribute object.
         $attribute = $this->eavConfig->getAttribute(Product::ENTITY, $attributeCode);
-        if (!$attribute || !$attribute->getAttributeId() || !$attribute->usesSource()) {
+        if (!$attribute->getAttributeId() || !$attribute->usesSource()) {
             return (string)$value;
         }
 
