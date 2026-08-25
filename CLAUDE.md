@@ -120,18 +120,30 @@ Design values become tokens rather than arbitrary literals, and a token is named
 
 ## Quality gates
 
-There is no CI and no git hook in this repo — the gates are run by hand, and running them is part
-of finishing a change.
+`.github/workflows/gates.yml` runs five of these on every push and pull request, and all five
+block: `php -l`, `xmllint`, the schema gate, the JS suites and `phpcs`. Run them by hand before
+pushing anyway — CI tells you afterwards, which is later than you wanted to know.
 
 ```bash
 php -l <file>                                  # every touched PHP/PHTML file
 xmllint --noout <file>.xml                     # every touched XML file
-vendor/bin/phpcs --standard=Magento2 --extensions=php,phtml <path>
+../vendor/bin/phpcs <path>                     # from this directory; see below
 php tools/check-graphql-schemas.php            # whenever a .graphqls file changed
 ```
 
+**Do not pass `--standard=Magento2`.** `phpcs.xml` in this directory *is* the standard: it is the
+Magento2 standard with two rules excluded and the reason for each written into the file. Naming
+Magento2 on the command line bypasses it and reports 34 findings that have already been answered.
+Extensions are set there too, so `--extensions` is not needed either.
+
+Warnings are not a gate — there are ~3,300 of them, almost all the stock docblock sniffs. Errors
+are, and the tree is at zero.
+
 Prefer fixing code over silencing a rule. No file-level ignores, and no inline suppression without a
-comment saying why the rule is wrong here rather than the code.
+comment saying why the rule is wrong here rather than the code. When a `phpcs:ignore` is the right
+answer, put the explanation above it and the directive on the line immediately before the code —
+the directive applies to the next line, so a comment between the two swallows it silently and the
+finding comes back.
 
 The schema gate exists because nothing else observes what it checks. Magento splits `.graphqls`
 files with a regular expression rather than a parser, over raw content, with no word boundaries on

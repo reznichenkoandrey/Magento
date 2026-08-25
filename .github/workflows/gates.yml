@@ -87,25 +87,8 @@ jobs:
           exit $status
 
   phpcs:
-    name: phpcs (Magento2) — advisory
+    name: phpcs (Magento2)
     runs-on: ubuntu-latest
-    # Not blocking yet, and deliberately so. The standard currently reports 50 errors on
-    # this tree, and every one has been looked at:
-    #
-    #   28  Final implementation found      — deliberate. These are immutable value objects
-    #                                         that are never injected; CLAUDE.md says not to
-    #                                         "fix" them.
-    #   12  Xss template found unescaped    — false positives, but unannotated. Each echoes a
-    #                                         value that is safe by construction — an (int)
-    #                                         cast, or a ternary over two hardcoded literals.
-    #                                         They need `/* @noEscape */` to say so.
-    #    6  ArrayObject is restricted       — in one test's fixtures, not in shipped code.
-    #    3  No silenced errors discouraged
-    #    1  md5() is forbidden              — used to build a cache key, not for security.
-    #
-    # It becomes a blocking gate once the annotations are in and the sniffs that stay are
-    # excluded by name with a reason. Until then it runs so the number cannot grow unseen.
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
@@ -118,9 +101,11 @@ jobs:
           composer init --no-interaction --name=scr1be/phpcs-runner
           composer config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
           composer require --no-interaction --dev magento/magento-coding-standard
+      # No standard is named here on purpose: phpcs.xml at the repo root is the standard, and it
+      # carries the two exclusions with the reason for each. Passing --standard=Magento2 would
+      # bypass it. Warnings are the stock docblock ones and are not a gate; errors are.
       - name: Run phpcs
         run: |
           "$RUNNER_TEMP/phpcs/vendor/bin/phpcs" \
-            --standard=Magento2 --extensions=php,phtml \
-            --warning-severity=0 --report=summary \
+            --warning-severity=0 --report=full \
             $(ls -d */src)

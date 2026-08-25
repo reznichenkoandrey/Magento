@@ -25,14 +25,20 @@ $payload = [
 // strip_tags above guarantees `price` contains no markup before encoding.
 $payloadJson = $escaper->escapeHtmlAttr(json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_HEX_QUOT | JSON_HEX_APOS));
 ?>
+<?php /*
+    `$productId` is echoed unescaped below, five times, and each one is marked. It is the result of
+    an `(int)` cast, so it cannot carry markup — escaping an integer would only obscure that. The
+    marker is there because the sniff reads one statement at a time and cannot see the cast from
+    the echo; it is a note to the next reader as much as to phpcs.
+*/ ?>
 <button type="button"
         x-data
-        :class="$store.compare.has(<?= $productId ?>) && 'ring-2 ring-blue-500'"
-        @click="$store.compare.has(<?= $productId ?>) ? $store.compare.remove(<?= $productId ?>) : $store.compare.add(JSON.parse('<?= /* @noEscape */ $payloadJson ?>'))"
+        :class="$store.compare.has(<?= /* @noEscape */ $productId ?>) && 'ring-2 ring-blue-500'"
+        @click="$store.compare.has(<?= /* @noEscape */ $productId ?>) ? $store.compare.remove(<?= /* @noEscape */ $productId ?>) : $store.compare.add(JSON.parse('<?= /* @noEscape */ $payloadJson ?>'))"
         class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium border border-gray-300 rounded hover:bg-gray-50"
-        :aria-pressed="$store.compare.has(<?= $productId ?>).toString()">
+        :aria-pressed="$store.compare.has(<?= /* @noEscape */ $productId ?>).toString()">
     <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
         <path d="M3 5h4v10H3zM8 3h4v14H8zM13 8h4v7h-4z"/>
     </svg>
-    <span x-text="$store.compare.has(<?= $productId ?>) ? '<?= $escaper->escapeJs(__('In compare')) ?>' : '<?= $escaper->escapeJs(__('Compare')) ?>'"></span>
+    <span x-text="$store.compare.has(<?= /* @noEscape */ $productId ?>) ? '<?= $escaper->escapeJs(__('In compare')) ?>' : '<?= $escaper->escapeJs(__('Compare')) ?>'"></span>
 </button>

@@ -42,17 +42,27 @@ $initialSrc   = $isPriority
     ? $escaper->escapeUrl(strtok($image['jpg_srcset'], ' '))
     : $escaper->escapeUrl($image['lqip']);
 ?>
+<?php /*
+    Seven echoes below are marked `@noEscape`, and none of them carries data from the catalogue.
+    `$srcsetAttr`, `$srcAttribute`, `$loading`, `$decoding` and `$fetchAttr` are ternaries over two
+    hardcoded literals each — they decide an attribute *name* or a fixed keyword, and there is no
+    input that reaches them. `$initialSrc` is already escaped on both branches above; escaping it a
+    second time at the echo would double-encode the URL and break the image.
+
+    Everything that does come from the image payload — srcsets, sizes, alt — goes through
+    `$escaper` at the point of output, as usual.
+*/ ?>
 <?php // Alpine's @load instead of an inline onload= attribute: inline attribute handlers need
       // CSP3 unsafe-hashes, a strictly worse ask than the inline <script> blocks the sibling
       // modules register hashes for. Alpine is already on the page in Hyvä. ?>
 <picture x-data class="scr1be-lazy-picture block">
     <source type="image/avif"
-            <?= $srcsetAttr ?>="<?= $escaper->escapeHtmlAttr($image['avif_srcset']) ?>"
+            <?= /* @noEscape */ $srcsetAttr ?>="<?= $escaper->escapeHtmlAttr($image['avif_srcset']) ?>"
             sizes="<?= $escaper->escapeHtmlAttr($image['sizes']) ?>"/>
     <source type="image/webp"
-            <?= $srcsetAttr ?>="<?= $escaper->escapeHtmlAttr($image['webp_srcset']) ?>"
+            <?= /* @noEscape */ $srcsetAttr ?>="<?= $escaper->escapeHtmlAttr($image['webp_srcset']) ?>"
             sizes="<?= $escaper->escapeHtmlAttr($image['sizes']) ?>"/>
-    <img <?= $srcAttribute ?>="<?= $initialSrc ?>"
+    <img <?= /* @noEscape */ $srcAttribute ?>="<?= /* @noEscape */ $initialSrc ?>"
          <?php if (!$isPriority): ?>
              src="<?= $escaper->escapeUrl($image['lqip']) ?>"
              data-srcset-jpg="<?= $escaper->escapeHtmlAttr($image['jpg_srcset']) ?>"
@@ -63,8 +73,8 @@ $initialSrc   = $isPriority
          alt="<?= $escaper->escapeHtmlAttr($alt) ?>"
          width="<?= $width ?: 'auto' ?>"
          height="<?= $height ?: 'auto' ?>"
-         loading="<?= $loading ?>"
-         decoding="<?= $decoding ?>"<?= $fetchAttr ?>
+         loading="<?= /* @noEscape */ $loading ?>"
+         decoding="<?= /* @noEscape */ $decoding ?>"<?= /* @noEscape */ $fetchAttr ?>
          class="block w-full h-auto bg-gray-100 transition-[filter] duration-300 motion-reduce:transition-none"
          style="<?= $isPriority ? '' : 'filter: blur(8px);' ?>"
          @load="$el.style.filter = 'none'"/>

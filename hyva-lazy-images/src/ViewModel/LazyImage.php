@@ -110,6 +110,11 @@ class LazyImage implements ArgumentInterface
             'https' => ['timeout' => self::LQIP_FETCH_TIMEOUT_SECONDS],
         ]);
 
+        // `file_get_contents()` reports a failed fetch twice: once as a warning and once as
+        // `false`. Only the second is actionable, and it is handled on the next line. Letting the
+        // warning through would put a CDN's every timeout into the storefront log without adding
+        // anything the placeholder below does not already say.
+        // phpcs:ignore Generic.PHP.NoSilencedErrors
         $raw = @file_get_contents($url, false, $context);
         if ($raw === false) {
             return $this->getInlinePlaceholder();
