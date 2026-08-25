@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!--
+    The Magento2 standard, with two rules switched off and the reason for each written down.
+
+    Everything else the standard reports is treated as a defect and fixed. Where a rule was right
+    about the shape but wrong about one particular line, the suppression is inline, at the line,
+    with the reasoning next to it: see `GdEncoder`, `LazyImage` and `BannerUrlProvider` for the
+    three of those. This file is only for rules that would otherwise need the same note repeated
+    dozens of times.
+
+    Run it from this directory:
+
+        ../vendor/bin/phpcs <path>
+
+    phpcs picks this file up on its own. Naming the Magento2 standard explicitly on the command
+    line bypasses these exclusions, and the 34 findings come back.
+-->
+<ruleset name="Scr1be">
+    <description>Magento 2 coding standard as applied to the Scr1be modules.</description>
+
+    <arg name="extensions" value="php,phtml"/>
+
+    <rule ref="Magento2">
+        <!--
+            Value objects in these modules are final on purpose. They hold immutable data, they are
+            never injected, and nothing extends them; `final` is what says so. The sniff objects to
+            the keyword on principle, because Magento's extensibility model assumes a plugin can
+            wrap anything. That assumption does not hold for a class the object manager never
+            builds. 28 occurrences, each a deliberate answer rather than an oversight.
+        -->
+        <exclude name="Magento2.PHP.FinalImplementation"/>
+    </rule>
+
+    <!--
+        `ArrayObject` is on the restricted list because Magento discourages it in shipped code. In
+        `ImportEngineTest` it is a log that an anonymous porter appends to and the test then reads:
+        PHP copies arrays by value, so a plain array cannot cross that boundary, and the alternative
+        is a bespoke collector class existing only to satisfy a sniff aimed at production code.
+        Confined to test paths, so the rule keeps applying everywhere it was written for.
+    -->
+    <rule ref="Magento2.Legacy.RestrictedCode">
+        <exclude-pattern>*/Test/*</exclude-pattern>
+    </rule>
+</ruleset>
