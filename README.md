@@ -79,12 +79,43 @@ all thirty modules enabled. Screenshots are from that install, not mockups:
 | ![Slider admin](demo-screenshots/w2-10-slider-form.png) | hyva-product-slider | The other half: full CRUD with nine product sources, per-breakpoint slide counts named after Tailwind's own widths, and an identifier the layout XML, the widget and the ViewModel all address it by |
 | ![Slider grid](demo-screenshots/w2-07-slider-grid.png) | hyva-product-slider | The listing — columns, filters, mass actions, store scope — registered through `CollectionFactory` in global scope, which is a story of its own (#23) |
 | ![Content transfer](demo-screenshots/w2-09-content-transfer.png) | content-as-code | Every CMS block on the install with the bundle key it would be captured under, filterable by store view. The CLI writes these to version-controlled JSON and replays them on deploy |
-| ![Configuration](demo-screenshots/w2-13-storeseo-config.png) | store-toolkit and the rest | Nineteen configuration sections under one `scr1be` tab — here Store Toolkit: SEO, whose three groups are canonical, hreflang and per-website robots.txt |
+| ![Configuration](demo-screenshots/w2-13-storeseo-config.png) | store-toolkit and the rest | Twenty-one configuration sections under one `scr1be` tab — here Store Toolkit: SEO, whose three groups are canonical, hreflang and per-website robots.txt |
 
 Earlier screenshots of the same three storefront modules, taken on the previous install, are kept in
 [`demo-screenshots/`](demo-screenshots/) as `01`–`05`.
 
 `hyva-lazy-images` is installed and visible in **Stores → Configuration → scr1be → Lazy Images** but isn't actively rendering picture elements in the demo (the CDN passthrough is left unconfigured — there's no point spinning up imgproxy for a screenshots-only demo).
+
+### Admin configuration
+
+The frames above cover the modules you can see. The other half of the work is the back office,
+and for most of the remaining projects that is where the design decisions are actually visible —
+in the fields a merchant is given, and in the help text saying what each one costs. One frame per
+project, from the same install:
+
+| | Project | What's shown |
+|---|---|---|
+| ![Fraud Guard](demo-screenshots/cfg-fraud-guard.png) | fraud-guard | Three fields, and the middle one carries the whole design: the decline message has to read exactly like the payment gateway's own, because a message that reads differently is the tell that tells a card tester which identity is burnt |
+| ![Admin Grid Toolkit](demo-screenshots/cfg-admin-grid-toolkit.png) | admin-grid-toolkit | One switch per defect — exporting legacy grid *values* rather than their HTML, dropping allowlisted joins from the order-grid count, and giving an admin reorder its own increment ID |
+| ![FPC Inspector](demo-screenshots/cfg-fpc-inspector.png) | fpc-inspector | The recording controls: which URIs to watch, how many call-stack frames to keep per record, and whether vary-string builds and no-cache stamps are captured as their own events |
+| ![Store closure](demo-screenshots/cfg-store-toolkit-closure.png) | store-toolkit | Taking one store off sale without taking the website down — prices hidden while closed, and a headline, body and banner for the notice that stands in for them |
+| ![Category Cascade](demo-screenshots/cfg-category-cascade.png) | category-cascade | The cascade, a confirmation step before a save that will disable a whole branch, and a second group for counting products from the category index instead of by walking the tree |
+| ![Customer Group Guard](demo-screenshots/cfg-customer-group-guard.png) | customer-group-guard | The two things Magento leaves undone after a group change: signing the customer out, so their next page is not the one the CDN cached for the old group, and refusing an order placed from a cart that still carries it |
+| ![Media derivatives](demo-screenshots/cfg-hyva-media.png) | hyva-media | A width ladder and encoder quality for wysiwyg-uploaded art, WebP as its own group, and the two limits that stop a resize request becoming a denial of service — source megapixels, and encodes per request |
+| ![Product Card](demo-screenshots/cfg-hyva-product-card.png) | hyva-product-card | The widest surface of the set: badge rules with a minimum discount and a low-stock threshold, srcset widths and the `sizes` attribute, a per-page ceiling on hover images, the stock endpoint's cache lifetime, and GA4 list context |
+| ![POS Bridge](demo-screenshots/cfg-pos-bridge.png) | pos-bridge | The endpoint switch, the act-as-customer permission till staff need — opt-in, because it is impersonation — and a cap on how many matches a name lookup may return |
+| ![Signed documents](demo-screenshots/cfg-signed-document-delivery.png) | signed-document-delivery | Two lifetimes, and the help text carries the reasoning: the link is store-scoped because a kiosk and a native app can reasonably want different windows, while the PDF cache is default-scope only because the cron that sweeps it runs with no store context |
+| ![Social login](demo-screenshots/cfg-headless-social-login.png) | headless-api-suite | Google and Apple sign-in for the GraphQL surface, and it takes public identifiers only: tokens are verified against the provider's JWKS with the client id checked as `aud`, so there is no client secret to store |
+| ![Lazy images](demo-screenshots/cfg-hyva-lazy-images.png) | hyva-lazy-images | The CDN base and path template this demo deliberately leaves unset, and the output side that does not depend on them — LQIP size, srcset breakpoints and encoder quality |
+| ![Curated Categories](demo-screenshots/cfg-curated-categories.png) | curated-categories | Three sources over one engine, each with a category, a product count, a window and an SEO floor that keeps the page from emptying when the rule matches nothing — plus New Arrivals' exclusion rules |
+| ![Back In Stock](demo-screenshots/cfg-back-in-stock.png) | back-in-stock | Everything Magento's stock alert lacks once the email is sent: a storefront popup with a low-stock badge, and a push channel with its Firebase project and service account |
+
+Two notes on how these were taken. Groups that ship collapsed were expanded, and master switches
+that ship *off* were switched on **in the browser only, and never saved**, so that the fields they
+gate are visible — the frames show what each section offers, not what this demo has turned on, and
+the install's stored configuration is unchanged. `tier-price-label` has no frame in either table:
+it renders only where a product carries tier prices, and the Luma sample data ships none.
+
 
 ## Why this layout
 
