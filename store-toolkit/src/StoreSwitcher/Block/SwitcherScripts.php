@@ -35,6 +35,6 @@ class SwitcherScripts extends Template
 
     public function getEntryScriptUrl(): string
     {
-        return $this->getViewFileUrl('Scr1be_StoreSwitcher::js/store-switcher.js');
+        return $this->getViewFileUrl('Scr1be_StoreSwitcher::js/store-switcher-register.js');
     }
 }

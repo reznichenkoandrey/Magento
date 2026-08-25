@@ -62,7 +62,7 @@ class TemplateContractTest extends TestCase
     public function testDesktopTemplateUsesTheComponentNameTheModuleRegisters(): void
     {
         $template = $this->read('view/frontend/templates/switcher/desktop.phtml');
-        $js = $this->read('view/frontend/web/js/store-switcher.js');
+        $js = $this->read('view/frontend/web/js/store-switcher-register.js');
 
         self::assertMatchesRegularExpression('/x-data="scr1beStoreSwitcherLinks"/', $template);
         self::assertStringContainsString("COMPONENT_LINKS = 'scr1beStoreSwitcherLinks'", $js);
@@ -71,16 +71,34 @@ class TemplateContractTest extends TestCase
     public function testDrawerTemplateUsesTheComponentNameTheModuleRegisters(): void
     {
         $template = $this->read('view/frontend/templates/switcher/drawer.phtml');
-        $js = $this->read('view/frontend/web/js/store-switcher.js');
+        $js = $this->read('view/frontend/web/js/store-switcher-register.js');
 
         self::assertMatchesRegularExpression('/x-data="scr1beStoreSwitcherDrawer"/', $template);
         self::assertStringContainsString("COMPONENT_DRAWER = 'scr1beStoreSwitcherDrawer'", $js);
     }
 
+    public function testTheBlockPointsAtTheFileThatActuallyRegistersTheComponents(): void
+    {
+        // The logic and the seam are separate files so the logic can be imported under
+        // node --test without a window. Only one of them registers anything with Alpine, and
+        // the block has to name that one: pointing at the other loads a module that defines
+        // the components and never announces them, which renders a switcher that does nothing.
+        $block = $this->read('Block/SwitcherScripts.php');
+        $register = 'view/frontend/web/js/store-switcher-register.js';
+
+        self::assertStringContainsString('js/store-switcher-register.js', $block);
+        self::assertStringContainsString('win.Alpine.data(', $this->read($register));
+        self::assertStringNotContainsString(
+            'Alpine.data(',
+            $this->read('view/frontend/web/js/store-switcher.js'),
+            'The logic file must stay free of registration, or importing it in a spec has side effects.'
+        );
+    }
+
     public function testTheConfigSelectorMatchesTheAttributeTheDrawerWrites(): void
     {
         $template = $this->read('view/frontend/templates/switcher/drawer.phtml');
-        $js = $this->read('view/frontend/web/js/store-switcher.js');
+        $js = $this->read('view/frontend/web/js/store-switcher-register.js');
 
         self::assertStringContainsString('data-scr1be-store-switcher-config', $template);
         self::assertStringContainsString(
