@@ -1,31 +1,35 @@
 /**
  * Copyright (c) 2026 scr1be. MIT licensed.
  *
- * The storefront half of the switcher.
+ * The storefront half of the switcher, minus the seam.
  *
  * Two Alpine components, because the two renderers hand the browser different things: the desktop
  * list arrives with finished redirect URLs in its option values and only has to navigate, while
- * the drawer arrives with store codes and has to compose the redirect itself. Everything that is
- * not DOM work is exported as a plain function so the contract with Magento — the shape of the
- * redirect URL, the encoding of `uenc` — can be checked without a browser.
+ * the drawer arrives with store codes and has to compose the redirect itself. Everything here is
+ * a plain function over its arguments — the window is passed in rather than reached for — so the
+ * contract with Magento (the shape of the redirect URL, the encoding of `uenc`) can be checked
+ * without a browser. The part that touches `window` is `store-switcher-register.js`.
  */
 
-/** The element the drawer template writes its JSON into. */
-export const CONFIG_SELECTOR = '[data-scr1be-store-switcher-config]';
-
-/** The names the templates put in `x-data`. */
-export const COMPONENT_LINKS = 'scr1beStoreSwitcherLinks';
-export const COMPONENT_DRAWER = 'scr1beStoreSwitcherDrawer';
-
-const EMPTY_CONFIG = {
+/**
+ * The defaults a missing or malformed config island falls back to.
+ *
+ * Frozen, and `stores` with it: a spread of this object is shallow, so every fallback would
+ * otherwise hand out the *same* array. Nothing mutates it today, which is exactly why it would
+ * be an unpleasant thing to discover later.
+ */
+export const EMPTY_CONFIG = Object.freeze({
     currentCode: '',
     currentBaseUrl: '',
     redirectUrl: '',
     storeParam: '___store',
     fromStoreParam: '___from_store',
     targetUrlParam: 'uenc',
-    stores: []
-};
+    stores: Object.freeze([])
+});
+
+/** A mutable copy of the defaults, safe to hand to a caller. */
+export const emptyConfig = () => ({ ...EMPTY_CONFIG, stores: [] });
 
 /**
  * Magento's base64 URL alphabet.
@@ -100,38 +104,20 @@ export const buildRedirectUrl = (config, storeCode, currentHref) => {
 };
 
 /**
- * @param {Document} doc
- * @returns {Object}
- */
-export const readConfig = (doc) => {
-    const element = doc.querySelector(CONFIG_SELECTOR);
-
-    if (!element) {
-        return EMPTY_CONFIG;
-    }
-
-    try {
-        return Object.assign({}, EMPTY_CONFIG, JSON.parse(element.textContent));
-    } catch (error) {
-        // A malformed payload leaves a switcher that does nothing. Throwing here would take every
-        // other Alpine component on the page down with it.
-        return EMPTY_CONFIG;
-    }
-};
-
-/**
  * Desktop: the option values are already redirect URLs.
  *
  * The selected value is read through `$refs` rather than off the change event, so the template
  * needs no expression in its `x-on` attribute — a bare method reference is all a strict CSP build
  * of Alpine will evaluate.
+ *
+ * @param {Window} win
  */
-export const linksComponent = () => ({
+export const linksComponent = (win) => ({
     switchStore() {
         const value = this.$refs.select ? this.$refs.select.value : '';
 
         if (value) {
-            window.location.assign(value);
+            win.location.assign(value);
         }
     }
 });
@@ -140,8 +126,9 @@ export const linksComponent = () => ({
  * Drawer: the option values are store codes, and the redirect is composed here.
  *
  * @param {Object} config
+ * @param {Window} win
  */
-export const drawerComponent = (config) => ({
+export const drawerComponent = (config, win) => ({
     switchStore() {
         const code = this.$refs.select ? this.$refs.select.value : '';
 
@@ -149,32 +136,10 @@ export const drawerComponent = (config) => ({
             return;
         }
 
-        const url = buildRedirectUrl(config, code, window.location.href);
+        const url = buildRedirectUrl(config, code, win.location.href);
 
         if (url) {
-            window.location.assign(url);
+            win.location.assign(url);
         }
     }
 });
-
-/**
- * The seam. Everything above is testable without a DOM; this is the part that is a promise to
- * Alpine, to the templates and to the element the block renders.
- *
- * @param {Window} win
- * @param {Document} doc
- */
-export const registerStoreSwitcher = (win, doc) => {
-    win.addEventListener(
-        'alpine:init',
-        () => {
-            const config = readConfig(doc);
-
-            win.Alpine.data(COMPONENT_LINKS, linksComponent);
-            win.Alpine.data(COMPONENT_DRAWER, () => drawerComponent(config));
-        },
-        { once: true }
-    );
-};
-
-registerStoreSwitcher(window, document);
