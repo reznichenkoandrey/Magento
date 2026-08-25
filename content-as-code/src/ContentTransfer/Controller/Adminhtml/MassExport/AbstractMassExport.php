@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Scr1be\ContentTransfer\Controller\Adminhtml\MassExport;
 
+use Exception;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Backend\Model\View\Result\Redirect;
@@ -10,6 +11,7 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Ui\Component\MassAction\Filter;
+use RuntimeException;
 use Scr1be\ContentTransfer\Model\BundleDownload;
 use Scr1be\ContentTransfer\Model\Selection;
 use Throwable;
@@ -57,7 +59,10 @@ abstract class AbstractMassExport extends Action implements HttpPostActionInterf
         try {
             $keys = $this->collectKeys($this->massActionFilter);
         } catch (Throwable $exception) {
-            $this->messageManager->addExceptionMessage($exception, __('The selection could not be read.'));
+            $this->messageManager->addExceptionMessage(
+                $this->asException($exception),
+                __('The selection could not be read.')
+            );
 
             return $this->back();
         }
@@ -71,10 +76,30 @@ abstract class AbstractMassExport extends Action implements HttpPostActionInterf
         try {
             return $this->bundleDownload->create(new Selection([], [$this->getPorterCode() => $keys]), false);
         } catch (Throwable $exception) {
-            $this->messageManager->addExceptionMessage($exception, __('The bundle could not be built.'));
+            $this->messageManager->addExceptionMessage(
+                $this->asException($exception),
+                __('The bundle could not be built.')
+            );
 
             return $this->back();
         }
+    }
+
+    /**
+     * A caught `Throwable` in the shape `addExceptionMessage()` will accept.
+     *
+     * `Magento\Framework\Message\ManagerInterface::addExceptionMessage()` declares
+     * `\Exception $exception` natively, so handing it an `\Error` raises a `TypeError` *inside*
+     * the catch block — turning the failure this handler exists to absorb into a fatal, and
+     * losing the message the operator was supposed to see. Core has the same problem and answers
+     * it the same way in `Magento\Framework\Mview\View::update()`: wrap, keeping the original as
+     * `previous` so nothing is dropped from the log.
+     */
+    private function asException(Throwable $caught): Exception
+    {
+        return $caught instanceof Exception
+            ? $caught
+            : new RuntimeException($caught->getMessage(), 0, $caught);
     }
 
     private function back(): Redirect
