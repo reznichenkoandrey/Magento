@@ -17,7 +17,7 @@ class Grouper
 {
     /**
      * @param iterable<array{entity_id: int|string, group_value: string|null, variant_value: string|null}> $rows
-     * @return array<string, array<int, string>> family key => product id => variant value
+     * @return array<int|string, array<int, string>> family key => product id => variant value
      */
     public function group(iterable $rows): array
     {
@@ -46,8 +46,8 @@ class Grouper
      * catalogue — most products are the only thing with their exact attribute value — and carrying
      * them through the remaining stages costs more than the filter.
      *
-     * @param array<string, array<int, string>> $families
-     * @return array<string, array<int, string>>
+     * @param array<int|string, array<int, string>> $families
+     * @return array<int|string, array<int, string>>
      */
     public function dropSingletons(array $families): array
     {

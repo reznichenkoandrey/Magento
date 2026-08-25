@@ -7,6 +7,7 @@ use Magento\Framework\DataObject;
 use Magento\Framework\Event;
 use Magento\Framework\Event\Observer;
 use Magento\Sales\Api\Data\OrderInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Scr1be\GuestRegistration\Model\GuestRegistrar;
 use Scr1be\GuestRegistration\Model\RegistrationOutcome;
@@ -19,7 +20,7 @@ use Scr1be\GuestRegistration\Observer\RegisterGuestAfterSubmit;
  */
 class RegisterGuestAfterSubmitTest extends TestCase
 {
-    private GuestRegistrar $registrar;
+    private GuestRegistrar&MockObject $registrar;
     private RegistrationResultHolder $holder;
     private RegisterGuestAfterSubmit $observer;
 

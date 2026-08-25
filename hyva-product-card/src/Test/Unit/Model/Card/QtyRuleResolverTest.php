@@ -6,12 +6,13 @@ namespace Scr1be\HyvaProductCard\Test\Unit\Model\Card;
 use Magento\CatalogInventory\Api\Data\StockItemInterface;
 use Magento\CatalogInventory\Api\StockRegistryInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Scr1be\HyvaProductCard\Model\Card\QtyRuleResolver;
 
 class QtyRuleResolverTest extends TestCase
 {
-    private StockRegistryInterface $stockRegistry;
+    private StockRegistryInterface&MockObject $stockRegistry;
     private QtyRuleResolver $resolver;
 
     protected function setUp(): void

@@ -77,11 +77,20 @@ class SearchAutocompleteTest extends TestCase
             ['query' => '  shirt  ']
         );
 
-        $this->assertSame('shirt', $captured?->term, 'The term is trimmed before it reaches a provider');
-        $this->assertSame(self::STORE_ID, $captured?->storeId);
-        $this->assertSame(self::WEBSITE_ID, $captured?->websiteId);
-        $this->assertSame(4, $captured?->customerGroupId);
-        $this->assertSame(8, $captured?->limit);
+        // Asserted before the fields, and not with `?->`: if the resolver never reached the pool,
+        // every line below would compare null to its expectation and report a confusing mismatch
+        // instead of the actual failure, which is that nothing was collected at all.
+        $this->assertInstanceOf(
+            SuggestionRequest::class,
+            $captured,
+            'The resolver never handed a request to the pool'
+        );
+
+        $this->assertSame('shirt', $captured->term, 'The term is trimmed before it reaches a provider');
+        $this->assertSame(self::STORE_ID, $captured->storeId);
+        $this->assertSame(self::WEBSITE_ID, $captured->websiteId);
+        $this->assertSame(4, $captured->customerGroupId);
+        $this->assertSame(8, $captured->limit);
     }
 
     /**

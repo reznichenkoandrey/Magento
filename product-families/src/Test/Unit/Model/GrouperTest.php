@@ -65,8 +65,10 @@ class GrouperTest extends TestCase
 
     public function testAMissingVariantValueBecomesTheEmptyString(): void
     {
+        // The scanner always selects the column, so a row carries the key and a LEFT JOIN makes
+        // the value null. Omitting the key entirely is a shape production never produces.
         $families = $this->grouper->group([
-            ['entity_id' => 4, 'group_value' => '40'],
+            ['entity_id' => 4, 'group_value' => '40', 'variant_value' => null],
         ]);
 
         $this->assertSame(['40' => [4 => '']], $families);
