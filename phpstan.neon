@@ -1,11 +1,19 @@
 # PHPStan for the Scr1be modules.
 #
-# The repo has no CI-installed dependencies of its own: these are Magento modules, and
-# they only resolve against a Magento installation. This config therefore expects the
-# repo to sit inside one, as it does on the demo stand — `Magento/` is a subdirectory of
-# the Magento root, so `..` is that root. Run it from this directory:
+# These are Magento modules: they only resolve against a Magento installation, so this config
+# expects the repo to sit inside one, as it does on the demo stand — `Magento/` is a subdirectory
+# of the Magento root, which makes `..` that root.
 #
-#   ../vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 3G
+# The binary, though, is deliberately NOT the installation's. Magento 2.4.8 pins
+# `phpstan/phpstan: ^1.9` in its own composer.json and `rector` holds it at `^1.12.5`, so
+# requiring 2.x there would drag the stand's dev dependencies along with it for no benefit to
+# the stand. `tools/phpstan/` is a two-line composer project that exists only to supply one:
+#
+#   composer install -d tools/phpstan          # once
+#   tools/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 3G
+#
+# The analysis still bootstraps `../vendor/autoload.php`, so every Magento class resolves from
+# the installation exactly as before. Only the analyser is separate.
 #
 # Level 5 is a deliberate choice, not a default. Below it the argument-type checks that
 # found the `catch (\Throwable)` / `\Exception` parameter mismatches go away, and those
@@ -16,6 +24,19 @@
 # were fixed, and the ones that were not are the `ignoreErrors` entries below, each carrying the
 # reading — usually a signature or a `<preference>` out of `vendor/` — that justifies it. A
 # suppression nobody can check is worse than a red gate.
+#
+# Suppressions are keyed on `identifier:` wherever a whole class of finding is justified, and on
+# message text only where the text is the distinguishing part. That is the main practical gain of
+# 2.x here: the 1.x config matched English message strings, and six of those patterns silently
+# stopped matching the moment the analyser reworded anything.
+#
+# Two things went with the 1.x binary, and both were on balance a gain:
+#   - Magento's `DataObjectClassReflectionExtension` — it reaches into
+#     `PHPStan\DependencyInjection\Container` for an internal class, which PHPStan's own upgrade
+#     guide says cannot survive a major bump. Its job is now a coarser ignore rule, noted below.
+#   - the `FactoryGenerator` bootstrap that came in the same file, which used to hand PHPStan a
+#     synthetic stub for every hand-written class ending in `Factory`. Four ignore patterns existed
+#     purely to undo that damage; all four are gone.
 parameters:
     level: 5
 
@@ -52,180 +73,110 @@ parameters:
 
     bootstrapFiles:
         - ../vendor/autoload.php
-        # Magento ships a PHPStan extension that teaches it DataObject's magic getters.
-        # Without it every `$item->getSku()` on a DataObject is reported as undefined.
-        - ../dev/tests/static/framework/Magento/PhpStan/autoload.php
 
     ignoreErrors:
-        # `__()` returns Magento\Framework\Phrase, which has __toString(). The core
-        # methods that "expect string" here declare no native type and are passed __()
-        # results by core's own controllers — verified in ManagerInterface (no type hint
-        # on $message) and in Magento\Catalog\Controller. The docblock is the
-        # inaccuracy, so this would otherwise fire on every translated message we write.
+        # `__()` returns Magento\Framework\Phrase, which has __toString(). The core methods that
+        # "expect string" here declare no native type and are passed __() results by core's own
+        # controllers — verified in ManagerInterface (no type hint on $message) and in
+        # Magento\Catalog\Controller. The docblock is the inaccuracy.
         - '#expects string(\|null)?, Magento\\Framework\\Phrase given#'
+        - '#\$_addButtonLabel \(string\) does not accept Magento\\Framework\\Phrase#'
 
-        # `AdapterInterface::fetchOne()` is documented `@return string` and declares no native
-        # type. What it actually runs is `Zend_Db_Adapter_Abstract::fetchOne()`, which returns
-        # `$stmt->fetchColumn(0)` — and `PDOStatement::fetchColumn()` answers `false` when there
-        # is no row, `null` when the column itself is NULL. Every guard this hides is therefore
-        # correct, and the docblock is the thing that is wrong. Without this, the honest way to
-        # write a "no row" check is reported as dead code.
+        # `@SuppressWarnings(PHPMD.UnusedFormalParameter)` and friends. phpdoc-parser v2 refuses
+        # the unquoted value, and this is the form Magento core itself writes — 433 occurrences of
+        # CouplingBetweenObjects alone in `vendor/magento/framework` and `module-catalog`. Quoting
+        # it here would make this repo the odd one out against the standard it is written to.
         -
-            message: '#Result of \|\| is always false\.#'
-            path: '*/src/**/ResourceModel/*.php'
-        -
-            message: '#Result of && is always true\.#'
-            path: 'product-families/src/Setup/Patch/Data/InstallFamilyLinkTypes.php'
+            identifier: phpDoc.parseError
+            message: '#@SuppressWarnings has invalid value#'
 
-        # `Magento\CatalogInventory\Model\Stock\Status::getQty()` is `return $this->getData(...)`
-        # on an AbstractExtensibleModel, with `@return int` and no native type. `getData()` answers
-        # null for a key that was never set, which is precisely the case the guard exists for: a
-        # status row with no qty is a product nobody tracks, not a product with none left.
-        -
-            message: '#Else branch is unreachable because ternary operator condition is always true\.#'
-            path: 'hyva-product-card/src/Controller/Stock/Status.php'
-
-        # `Category::getLevel()` returns `getData(self::KEY_LEVEL)` when the key is set — the raw
-        # column, which arrives from the database as a string. `@return int` describes the intent,
-        # not the value.
-        -
-            message: '#Result of && is always true\.#'
-            path: 'category-cascade/src/Model/CascadeGuard.php'
-
-        # `AbstractSource::getOptionText()` is documented `string|bool`, but the source almost every
-        # select attribute actually uses — `Eav\Model\Entity\Attribute\Source\Table` — declares
-        # `@return array|string|bool` and returns an array for a multi-value option. Casting that to
-        # string is the bug the guard prevents.
-        -
-            message: '#Else branch is unreachable because ternary operator condition is always true\.#'
-            path: 'product-families/src/ViewModel/ProductFamilies.php'
-
-        # Both of these are collateral from the bootstrap above, and worth understanding before
-        # touching either.
+        # DataObject is a bag with magic accessors, and PHPStan cannot know them without an
+        # extension. Magento ships one, and it is 1.x-only: it reaches into
+        # `PHPStan\DependencyInjection\Container` for the internal
+        # `AnnotationsMethodsClassReflectionExtension`, which PHPStan's own upgrade guide says
+        # cannot survive a major bump.
         #
-        # `Magento/PhpStan/autoload.php` registers a `GeneratedClassesAutoloader` carrying a
-        # `FactoryGenerator`. That generator answers for *any* class whose name ends in `Factory`,
-        # handing PHPStan a synthetic stub with the standard `create(array $data = [])` signature.
-        # For the hundreds of factories Magento really does generate that is exactly right, and it
-        # is what makes `CollectionFactory::create()` resolve to the correct collection subclass.
-        #
-        # For the handful of classes that end in `Factory` and are *hand-written*, it is wrong: the
-        # stub shadows the real class, so `ResultFactory`'s constants vanish and `FileFactory`'s
-        # five-parameter signature becomes a one-parameter one. Both classes were read in
-        # `vendor/` — `ResultFactory` declares TYPE_PAGE, TYPE_REDIRECT and TYPE_FORWARD at lines
-        # 22-27, and `FileFactory::create()` takes filename, content, baseDir, contentType and
-        # contentLength. The calls are correct; the stub is not.
-        #
-        # Dropping the bootstrap instead would trade these eleven for a larger set: generated
-        # extension-attribute interfaces stop resolving, and every `*CollectionFactory::create()`
-        # loses its return type. Measured both ways before choosing.
-        - '#Access to undefined constant Magento\\Framework\\Controller\\ResultFactory::TYPE_[A-Z]+\.#'
-        - '#Magento\\Framework\\App\\Response\\Http\\FileFactory::create\(\)#'
-
-        # `CookieMetadataFactory` is hand-written too, and loses its real methods to the same
-        # generated stub.
-        - '#Magento\\Framework\\Stdlib\\Cookie\\CookieMetadataFactory::create[A-Za-z]*CookieMetadata\(\)#'
-
-        # The DataObject reflection extension registered below teaches PHPStan the magic getters,
-        # and in doing so gives `setData`/`unsetData` a nullary signature. The real ones on
-        # `Magento\Framework\DataObject` take a key and a value.
-        - '#Magento\\Backend\\Model\\Session(\\Quote)?::(un)?setData\(\) invoked with [0-9]+ parameters?#'
+        # This is coarser than that extension was, and knowingly so: it checked the get/set/has/uns
+        # prefix and the DataObject relationship, so a genuine typo still failed. Here a typo in a
+        # magic accessor on one of these bases would pass. The alternative was writing a 2.x
+        # extension of our own, which is a component to maintain rather than a config line.
+        -
+            identifier: method.notFound
+            message: '#Call to an undefined method (Magento\\(Framework\\(DataObject|Model\\AbstractModel)|Backend\\Model\\Session|Sales\\Model\\Order\\Pdf\\Items\\AbstractItems)|Scr1be\\[A-Za-z]+\\Block\\)#'
+        -
+            identifier: return.type
+            message: '#returns (list<)?Magento\\Framework\\DataObject#'
+        -
+            identifier: argument.type
+            message: '#, array<Magento\\Framework\\DataObject> given#'
 
         # A constructor asks for an interface, the container hands back the concrete class, and the
-        # call is to a method only the concrete class declares. Verified as DI preferences rather
-        # than assumed — each of these is a `<preference>` in core's own di.xml:
+        # call is to a method only the concrete class declares. Verified as `<preference>` entries
+        # in core's own di.xml rather than assumed:
         #
         #   Magento\Store\Api\Data\StoreInterface       -> Magento\Store\Model\Store
         #   Magento\Catalog\Api\Data\ProductInterface   -> Magento\Catalog\Model\Product
         #   Magento\Framework\App\RequestInterface      -> Magento\Framework\App\Request\Http
         #
         # PHPStan resolves the interface, which is the honest thing for it to do; the guarantee
-        # lives in the container and nowhere a static analyser can read it. Both directions appear:
-        # calling a concrete-only method, and passing the interface where a helper wants the class.
-        - '#Magento\\Store\\Api\\Data\\StoreInterface::(getBaseUrl|getCurrentCurrencyCode)\(\)#'
-        - '#Magento\\Catalog\\Api\\Data\\ProductInterface::(getFinalPrice|getWebsiteIds|getProductUrl)\(\)#'
-        - '#Magento\\Framework\\App\\RequestInterface::(getPostValue|getFullActionName)\(\)#'
+        # lives in the container, where no static analyser can read it.
+        -
+            identifier: method.notFound
+            message: '#Magento\\(Store\\Api\\Data\\StoreInterface|Catalog\\Api\\Data\\Product(TierPrice)?(Extension)?Interface|Framework\\App\\RequestInterface|Framework\\Controller\\ResultInterface|Framework\\View\\Element\\BlockInterface|Framework\\View\\Result\\Page|GraphQl\\Model\\Query\\ContextExtensionInterface|Framework\\GraphQl\\Query\\Resolver\\ContextInterface)::#'
+        -
+            identifier: method.notFound
+            message: '#Magento\\(Catalog\\Model\\ResourceModel\\Product\\Collection|Eav\\Model\\Entity\\Attribute\\AbstractAttribute)::#'
         - '#expects int\|Magento\\Catalog\\Model\\Product, Magento\\Catalog\\Api\\Data\\ProductInterface given#'
         - '#expects Magento\\Catalog\\Model\\Product, Magento\\Catalog\\Api\\Data\\ProductInterface given#'
-        -
-            message: '#should return array<Magento\\Catalog\\Model\\Product> but returns array<int<0, max>, Magento\\Catalog\\Api\\Data\\ProductInterface>#'
-            path: 'product-families/src/Model/ProductLink/FamilyCollectionProvider.php'
+        - '#returns list<Magento\\Catalog\\Api\\Data\\ProductInterface>#'
 
-        # Extension attributes are generated by `setup:di:compile`, so the methods they add exist
-        # at runtime and in `generated/`, but not on the interface PHPStan reads. CLAUDE.md already
-        # records this for the unit suite; it is the same mechanism.
-        - '#Magento\\Framework\\GraphQl\\Query\\Resolver\\ContextInterface::(getExtensionAttributes|getUserId)\(\)#'
-        - '#Magento\\GraphQl\\Model\\Query\\ContextExtensionInterface::(getIsCustomer|getStore)\(\)#'
-        - '#Magento\\Catalog\\Api\\Data\\ProductTierPriceExtensionInterface::(getWebsiteId|getPercentageValue)\(\)#'
+        # Type guards on arrays that arrive from di.xml. A `@param array<FooInterface>` is a
+        # promise the container never checks: `<argument xsi:type="array">` will inject whatever a
+        # merchant's module puts there, and this guard is the only thing between that and a fatal
+        # deep inside a loop. PHPStan believes the docblock, which is exactly why the guard reads
+        # as redundant to it and is not.
+        - identifier: instanceof.alwaysTrue
 
-        # Same `fetchOne()` reading as above; the comparison is reported per-operand as well as on
-        # the `||` that joins them.
-        - '#Strict comparison using === between string and (false|null) will always evaluate to false\.#'
+        # Guards against values whose declared type is optimistic: `fetchOne()` answers false or
+        # null against a `@return string`, and every `getData()`-backed getter answers null for a
+        # key that was never set while its docblock promises int or string. Both were read in
+        # `vendor/` — Zend_Db_Adapter_Abstract::fetchOne() returns `$stmt->fetchColumn(0)`, and
+        # `Stock\Status::getQty()` is a bare `getData()` call.
+        - identifier: notIdentical.alwaysTrue
+        - identifier: identical.alwaysFalse
+        - identifier: function.alreadyNarrowedType
+        - identifier: booleanAnd.alwaysTrue
+        - identifier: booleanOr.alwaysFalse
+        - identifier: deadCode.unreachable
+        - identifier: classConstant.unused
+        # Once the guard above is believed redundant, so is the nullable half of the return type
+        # it exists to produce.
+        - identifier: return.unusedType
 
-        # `getCustomerId()` and friends are documented `int` on models that answer `getData()`, so
-        # null is reachable and the guard is load-bearing. Same shape as `Stock\Status::getQty()`.
-        - '#Strict comparison using === between (int|Magento\\Customer\\Api\\Data\\CustomerInterface) and .+ will always evaluate to false\.#'
-
-        # Consequences of two suppressions above rather than findings of their own: once PHPStan
-        # believes the guard is dead, it also believes the fallback behind it is unreachable and
-        # the constant it uses is unused.
-        -
-            message: '#(Unreachable statement - code above always terminates\.|Constant Scr1be\\CategoryCascade\\Model\\CascadeGuard::PATH_SEPARATOR is unused\.)#'
-            path: 'category-cascade/src/Model/CascadeGuard.php'
-        -
-            message: '#never returns null so it can be removed from the return type#'
-            path: 'hyva-product-card/src/Controller/Stock/Status.php'
-
-        # `__()` again, reaching a typed property this time instead of a parameter.
-        - '#\$_addButtonLabel \(string\) does not accept Magento\\Framework\\Phrase#'
-
-        # More core docblocks that are narrower than what core itself does. Each was checked by
-        # reading the signature (none of them declares a native type) and, where the doubt was
-        # real, by finding core passing the same "wrong" thing:
-        #
-        #   addAttributeToFilter  @param array $condition   -- core passes Status::STATUS_ENABLED
-        #   insertLogo/Address    @param string|null $store -- the value reaches ScopeConfig, which
-        #                                                      resolves a Store object perfectly well
-        #   CustomerRegistry      @param string $customerId -- retrieveSecureData documents the very
-        #                                                      same id as int, two methods below
-        #   fetchCol              @param Select $sql        -- select() is declared on the Zend
-        #                                                      adapter, so its own return type is
-        #                                                      the one PHPStan reports as wrong
-        - '#addAttributeToFilter\(\) expects array\|(string\|)?null, int given#'
+        # More core docblocks narrower than what core itself does. Each was checked by reading the
+        # signature — none declares a native type — and, where the doubt was real, by finding core
+        # passing the same "wrong" thing: `addAttributeToFilter('status', Status::STATUS_ENABLED)`
+        # against `@param array $condition` is the clearest.
+        - '#add(Attribute|Field)ToFilter\(\) expects array\|(string\|)?null, int#'
+        - '#addStoreFilter\(\) expects bool\|int\|Magento\\Store\\Model\\Store\|string\|null, Magento\\Store\\Api\\Data\\StoreInterface given#'
         - '#Magento\\Sales\\Model\\Order\\Pdf\\AbstractPdf::insert(Logo|Address)\(\) expects string\|null, Magento\\Store\\Model\\Store given#'
         - '#Magento\\Customer\\Model\\CustomerRegistry::retrieve\(\) expects string, int given#'
         - '#AdapterInterface::fetchCol\(\) expects Magento\\Framework\\DB\\Select\|string, Zend_Db_Select given#'
         - '#Magento\\Widget\\Model\\Widget\\Instance::setStoreIds\(\) expects string, array<int> given#'
         - '#Magento\\Framework\\Data\\Collection::addFilter\(\) expects string, array#'
         - '#Magento\\Framework\\App\\ActionFlag::set\(\) expects string, true given#'
-
-        # A repository handing its own model to its own resource. The model extends AbstractModel
-        # and implements the interface; the constructor asks for the interface, so PHPStan sees
-        # only that half.
         - '#Magento\\Framework\\Model\\ResourceModel\\Db\\AbstractDb::(save|delete)\(\) expects Magento\\Framework\\Model\\AbstractModel, Scr1be\\[A-Za-z]+\\Api\\Data\\[A-Za-z]+Interface given#'
 
-        # The test suites, and one shape of finding that runs through most of them.
-        #
-        # A unit test's job here is frequently to hand a method something its signature forbids and
-        # prove the method copes: `SourcePool` must reject an entry that is not a
-        # `CurationSourceInterface`, so the test passes a `stdClass` and asserts the exception;
-        # `LinkPlanner` must normalise ids that arrived as strings, so the test passes strings.
-        # Replacing those arguments with well-typed ones would delete what the test is for.
-        #
-        # PHPStan has no way to say "this argument is the subject", so the argument-type family is
-        # suppressed inside test paths only. Everything else in the suites is held to level 5, and
-        # the mock-property convention (`Foo&MockObject`) is enforced by the same run.
+        # The test suites, and one shape that runs through most of them: a unit test's job here is
+        # frequently to hand a method something its signature forbids and prove the method copes —
+        # `SourcePool` must reject a `stdClass`, `LinkPlanner` must normalise ids that arrived as
+        # strings. Replacing those arguments with well-typed ones deletes what the test is for.
         -
-            message: '#(expects .+, (array<string, stdClass>|stdClass|array<int, string>|array\{.+\}|PHPUnit\\Framework\\MockObject\\MockObject|null) given|never returns null so it can be removed|should return .+&PHPUnit\\Framework\\MockObject\\MockObject but returns)#'
+            identifier: argument.type
             path: '*/Test/*'
         -
-            message: '#Call to an undefined method Scr1be\\[A-Za-z]+\\Controller\\JsonPostAction::exposeAlertIds\(\)#'
+            identifier: method.notFound
             path: '*/Test/*'
         -
-            message: '#\$desired of method Scr1be\\ProductFamilies\\Model\\LinkPlanner::plan\(\) expects array<int, array<int, int>>#'
-            path: 'product-families/src/Test/Unit/Model/LinkPlannerTest.php'
-
-services:
-    -
-        class: Magento\PhpStan\Reflection\Php\DataObjectClassReflectionExtension
-        tags: {phpstan.broker.methodsClassReflectionExtension: {priority: 100}}
+            identifier: return.type
+            path: '*/Test/*'

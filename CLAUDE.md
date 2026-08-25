@@ -129,7 +129,18 @@ php -l <file>                                  # every touched PHP/PHTML file
 xmllint --noout <file>.xml                     # every touched XML file
 ../vendor/bin/phpcs <path>                     # from this directory; see below
 php tools/check-graphql-schemas.php            # whenever a .graphqls file changed
+tools/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 3G
 ```
+
+**PHPStan runs from its own binary, not the installation's.** Magento 2.4.8 pins
+`phpstan/phpstan: ^1.9` and `rector` holds it at `^1.12.5`, so 2.x cannot live in the stand's
+`vendor/` without dragging its dev dependencies along. `tools/phpstan/` is a two-line composer
+project that supplies one — `composer install -d tools/phpstan`, once. The analysis still
+bootstraps `../vendor/autoload.php`, so Magento classes resolve from the installation as before.
+
+It is at level 5 with **no baseline**, and every suppression in `phpstan.neon` carries the reading
+that justifies it. Prefer `identifier:` over matching message text: the 1.x config matched English
+strings and six of those patterns died silently on the 2.x upgrade.
 
 **Do not pass `--standard=Magento2`.** `phpcs.xml` in this directory *is* the standard: it is the
 Magento2 standard with two rules excluded and the reason for each written into the file. Naming
