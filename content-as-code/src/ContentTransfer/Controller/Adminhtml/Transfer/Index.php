@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Scr1be\ContentTransfer\Controller\Adminhtml\Transfer;
 
 use Magento\Backend\App\Action;
+use Magento\Backend\Model\View\Result\Page as BackendPage;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\View\Result\Page;
@@ -20,7 +21,7 @@ class Index extends Action implements HttpGetActionInterface
 
     public function execute(): Page
     {
-        /** @var Page $result */
+        /** @var BackendPage $result */
         $result = $this->resultFactory->create(ResultFactory::TYPE_PAGE);
         $result->setActiveMenu(self::ADMIN_RESOURCE);
         $result->getConfig()->getTitle()->prepend(__('Content Transfer'));

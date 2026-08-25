@@ -18,7 +18,8 @@ use Magento\Catalog\Model\Product;
 final class AlertItem
 {
     /**
-     * @param string[] $badges Translated, ready to render. Order is the order they are shown in.
+     * @param array<int, array{code: string, label: string}> $badges Translated labels with the
+     *        code the storefront keys on. Order is the order they are shown in.
      */
     public function __construct(
         public readonly int $alertId,

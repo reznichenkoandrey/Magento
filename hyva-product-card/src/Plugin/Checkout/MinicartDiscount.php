@@ -73,10 +73,10 @@ class MinicartDiscount
 
     private function getRegularPrice(Item $item): ?float
     {
+        // `AbstractItem::getProduct()` dereferences the product on the line after it loads one, so
+        // a null has already gone fatal inside core before this plugin sees the item. Same reading
+        // as the sibling plugin's `MinicartQtyRules`.
         $product = $item->getProduct();
-        if ($product === null) {
-            return null;
-        }
 
         try {
             $regular = (float) $product->getPriceInfo()
