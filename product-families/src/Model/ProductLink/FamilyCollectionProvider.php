@@ -46,6 +46,11 @@ class FamilyCollectionProvider implements CollectionProviderInterface
     /**
      * @param Product $product
      * @return Product[] Position-ordered, and empty for a product with no family.
+     *         Core's `CollectionProviderInterface` declares exactly this, so it cannot be widened
+     *         to the interface: `ProductRepositoryInterface::getById()` answers a
+     *         `ProductInterface`, and the DI preference binding it to `Product` is what makes the
+     *         two agree. PHPStan cannot see a preference, which is why this is suppressed rather
+     *         than "fixed" into a contract violation.
      */
     public function getLinkedProducts(Product $product): array
     {

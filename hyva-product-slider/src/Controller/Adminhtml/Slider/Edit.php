@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Scr1be\HyvaProductSlider\Controller\Adminhtml\Slider;
 
 use Magento\Backend\App\Action\Context;
+use Magento\Backend\Model\View\Result\Page as BackendPage;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Controller\ResultInterface;
@@ -45,7 +46,7 @@ class Edit extends AbstractSlider implements HttpGetActionInterface
 
         $this->registry->register(\Scr1be\HyvaProductSlider\Ui\DataProvider\SliderDataProvider::REGISTRY_KEY, $slider);
 
-        /** @var Page $result */
+        /** @var BackendPage $result */
         $result = $this->resultFactory->create(ResultFactory::TYPE_PAGE);
         $result->setActiveMenu(self::ADMIN_RESOURCE);
         $result->getConfig()->getTitle()->prepend(__('Edit Slider "%1"', $slider->getTitle()));

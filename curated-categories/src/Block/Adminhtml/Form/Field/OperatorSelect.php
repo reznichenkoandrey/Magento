@@ -32,7 +32,9 @@ class OperatorSelect extends Select
      */
     public function setInputName($value): self
     {
-        return $this->setName($value);
+        $this->setName($value);
+
+        return $this;
     }
 
     /**
