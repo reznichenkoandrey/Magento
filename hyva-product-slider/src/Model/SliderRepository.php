@@ -56,7 +56,7 @@ class SliderRepository implements SliderRepositoryInterface
         } catch (LocalizedException $e) {
             throw new CouldNotSaveException(__($e->getMessage()), $e);
         } catch (\Throwable $e) {
-            throw new CouldNotSaveException(__('The slider could not be saved.'), $e);
+            throw new CouldNotSaveException(__('The slider could not be saved.'), $this->asException($e));
         }
 
         $this->resetMemo();
@@ -117,7 +117,7 @@ class SliderRepository implements SliderRepositoryInterface
             /** @var Slider $slider */
             $this->resource->delete($slider);
         } catch (\Throwable $e) {
-            throw new CouldNotDeleteException(__('The slider could not be deleted.'), $e);
+            throw new CouldNotDeleteException(__('The slider could not be deleted.'), $this->asException($e));
         }
 
         $this->resetMemo();
@@ -126,6 +126,23 @@ class SliderRepository implements SliderRepositoryInterface
     public function deleteById(int $sliderId): void
     {
         $this->delete($this->getById($sliderId));
+    }
+
+    /**
+     * A caught `Throwable` in the shape the exception constructors will accept.
+     *
+     * `LocalizedException::__construct(Phrase $phrase, ?\Exception $cause = null, ...)` types its
+     * cause natively, so passing an `\Error` raises a `TypeError` while building the exception
+     * that was meant to describe the failure. The caller then sees a `TypeError` from this file
+     * instead of `CouldNotSaveException`, which is both the wrong type to catch and the wrong
+     * place to look. Wrapping keeps the original reachable through `getPrevious()`; core does the
+     * same in `Magento\Framework\Mview\View::update()`.
+     */
+    private function asException(\Throwable $caught): \Exception
+    {
+        return $caught instanceof \Exception
+            ? $caught
+            : new \RuntimeException($caught->getMessage(), 0, $caught);
     }
 
     private function resetMemo(): void

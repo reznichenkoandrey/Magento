@@ -61,17 +61,7 @@ parameters:
 			path: content-as-code/src/ContentTransfer/Controller/Adminhtml/MassExport/AbstractMassExport.php
 
 		-
-			message: "#^Parameter \\#1 \\$exception of method Magento\\\\Framework\\\\Message\\\\ManagerInterface\\:\\:addExceptionMessage\\(\\) expects Exception, Throwable given\\.$#"
-			count: 2
-			path: content-as-code/src/ContentTransfer/Controller/Adminhtml/MassExport/AbstractMassExport.php
-
-		-
 			message: "#^Access to undefined constant Magento\\\\Framework\\\\Controller\\\\ResultFactory\\:\\:TYPE_REDIRECT\\.$#"
-			count: 1
-			path: content-as-code/src/ContentTransfer/Controller/Adminhtml/Transfer/Export.php
-
-		-
-			message: "#^Parameter \\#1 \\$exception of method Magento\\\\Framework\\\\Message\\\\ManagerInterface\\:\\:addExceptionMessage\\(\\) expects Exception, Throwable given\\.$#"
 			count: 1
 			path: content-as-code/src/ContentTransfer/Controller/Adminhtml/Transfer/Export.php
 
@@ -436,11 +426,6 @@ parameters:
 			path: hyva-product-slider/src/Controller/Adminhtml/Slider/Save.php
 
 		-
-			message: "#^Parameter \\#1 \\$exception of method Magento\\\\Framework\\\\Message\\\\ManagerInterface\\:\\:addExceptionMessage\\(\\) expects Exception, Throwable given\\.$#"
-			count: 1
-			path: hyva-product-slider/src/Controller/Adminhtml/Slider/Save.php
-
-		-
 			message: "#^Result of \\|\\| is always false\\.$#"
 			count: 1
 			path: hyva-product-slider/src/Model/ResourceModel/Slider.php
@@ -459,16 +444,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$value of method Magento\\\\Framework\\\\Data\\\\Collection\\:\\:addFilter\\(\\) expects string, array\\<string, array\\<int, int\\>\\> given\\.$#"
 			count: 1
 			path: hyva-product-slider/src/Model/ResourceModel/Slider/Collection.php
-
-		-
-			message: "#^Parameter \\#2 \\$cause of class Magento\\\\Framework\\\\Exception\\\\CouldNotDeleteException constructor expects Exception\\|null, Throwable given\\.$#"
-			count: 1
-			path: hyva-product-slider/src/Model/SliderRepository.php
-
-		-
-			message: "#^Parameter \\#2 \\$cause of class Magento\\\\Framework\\\\Exception\\\\CouldNotSaveException constructor expects Exception\\|null, Throwable given\\.$#"
-			count: 1
-			path: hyva-product-slider/src/Model/SliderRepository.php
 
 		-
 			message: "#^Parameter \\#1 \\$sources of class Scr1be\\\\HyvaProductSlider\\\\Model\\\\ProductSource\\\\Pool constructor expects array\\<string, Scr1be\\\\HyvaProductSlider\\\\Api\\\\ProductSourceInterface\\>, array\\<string, stdClass\\> given\\.$#"
