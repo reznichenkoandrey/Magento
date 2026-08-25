@@ -139,8 +139,10 @@ class LazyImage implements ArgumentInterface
 
     private function getCdnPath(): string
     {
-        $raw = (string) ($this->scopeConfig->getValue(self::CONFIG_CDN_PATH, ScopeInterface::SCOPE_STORE) ?: self::DEFAULT_CDN_PATH);
-        return $raw === '' ? self::DEFAULT_CDN_PATH : $raw;
+        // `?:` already substitutes the default for an empty or unset value, so what comes out
+        // cannot be an empty string.
+        return (string) ($this->scopeConfig->getValue(self::CONFIG_CDN_PATH, ScopeInterface::SCOPE_STORE)
+            ?: self::DEFAULT_CDN_PATH);
     }
 
     private function getJpegQuality(): int
