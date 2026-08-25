@@ -79,6 +79,7 @@ all thirty modules enabled. Screenshots are from that install, not mockups:
 | ![Slider admin](demo-screenshots/w2-10-slider-form.png) | hyva-product-slider | The other half: full CRUD with nine product sources, per-breakpoint slide counts named after Tailwind's own widths, and an identifier the layout XML, the widget and the ViewModel all address it by |
 | ![Slider grid](demo-screenshots/w2-07-slider-grid.png) | hyva-product-slider | The listing — columns, filters, mass actions, store scope — registered through `CollectionFactory` in global scope, which is a story of its own (#23) |
 | ![Content transfer](demo-screenshots/w2-09-content-transfer.png) | content-as-code | Every CMS block on the install with the bundle key it would be captured under, filterable by store view. The CLI writes these to version-controlled JSON and replays them on deploy |
+| ![Tier price label](demo-screenshots/w2-14-tier-price-label.png) | tier-price-label | Magento says "As low as $33.75" and refuses to say how many. The card on the left answers it — *From 25 pcs — $33.75* beside the single-unit price — while its five neighbours, which have no tier prices, are untouched. The label is rebuilt rather than string-patched, and the ladder behind it is loaded once per listing instead of once per card |
 | ![Configuration](demo-screenshots/w2-13-storeseo-config.png) | store-toolkit and the rest | Twenty-one configuration sections under one `scr1be` tab — here Store Toolkit: SEO, whose three groups are canonical, hreflang and per-website robots.txt |
 
 Earlier screenshots of the same three storefront modules, taken on the previous install, are kept in
@@ -113,8 +114,7 @@ project, from the same install:
 Two notes on how these were taken. Groups that ship collapsed were expanded, and master switches
 that ship *off* were switched on **in the browser only, and never saved**, so that the fields they
 gate are visible — the frames show what each section offers, not what this demo has turned on, and
-the install's stored configuration is unchanged. `tier-price-label` has no frame in either table:
-it renders only where a product carries tier prices, and the Luma sample data ships none.
+the install's stored configuration is unchanged.
 
 
 ## Why this layout
