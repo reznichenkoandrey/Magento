@@ -1,0 +1,11 @@
+{
+    "name": "scr1be/phpstan-runner",
+    "description": "PHPStan, installed apart from the Magento installation on purpose. Magento 2.4.8 pins phpstan/phpstan ^1.9 in its own composer.json and rector holds it at ^1.12.5, so requiring 2.x there would drag the stand's dev dependencies along with it. Nothing here is a Magento module; it exists so `phpstan.neon` has a binary to run.",
+    "license": "MIT",
+    "require": {
+        "phpstan/phpstan": "^2.2"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
