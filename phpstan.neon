@@ -1,0 +1,91 @@
+# PHPStan for the Scr1be modules.
+#
+# The repo has no CI-installed dependencies of its own: these are Magento modules, and
+# they only resolve against a Magento installation. This config therefore expects the
+# repo to sit inside one, as it does on the demo stand — `Magento/` is a subdirectory of
+# the Magento root, so `..` is that root. Run it from this directory:
+#
+#   ../vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 3G
+#
+# Level 5 is a deliberate choice, not a default. Below it the argument-type checks that
+# found the `catch (\Throwable)` / `\Exception` parameter mismatches go away, and those
+# are the findings that justify running the tool at all. Above it, Magento's own
+# docblocks generate more noise than the modules do signal.
+parameters:
+    level: 5
+
+    paths:
+        - admin-grid-toolkit/src
+        - back-in-stock/src
+        - category-cascade/src
+        - content-as-code/src
+        - curated-categories/src
+        - customer-group-guard/src
+        - fpc-inspector/src
+        - fraud-guard/src
+        - headless-api-suite/src
+        - hyva-compare-drawer/src
+        - hyva-graphql-search/src
+        - hyva-lazy-images/src
+        - hyva-media/src
+        - hyva-mega-menu/src
+        - hyva-product-card/src
+        - hyva-product-slider/src
+        - hyva-quick-view/src
+        - pos-bridge/src
+        - product-families/src
+        - signed-document-delivery/src
+        - store-toolkit/src
+        - tier-price-label/src
+
+    # Generated interceptors and extension-attribute interfaces live here. Without them
+    # the GraphQL resolver context appears not to have its extension attributes at all.
+    # This directory is a build artifact: `setup:di:compile` creates it, and switching
+    # deploy mode wipes it.
+    scanDirectories:
+        - ../generated/code
+
+    bootstrapFiles:
+        - ../vendor/autoload.php
+        # Magento ships a PHPStan extension that teaches it DataObject's magic getters.
+        # Without it every `$item->getSku()` on a DataObject is reported as undefined.
+        - ../dev/tests/static/framework/Magento/PhpStan/autoload.php
+
+    ignoreErrors:
+        # `__()` returns Magento\Framework\Phrase, which has __toString(). The core
+        # methods that "expect string" here declare no native type and are passed __()
+        # results by core's own controllers — verified in ManagerInterface (no type hint
+        # on $message) and in Magento\Catalog\Controller. The docblock is the
+        # inaccuracy, so this would otherwise fire on every translated message we write.
+        - '#expects string(\|null)?, Magento\\Framework\\Phrase given#'
+
+services:
+    -
+        class: Magento\PhpStan\Reflection\Php\DataObjectClassReflectionExtension
+        tags: {phpstan.broker.methodsClassReflectionExtension: {priority: 100}}
+
+# The baseline holds the 138 findings that existed when this config was added. It is a
+# starting line, not a verdict: nothing in it has been accepted as correct. New code is
+# held to level 5 from here.
+#
+# Two groups in it are known to be real and are worth taking out first:
+#
+#   1. Six sites catch `\Throwable` and hand the caught value to a parameter that is
+#      natively typed `\Exception` — `ManagerInterface::addExceptionMessage()` and the
+#      `CouldNotSaveException` / `CouldNotDeleteException` constructors. An `\Error`
+#      reaching one of those makes the handler itself fatal, which is the opposite of
+#      what the broad catch was written to do:
+#         content-as-code/src/ContentTransfer/Controller/Adminhtml/MassExport/AbstractMassExport.php:60,74
+#         content-as-code/src/ContentTransfer/Controller/Adminhtml/Transfer/Export.php:58
+#         hyva-product-slider/src/Controller/Adminhtml/Slider/Save.php:75
+#         hyva-product-slider/src/Model/SliderRepository.php:59,120
+#
+#   2. Sixteen "always true / always false / unreachable" reports. Each is either a
+#      redundant guard or a guard that does not do what it reads as; they need reading
+#      one at a time rather than a blanket answer.
+#
+# The rest is mostly the ecosystem: methods that exist on the concrete class Magento's DI
+# returns but not on the interface the constructor asks for, and mock properties in tests
+# typed as the class rather than `Foo&MockObject`.
+includes:
+    - phpstan-baseline.neon

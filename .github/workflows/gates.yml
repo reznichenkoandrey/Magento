@@ -1,0 +1,121 @@
+# The gates this repo can actually run on a clean runner.
+#
+# These are Magento modules, and most of the project's checks only mean anything inside a
+# Magento installation: the unit suite needs the framework, and `phpstan.neon` needs both
+# `vendor/` and the generated interceptors. Installing Magento in CI needs authenticated
+# access to repo.magento.com, which a public repository cannot have. Those two therefore
+# stay manual, and are documented in CLAUDE.md — this workflow holds the line on
+# everything that does not need the framework present.
+name: gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  php-syntax:
+    name: php -l
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - name: Lint every PHP and PHTML file
+        run: |
+          status=0
+          while IFS= read -r file; do
+            php -l "$file" > /dev/null || { echo "::error file=$file::PHP parse error"; status=1; }
+          done < <(find . -path ./vendor -prune -o \( -name '*.php' -o -name '*.phtml' \) -print)
+          exit $status
+
+  xml:
+    name: xmllint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate every XML file is well-formed
+        run: |
+          status=0
+          while IFS= read -r file; do
+            xmllint --noout "$file" || { echo "::error file=$file::malformed XML"; status=1; }
+          done < <(find . -name '*.xml' -not -path './vendor/*')
+          exit $status
+
+  graphql-schemas:
+    name: graphql schema gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      # Magento splits .graphqls with a regex rather than parsing it, so a schema keyword
+      # inside a comment silently swallows the declaration under it and breaks schema
+      # generation for every GraphQL request. Nothing else in this file observes that.
+      - run: php tools/check-graphql-schemas.php
+
+  js:
+    name: node --test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # Every package is dependency-free and runs on the built-in test runner, so there
+      # is nothing to install.
+      - name: Run each package's suite
+        run: |
+          status=0
+          while IFS= read -r manifest; do
+            dir=$(dirname "$manifest")
+            echo "--- $dir"
+            (cd "$dir" && npm test) || { echo "::error file=$manifest::suite failed"; status=1; }
+          done < <(find . -name package.json -not -path '*/node_modules/*')
+          exit $status
+
+  phpcs:
+    name: phpcs (Magento2) — advisory
+    runs-on: ubuntu-latest
+    # Not blocking yet, and deliberately so. The standard currently reports 50 errors on
+    # this tree, and every one has been looked at:
+    #
+    #   28  Final implementation found      — deliberate. These are immutable value objects
+    #                                         that are never injected; CLAUDE.md says not to
+    #                                         "fix" them.
+    #   12  Xss template found unescaped    — false positives, but unannotated. Each echoes a
+    #                                         value that is safe by construction — an (int)
+    #                                         cast, or a ternary over two hardcoded literals.
+    #                                         They need `/* @noEscape */` to say so.
+    #    6  ArrayObject is restricted       — in one test's fixtures, not in shipped code.
+    #    3  No silenced errors discouraged
+    #    1  md5() is forbidden              — used to build a cache key, not for security.
+    #
+    # It becomes a blocking gate once the annotations are in and the sniffs that stay are
+    # excluded by name with a reason. Until then it runs so the number cannot grow unseen.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - name: Install the Magento coding standard
+        run: |
+          mkdir -p "$RUNNER_TEMP/phpcs" && cd "$RUNNER_TEMP/phpcs"
+          composer init --no-interaction --name=scr1be/phpcs-runner
+          composer config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+          composer require --no-interaction --dev magento/magento-coding-standard
+      - name: Run phpcs
+        run: |
+          "$RUNNER_TEMP/phpcs/vendor/bin/phpcs" \
+            --standard=Magento2 --extensions=php,phtml \
+            --warning-severity=0 --report=summary \
+            $(ls -d */src)
