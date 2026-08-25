@@ -84,6 +84,10 @@ class GdEncoder
             return null;
         }
 
+        // GD signals a source it cannot decode both as a warning and as `false`. The `false` is
+        // handled immediately below and logged with context; the warning carries no more than
+        // that, and would fire once per malformed upload.
+        // phpcs:ignore Generic.PHP.NoSilencedErrors
         $image = @imagecreatefromstring($sourceBytes);
         if ($image === false) {
             // CMYK JPEGs, 16-bit PNGs and truncated uploads all land here. The source stays on the
@@ -121,6 +125,9 @@ class GdEncoder
     private function scale(\GdImage $image, ImageDimensions $source, int $targetWidth): ?\GdImage
     {
         $targetHeight = $source->heightFor($targetWidth);
+        // Same shape: a failed allocation warns and returns `false`, and the `false` is what
+        // this method acts on.
+        // phpcs:ignore Generic.PHP.NoSilencedErrors
         $canvas = @imagecreatetruecolor($targetWidth, $targetHeight);
         if ($canvas === false) {
             $this->logger->warning('Scr1be_HyvaMedia: GD could not allocate a ' . $targetWidth . 'x' . $targetHeight . ' canvas');

@@ -121,6 +121,11 @@ class BannerUrlProvider
                 return null;
             }
 
+            // A cache key, not a credential and not a signature. Nothing is authenticated
+            // against it and no attacker gains anything by colliding with it; the sniff's
+            // objection is to md5 as a security primitive. SHA-256 here would be a longer key
+            // for the same lookup.
+            // phpcs:ignore Magento2.Security.InsecureFunction
             $cacheKey = self::CACHE_KEY_PREFIX . md5($sourcePath);
             $stat = $this->mediaDirectory->stat($sourcePath);
             $signature = (string) ($stat['mtime'] ?? '') . ':' . (string) ($stat['size'] ?? '');
