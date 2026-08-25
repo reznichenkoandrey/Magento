@@ -48,6 +48,9 @@ class XDefaultSelector
 
         // Rung 3 — first available. Emitting *an* x-default beats emitting none: a group without
         // one leaves the choice to the crawler, and the crawler's choice is not visible to anyone.
-        return reset($links) ?: null;
+        // The empty case returned at the top, and the members are objects, so this is never
+        // falsy — `?: null` here would only be reachable if the list held something that is not
+        // an AlternateLink.
+        return reset($links);
     }
 }
