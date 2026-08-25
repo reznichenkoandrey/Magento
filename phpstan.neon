@@ -59,6 +59,42 @@ parameters:
         # inaccuracy, so this would otherwise fire on every translated message we write.
         - '#expects string(\|null)?, Magento\\Framework\\Phrase given#'
 
+        # `AdapterInterface::fetchOne()` is documented `@return string` and declares no native
+        # type. What it actually runs is `Zend_Db_Adapter_Abstract::fetchOne()`, which returns
+        # `$stmt->fetchColumn(0)` — and `PDOStatement::fetchColumn()` answers `false` when there
+        # is no row, `null` when the column itself is NULL. Every guard this hides is therefore
+        # correct, and the docblock is the thing that is wrong. Without this, the honest way to
+        # write a "no row" check is reported as dead code.
+        -
+            message: '#Result of \|\| is always false\.#'
+            path: '*/src/**/ResourceModel/*.php'
+        -
+            message: '#Result of && is always true\.#'
+            path: 'product-families/src/Setup/Patch/Data/InstallFamilyLinkTypes.php'
+
+        # `Magento\CatalogInventory\Model\Stock\Status::getQty()` is `return $this->getData(...)`
+        # on an AbstractExtensibleModel, with `@return int` and no native type. `getData()` answers
+        # null for a key that was never set, which is precisely the case the guard exists for: a
+        # status row with no qty is a product nobody tracks, not a product with none left.
+        -
+            message: '#Else branch is unreachable because ternary operator condition is always true\.#'
+            path: 'hyva-product-card/src/Controller/Stock/Status.php'
+
+        # `Category::getLevel()` returns `getData(self::KEY_LEVEL)` when the key is set — the raw
+        # column, which arrives from the database as a string. `@return int` describes the intent,
+        # not the value.
+        -
+            message: '#Result of && is always true\.#'
+            path: 'category-cascade/src/Model/CascadeGuard.php'
+
+        # `AbstractSource::getOptionText()` is documented `string|bool`, but the source almost every
+        # select attribute actually uses — `Eav\Model\Entity\Attribute\Source\Table` — declares
+        # `@return array|string|bool` and returns an array for a multi-value option. Casting that to
+        # string is the bug the guard prevents.
+        -
+            message: '#Else branch is unreachable because ternary operator condition is always true\.#'
+            path: 'product-families/src/ViewModel/ProductFamilies.php'
+
 services:
     -
         class: Magento\PhpStan\Reflection\Php\DataObjectClassReflectionExtension
@@ -72,9 +108,9 @@ services:
 # natively typed `\Exception` parameter. See `SliderRepositoryErrorCauseTest` and
 # `MassExportErrorCauseTest` for what that actually did.
 #
-# Still in it and worth taking out next: the "always true / always false / unreachable" reports.
-# Each is either a redundant guard or a guard that does not do what it reads as, and they need
-# reading one at a time rather than a blanket answer.
+# The "always true / always false / unreachable" group is gone too: nine were genuinely dead code
+# and were removed, and the other ten were core docblocks narrower than the code behind them —
+# those are the `ignoreErrors` entries above, each with the reading that justifies it.
 #
 # The rest is mostly the ecosystem: methods that exist on the concrete class Magento's DI
 # returns but not on the interface the constructor asks for, and mock properties in tests

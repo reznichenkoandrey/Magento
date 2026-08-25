@@ -35,8 +35,11 @@ class OptionSortOrder
             return [];
         }
 
+        // `Config::getAttribute()` never answers null: for a code it does not know it builds an
+        // empty attribute object and returns that. So the id is the only thing worth testing —
+        // an unknown code is an attribute with no id, not an absent one.
         $attribute = $this->eavConfig->getAttribute(Product::ENTITY, $attributeCode);
-        if (!$attribute || !$attribute->getAttributeId()) {
+        if (!$attribute->getAttributeId()) {
             return [];
         }
 

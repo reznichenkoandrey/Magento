@@ -39,8 +39,12 @@ class MinicartQtyRules
             return $result;
         }
 
-        $product = $item->getProduct();
-        $productId = $product !== null ? (int) $product->getId() : 0;
+        // `AbstractItem::getProduct()` cannot hand back null: when the item carries no product it
+        // loads one from the repository, and the line after that dereferences the result — so a
+        // null would already have gone fatal inside core, several frames above this plugin. The
+        // id check below is the one that does real work, because a product that is not persisted
+        // has no id.
+        $productId = (int) $item->getProduct()->getId();
         if ($productId <= 0) {
             return $result;
         }

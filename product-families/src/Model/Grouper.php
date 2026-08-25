@@ -24,7 +24,9 @@ class Grouper
         $families = [];
 
         foreach ($rows as $row) {
-            $productId = (int)($row['entity_id'] ?? 0);
+            // `entity_id` is always in the scanner's SELECT, so it is always in the row; only its
+            // PHP type varies, which the cast settles.
+            $productId = (int)$row['entity_id'];
             if ($productId <= 0) {
                 continue;
             }
