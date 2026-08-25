@@ -46,11 +46,6 @@ parameters:
 			path: category-cascade/src/Model/CascadeGuard.php
 
 		-
-			message: "#^Result of && is always true\\.$#"
-			count: 1
-			path: category-cascade/src/Model/CascadeGuard.php
-
-		-
 			message: "#^Unreachable statement \\- code above always terminates\\.$#"
 			count: 1
 			path: category-cascade/src/Model/CascadeGuard.php
@@ -109,11 +104,6 @@ parameters:
 			message: "#^Method Scr1be\\\\CuratedCategories\\\\Block\\\\Adminhtml\\\\Form\\\\Field\\\\OperatorSelect\\:\\:setInputName\\(\\) should return \\$this\\(Scr1be\\\\CuratedCategories\\\\Block\\\\Adminhtml\\\\Form\\\\Field\\\\OperatorSelect\\) but returns Scr1be\\\\CuratedCategories\\\\Block\\\\Adminhtml\\\\Form\\\\Field\\\\OperatorSelect\\.$#"
 			count: 1
 			path: curated-categories/src/Block/Adminhtml/Form/Field/OperatorSelect.php
-
-		-
-			message: "#^Result of \\|\\| is always false\\.$#"
-			count: 1
-			path: curated-categories/src/Model/ResourceModel/ArrivalIndex.php
 
 		-
 			message: "#^Strict comparison using \\=\\=\\= between string and false will always evaluate to false\\.$#"
@@ -241,11 +231,6 @@ parameters:
 			path: headless-api-suite/src/PushNotifications/Model/Resolver/SetCartDeviceToken.php
 
 		-
-			message: "#^Result of \\|\\| is always false\\.$#"
-			count: 1
-			path: headless-api-suite/src/PushNotifications/Model/ResourceModel/DeviceRegistry.php
-
-		-
 			message: "#^Strict comparison using \\=\\=\\= between string and false will always evaluate to false\\.$#"
 			count: 1
 			path: headless-api-suite/src/PushNotifications/Model/ResourceModel/DeviceRegistry.php
@@ -291,11 +276,6 @@ parameters:
 			path: headless-api-suite/src/SocialLogin/Model/Resolver/SocialLogin.php
 
 		-
-			message: "#^Result of \\|\\| is always false\\.$#"
-			count: 1
-			path: headless-api-suite/src/SocialLogin/Model/ResourceModel/SocialLink.php
-
-		-
 			message: "#^Strict comparison using \\=\\=\\= between string and false will always evaluate to false\\.$#"
 			count: 1
 			path: headless-api-suite/src/SocialLogin/Model/ResourceModel/SocialLink.php
@@ -336,16 +316,6 @@ parameters:
 			path: hyva-media/src/Model/MediaUrl.php
 
 		-
-			message: "#^Else branch is unreachable because ternary operator condition is always true\\.$#"
-			count: 1
-			path: hyva-media/src/Model/PathValidator.php
-
-		-
-			message: "#^Offset 'mime' on array\\{0\\: int\\<0, max\\>, 1\\: int\\<0, max\\>, 2\\: int, 3\\: string, mime\\: string, channels\\?\\: int, bits\\?\\: int\\} on left side of \\?\\? always exists and is not nullable\\.$#"
-			count: 1
-			path: hyva-media/src/Test/Unit/Model/GdEncoderTest.php
-
-		-
 			message: "#^Anonymous function never returns null so it can be removed from the return type\\.$#"
 			count: 1
 			path: hyva-media/src/Test/Unit/Model/SrcsetBuilderTest.php
@@ -354,11 +324,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$condition of method Magento\\\\Eav\\\\Model\\\\Entity\\\\Collection\\\\AbstractCollection\\:\\:addAttributeToFilter\\(\\) expects array\\|string\\|null, int given\\.$#"
 			count: 1
 			path: hyva-mega-menu/src/Model/MenuTreeBuilder.php
-
-		-
-			message: "#^Else branch is unreachable because ternary operator condition is always true\\.$#"
-			count: 1
-			path: hyva-product-card/src/Controller/Stock/Status.php
 
 		-
 			message: "#^Method Scr1be\\\\HyvaProductCard\\\\Controller\\\\Stock\\\\Status\\:\\:readQty\\(\\) never returns null so it can be removed from the return type\\.$#"
@@ -374,11 +339,6 @@ parameters:
 			message: "#^Strict comparison using \\=\\=\\= between Magento\\\\Catalog\\\\Model\\\\Product and null will always evaluate to false\\.$#"
 			count: 1
 			path: hyva-product-card/src/Plugin/Checkout/MinicartDiscount.php
-
-		-
-			message: "#^Else branch is unreachable because ternary operator condition is always true\\.$#"
-			count: 1
-			path: hyva-product-card/src/Plugin/Checkout/MinicartQtyRules.php
 
 		-
 			message: "#^Call to an undefined method Magento\\\\CatalogInventory\\\\Api\\\\StockRegistryInterface\\:\\:expects\\(\\)\\.$#"
@@ -426,11 +386,6 @@ parameters:
 			path: hyva-product-slider/src/Controller/Adminhtml/Slider/Save.php
 
 		-
-			message: "#^Result of \\|\\| is always false\\.$#"
-			count: 1
-			path: hyva-product-slider/src/Model/ResourceModel/Slider.php
-
-		-
 			message: "#^Strict comparison using \\=\\=\\= between string and false will always evaluate to false\\.$#"
 			count: 1
 			path: hyva-product-slider/src/Model/ResourceModel/Slider.php
@@ -471,29 +426,9 @@ parameters:
 			path: hyva-quick-view/src/ViewModel/QuickView.php
 
 		-
-			message: "#^Offset 'entity_id' on array\\{entity_id\\: int\\|string, group_value\\: string\\|null, variant_value\\: string\\|null\\} on left side of \\?\\? always exists and is not nullable\\.$#"
-			count: 1
-			path: product-families/src/Model/Grouper.php
-
-		-
 			message: "#^Method Scr1be\\\\ProductFamilies\\\\Model\\\\ProductLink\\\\FamilyCollectionProvider\\:\\:getLinkedProducts\\(\\) should return array\\<Magento\\\\Catalog\\\\Model\\\\Product\\> but returns array\\<int\\<0, max\\>, Magento\\\\Catalog\\\\Api\\\\Data\\\\ProductInterface\\>\\.$#"
 			count: 1
 			path: product-families/src/Model/ProductLink/FamilyCollectionProvider.php
-
-		-
-			message: "#^Negated boolean expression is always false\\.$#"
-			count: 1
-			path: product-families/src/Model/ResourceModel/OptionSortOrder.php
-
-		-
-			message: "#^Negated boolean expression is always false\\.$#"
-			count: 1
-			path: product-families/src/Model/ResourceModel/ProductScanner.php
-
-		-
-			message: "#^Result of && is always true\\.$#"
-			count: 3
-			path: product-families/src/Setup/Patch/Data/InstallFamilyLinkTypes.php
 
 		-
 			message: "#^Parameter \\#1 \\$families of method Scr1be\\\\ProductFamilies\\\\Model\\\\Grouper\\:\\:dropSingletons\\(\\) expects array\\<string, array\\<int, string\\>\\>, array\\<int, array\\<int, string\\>\\> given\\.$#"
@@ -519,21 +454,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$labels of method Scr1be\\\\ProductFamilies\\\\Test\\\\Unit\\\\ViewModel\\\\ProductFamiliesTest\\:\\:givenOptionLabels\\(\\) expects array\\<string, string\\>, array\\<int, string\\> given\\.$#"
 			count: 5
 			path: product-families/src/Test/Unit/ViewModel/ProductFamiliesTest.php
-
-		-
-			message: "#^Else branch is unreachable because ternary operator condition is always true\\.$#"
-			count: 1
-			path: product-families/src/ViewModel/ProductFamilies.php
-
-		-
-			message: "#^Negated boolean expression is always false\\.$#"
-			count: 1
-			path: product-families/src/ViewModel/ProductFamilies.php
-
-		-
-			message: "#^Offset 'value' on array\\{type\\: int\\|string, value\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
-			count: 1
-			path: product-families/src/ViewModel/ProductFamilies.php
 
 		-
 			message: "#^Method Magento\\\\Framework\\\\App\\\\Response\\\\Http\\\\FileFactory\\:\\:create\\(\\) invoked with 4 parameters, 0\\-1 required\\.$#"
@@ -579,11 +499,6 @@ parameters:
 			message: "#^Call to an undefined method Magento\\\\Framework\\\\App\\\\RequestInterface\\:\\:getFullActionName\\(\\)\\.$#"
 			count: 1
 			path: store-toolkit/src/StoreSeo/Model/Entity/RequestEntityResolver.php
-
-		-
-			message: "#^Ternary operator condition is always true\\.$#"
-			count: 1
-			path: store-toolkit/src/StoreSeo/Model/Hreflang/XDefaultSelector.php
 
 		-
 			message: "#^Call to an undefined method Magento\\\\Catalog\\\\Api\\\\Data\\\\ProductTierPriceExtensionInterface\\:\\:getPercentageValue\\(\\)\\.$#"

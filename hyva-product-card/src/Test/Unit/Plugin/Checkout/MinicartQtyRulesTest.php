@@ -44,15 +44,24 @@ class MinicartQtyRulesTest extends TestCase
         );
     }
 
-    public function testAnItemWithoutAProductIsSkippedRatherThanGuessedAt(): void
+    /**
+     * The previous version of this test made `getProduct()` answer null, which a mock will do and
+     * the framework will not: `AbstractItem::getProduct()` dereferences the product
+     * unconditionally on the line after it loads one, so a null there has already gone fatal
+     * inside core several frames above this plugin. It never reaches a return.
+     *
+     * What is reachable is a product with no id — one that was never persisted. That is the case
+     * the surviving guard is for, and the case this now pins.
+     */
+    public function testAnItemWhoseProductHasNoIdIsSkippedRatherThanGuessedAt(): void
     {
         $this->config->method('isEnabled')->willReturn(true);
         $this->resolver->expects($this->never())->method('resolve');
 
-        $item = $this->createMock(Item::class);
-        $item->method('getProduct')->willReturn(null);
-
-        $this->assertSame(['qty' => 1], $this->plugin->afterGetItemData($this->subject, ['qty' => 1], $item));
+        $this->assertSame(
+            ['qty' => 1],
+            $this->plugin->afterGetItemData($this->subject, ['qty' => 1], $this->item(0))
+        );
     }
 
     public function testTheKillSwitchLeavesTheArrayAlone(): void

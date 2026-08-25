@@ -174,8 +174,10 @@ class ProductScanner
      */
     private function requireAttribute(string $attributeCode): AbstractAttribute
     {
+        // Never null — an unknown code comes back as an empty attribute object, so the id is what
+        // distinguishes it. See OptionSortOrder::getRanking() for the same reading.
         $attribute = $this->eavConfig->getAttribute(Product::ENTITY, $attributeCode);
-        if (!$attribute || !$attribute->getAttributeId()) {
+        if (!$attribute->getAttributeId()) {
             throw new LocalizedException(
                 __('Product attribute "%1" does not exist.', $attributeCode)
             );

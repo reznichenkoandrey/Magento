@@ -72,8 +72,9 @@ class PathValidator
      */
     public function extensionOf(string $path): string
     {
-        $extension = pathinfo($path, PATHINFO_EXTENSION);
-
-        return strtolower(is_string($extension) ? $extension : '');
+        // `pathinfo()` returns an array only when called without a flag. With one it always
+        // returns a string, and an empty one when there is no extension — which is exactly the
+        // contract above, so there is nothing left to guard against.
+        return strtolower(pathinfo($path, PATHINFO_EXTENSION));
     }
 }

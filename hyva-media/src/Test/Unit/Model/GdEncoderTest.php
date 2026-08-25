@@ -224,7 +224,9 @@ class GdEncoderTest extends TestCase
     {
         $info = getimagesizefromstring($bytes);
 
-        return is_array($info) ? (string) ($info['mime'] ?? '') : '';
+        // `getimagesizefromstring()` returns false for anything it cannot read; when it returns an
+        // array, `mime` is always in it.
+        return is_array($info) ? (string) $info['mime'] : '';
     }
 
     private function isTopLeftTransparent(string $bytes): bool
