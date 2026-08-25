@@ -1,0 +1,621 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Method Magento\\\\Backend\\\\Model\\\\Session\\\\Quote\\:\\:setData\\(\\) invoked with 2 parameters, 1 required\\.$#"
+			count: 1
+			path: admin-grid-toolkit/src/Plugin/Sales/MintFreshIncrementIdOnReorder.php
+
+		-
+			message: "#^Method Magento\\\\Backend\\\\Model\\\\Session\\\\Quote\\:\\:unsetData\\(\\) invoked with 1 parameter, 0 required\\.$#"
+			count: 1
+			path: admin-grid-toolkit/src/Plugin/Sales/MintFreshIncrementIdOnReorder.php
+
+		-
+			message: "#^Parameter \\#14 \\$badges of class Scr1be\\\\BackInStock\\\\Model\\\\AlertItem constructor expects array\\<string\\>, array\\<int, array\\<string, string\\>\\> given\\.$#"
+			count: 1
+			path: back-in-stock/src/Model/AlertItemProvider.php
+
+		-
+			message: "#^Parameter \\#2 \\$condition of method Magento\\\\Catalog\\\\Model\\\\ResourceModel\\\\Product\\\\Collection\\:\\:addAttributeToFilter\\(\\) expects array\\|null, int given\\.$#"
+			count: 1
+			path: back-in-stock/src/Model/AlertItemProvider.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Catalog\\\\Api\\\\Data\\\\ProductInterface\\:\\:getProductUrl\\(\\)\\.$#"
+			count: 1
+			path: back-in-stock/src/Model/Push/RestockNotifier.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\GraphQl\\\\Model\\\\Query\\\\ContextExtensionInterface\\:\\:getIsCustomer\\(\\)\\.$#"
+			count: 1
+			path: back-in-stock/src/Model/Resolver/BackInStockAlerts.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\GraphQl\\\\Model\\\\Query\\\\ContextExtensionInterface\\:\\:getStore\\(\\)\\.$#"
+			count: 1
+			path: back-in-stock/src/Model/Resolver/BackInStockAlerts.php
+
+		-
+			message: "#^Call to an undefined method Scr1be\\\\BackInStock\\\\Controller\\\\JsonPostAction\\:\\:exposeAlertIds\\(\\)\\.$#"
+			count: 1
+			path: back-in-stock/src/Test/Unit/Controller/JsonPostActionTest.php
+
+		-
+			message: "#^Constant Scr1be\\\\CategoryCascade\\\\Model\\\\CascadeGuard\\:\\:PATH_SEPARATOR is unused\\.$#"
+			count: 1
+			path: category-cascade/src/Model/CascadeGuard.php
+
+		-
+			message: "#^Result of && is always true\\.$#"
+			count: 1
+			path: category-cascade/src/Model/CascadeGuard.php
+
+		-
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			count: 1
+			path: category-cascade/src/Model/CascadeGuard.php
+
+		-
+			message: "#^Access to undefined constant Magento\\\\Framework\\\\Controller\\\\ResultFactory\\:\\:TYPE_REDIRECT\\.$#"
+			count: 1
+			path: content-as-code/src/ContentTransfer/Controller/Adminhtml/MassExport/AbstractMassExport.php
+
+		-
+			message: "#^Parameter \\#1 \\$exception of method Magento\\\\Framework\\\\Message\\\\ManagerInterface\\:\\:addExceptionMessage\\(\\) expects Exception, Throwable given\\.$#"
+			count: 2
+			path: content-as-code/src/ContentTransfer/Controller/Adminhtml/MassExport/AbstractMassExport.php
+
+		-
+			message: "#^Access to undefined constant Magento\\\\Framework\\\\Controller\\\\ResultFactory\\:\\:TYPE_REDIRECT\\.$#"
+			count: 1
+			path: content-as-code/src/ContentTransfer/Controller/Adminhtml/Transfer/Export.php
+
+		-
+			message: "#^Parameter \\#1 \\$exception of method Magento\\\\Framework\\\\Message\\\\ManagerInterface\\:\\:addExceptionMessage\\(\\) expects Exception, Throwable given\\.$#"
+			count: 1
+			path: content-as-code/src/ContentTransfer/Controller/Adminhtml/Transfer/Export.php
+
+		-
+			message: "#^Access to undefined constant Magento\\\\Framework\\\\Controller\\\\ResultFactory\\:\\:TYPE_PAGE\\.$#"
+			count: 1
+			path: content-as-code/src/ContentTransfer/Controller/Adminhtml/Transfer/Index.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\View\\\\Result\\\\Page\\:\\:setActiveMenu\\(\\)\\.$#"
+			count: 1
+			path: content-as-code/src/ContentTransfer/Controller/Adminhtml/Transfer/Index.php
+
+		-
+			message: "#^Method Magento\\\\Framework\\\\App\\\\Response\\\\Http\\\\FileFactory\\:\\:create\\(\\) invoked with 4 parameters, 0\\-1 required\\.$#"
+			count: 1
+			path: content-as-code/src/ContentTransfer/Model/BundleDownload.php
+
+		-
+			message: "#^Parameter \\#1 \\$data of method Magento\\\\Framework\\\\App\\\\Response\\\\Http\\\\FileFactory\\:\\:create\\(\\) expects array, string given\\.$#"
+			count: 1
+			path: content-as-code/src/ContentTransfer/Model/BundleDownload.php
+
+		-
+			message: "#^Parameter \\#1 \\$value of method Magento\\\\Widget\\\\Model\\\\Widget\\\\Instance\\:\\:setStoreIds\\(\\) expects string, array\\<int\\> given\\.$#"
+			count: 1
+			path: content-as-code/src/ContentTransfer/Model/Widget/InstanceCodec.php
+
+		-
+			message: "#^Parameter \\#1 \\$porters of class Scr1be\\\\ContentTransfer\\\\Model\\\\PorterPool constructor expects array\\<Scr1be\\\\ContentTransfer\\\\Api\\\\PorterInterface\\>, array\\<string, stdClass\\> given\\.$#"
+			count: 1
+			path: content-as-code/src/ContentTransfer/Test/Unit/Model/PorterPoolTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$eligibleGroupIds of method Scr1be\\\\CouponTicket\\\\Model\\\\Eligibility\\:\\:isEligible\\(\\) expects array\\<int\\>, array\\<int, string\\> given\\.$#"
+			count: 1
+			path: content-as-code/src/CouponTicket/Test/Unit/Model/EligibilityTest.php
+
+		-
+			message: "#^Property Magento\\\\Config\\\\Block\\\\System\\\\Config\\\\Form\\\\Field\\\\FieldArray\\\\AbstractFieldArray\\:\\:\\$_addButtonLabel \\(string\\) does not accept Magento\\\\Framework\\\\Phrase\\.$#"
+			count: 1
+			path: curated-categories/src/Block/Adminhtml/Form/Field/ExclusionRules.php
+
+		-
+			message: "#^Method Scr1be\\\\CuratedCategories\\\\Block\\\\Adminhtml\\\\Form\\\\Field\\\\OperatorSelect\\:\\:setInputName\\(\\) should return \\$this\\(Scr1be\\\\CuratedCategories\\\\Block\\\\Adminhtml\\\\Form\\\\Field\\\\OperatorSelect\\) but returns Scr1be\\\\CuratedCategories\\\\Block\\\\Adminhtml\\\\Form\\\\Field\\\\OperatorSelect\\.$#"
+			count: 1
+			path: curated-categories/src/Block/Adminhtml/Form/Field/OperatorSelect.php
+
+		-
+			message: "#^Result of \\|\\| is always false\\.$#"
+			count: 1
+			path: curated-categories/src/Model/ResourceModel/ArrivalIndex.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between string and false will always evaluate to false\\.$#"
+			count: 1
+			path: curated-categories/src/Model/ResourceModel/ArrivalIndex.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between string and null will always evaluate to false\\.$#"
+			count: 1
+			path: curated-categories/src/Model/ResourceModel/ArrivalIndex.php
+
+		-
+			message: "#^Parameter \\#1 \\$sql of method Magento\\\\Framework\\\\DB\\\\Adapter\\\\AdapterInterface\\:\\:fetchCol\\(\\) expects Magento\\\\Framework\\\\DB\\\\Select\\|string, Zend_Db_Select given\\.$#"
+			count: 1
+			path: curated-categories/src/Model/ResourceModel/BestsellerRanking.php
+
+		-
+			message: "#^Parameter \\#1 \\$sources of class Scr1be\\\\CuratedCategories\\\\Model\\\\SourcePool constructor expects array\\<Scr1be\\\\CuratedCategories\\\\Api\\\\CurationSourceInterface\\>, array\\<string, stdClass\\> given\\.$#"
+			count: 1
+			path: curated-categories/src/Test/Unit/Model/SourcePoolTest.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\Stdlib\\\\Cookie\\\\CookieMetadataFactory\\:\\:createCookieMetadata\\(\\)\\.$#"
+			count: 1
+			path: customer-group-guard/src/Model/GroupCookie.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\Stdlib\\\\Cookie\\\\CookieMetadataFactory\\:\\:createSensitiveCookieMetadata\\(\\)\\.$#"
+			count: 1
+			path: customer-group-guard/src/Model/GroupCookie.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between Magento\\\\Customer\\\\Api\\\\Data\\\\CustomerInterface and null will always evaluate to false\\.$#"
+			count: 1
+			path: customer-group-guard/src/Model/PlaceOrderGuard.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between int and null will always evaluate to false\\.$#"
+			count: 1
+			path: customer-group-guard/src/Model/PlaceOrderGuard.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between int and '' will always evaluate to false\\.$#"
+			count: 1
+			path: customer-group-guard/src/Observer/RecordGroupOnLogin.php
+
+		-
+			message: "#^Method Scr1be\\\\CustomerGroupGuard\\\\Test\\\\Unit\\\\Model\\\\GroupCookieTest\\:\\:metadataStub\\(\\) should return Magento\\\\Framework\\\\Stdlib\\\\Cookie\\\\CookieMetadata&PHPUnit\\\\Framework\\\\MockObject\\\\MockObject but returns PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\.$#"
+			count: 1
+			path: customer-group-guard/src/Test/Unit/Model/GroupCookieTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$response of method Scr1be\\\\FpcInspector\\\\Model\\\\Inspector\\\\CacheVerdict\\:\\:evaluate\\(\\) expects Magento\\\\Framework\\\\App\\\\Response\\\\HttpInterface\\|null, PHPUnit\\\\Framework\\\\MockObject\\\\MockObject given\\.$#"
+			count: 1
+			path: fpc-inspector/src/Test/Unit/Model/Inspector/CacheVerdictTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$customerId of method Magento\\\\Customer\\\\Model\\\\CustomerRegistry\\:\\:retrieve\\(\\) expects string, int given\\.$#"
+			count: 1
+			path: fraud-guard/src/Model/FlagResolver.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between Magento\\\\Customer\\\\Api\\\\Data\\\\CustomerInterface and null will always evaluate to false\\.$#"
+			count: 1
+			path: fraud-guard/src/Model/GuardLog.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between int and null will always evaluate to false\\.$#"
+			count: 1
+			path: fraud-guard/src/Model/GuardLog.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between Magento\\\\Customer\\\\Api\\\\Data\\\\CustomerInterface and null will always evaluate to false\\.$#"
+			count: 1
+			path: fraud-guard/src/Model/PlaceOrderGuard.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between int and null will always evaluate to false\\.$#"
+			count: 1
+			path: fraud-guard/src/Model/PlaceOrderGuard.php
+
+		-
+			message: "#^Call to an undefined method Scr1be\\\\GuestRegistration\\\\Model\\\\GuestRegistrar\\:\\:expects\\(\\)\\.$#"
+			count: 4
+			path: headless-api-suite/src/GuestRegistration/Test/Unit/Observer/RegisterGuestAfterSubmitTest.php
+
+		-
+			message: "#^Access to undefined constant Magento\\\\Framework\\\\Controller\\\\ResultFactory\\:\\:TYPE_FORWARD\\.$#"
+			count: 1
+			path: headless-api-suite/src/OrderAttribution/Controller/Adminhtml/Source/NewAction.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\App\\\\RequestInterface\\:\\:getPostValue\\(\\)\\.$#"
+			count: 1
+			path: headless-api-suite/src/OrderAttribution/Controller/Adminhtml/Source/Save.php
+
+		-
+			message: "#^Method Magento\\\\Backend\\\\Model\\\\Session\\:\\:setData\\(\\) invoked with 2 parameters, 1 required\\.$#"
+			count: 1
+			path: headless-api-suite/src/OrderAttribution/Controller/Adminhtml/Source/Save.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Magento\\\\Framework\\\\Model\\\\ResourceModel\\\\Db\\\\AbstractDb\\:\\:delete\\(\\) expects Magento\\\\Framework\\\\Model\\\\AbstractModel, Scr1be\\\\OrderAttribution\\\\Api\\\\Data\\\\SourceInterface given\\.$#"
+			count: 1
+			path: headless-api-suite/src/OrderAttribution/Model/SourceRepository.php
+
+		-
+			message: "#^Parameter \\#1 \\$object of method Magento\\\\Framework\\\\Model\\\\ResourceModel\\\\Db\\\\AbstractDb\\:\\:save\\(\\) expects Magento\\\\Framework\\\\Model\\\\AbstractModel, Scr1be\\\\OrderAttribution\\\\Api\\\\Data\\\\SourceInterface given\\.$#"
+			count: 1
+			path: headless-api-suite/src/OrderAttribution/Model/SourceRepository.php
+
+		-
+			message: "#^Parameter \\#2 \\$context of method Scr1be\\\\OrderAttribution\\\\Model\\\\Resolver\\\\AvailableOrderSources\\:\\:resolve\\(\\) expects Magento\\\\Framework\\\\GraphQl\\\\Query\\\\Resolver\\\\ContextInterface, null given\\.$#"
+			count: 1
+			path: headless-api-suite/src/OrderAttribution/Test/Unit/Model/Resolver/AvailableOrderSourcesTest.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\GraphQl\\\\Query\\\\Resolver\\\\ContextInterface\\:\\:getExtensionAttributes\\(\\)\\.$#"
+			count: 1
+			path: headless-api-suite/src/PushNotifications/Model/Resolver/SetCartDeviceToken.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\GraphQl\\\\Query\\\\Resolver\\\\ContextInterface\\:\\:getUserId\\(\\)\\.$#"
+			count: 1
+			path: headless-api-suite/src/PushNotifications/Model/Resolver/SetCartDeviceToken.php
+
+		-
+			message: "#^Result of \\|\\| is always false\\.$#"
+			count: 1
+			path: headless-api-suite/src/PushNotifications/Model/ResourceModel/DeviceRegistry.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between string and false will always evaluate to false\\.$#"
+			count: 1
+			path: headless-api-suite/src/PushNotifications/Model/ResourceModel/DeviceRegistry.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between string and null will always evaluate to false\\.$#"
+			count: 1
+			path: headless-api-suite/src/PushNotifications/Model/ResourceModel/DeviceRegistry.php
+
+		-
+			message: "#^Parameter \\#4 \\$data of class Scr1be\\\\PushNotifications\\\\Model\\\\PushMessage constructor expects array\\<string, string\\>, array\\<string, int\\|true\\> given\\.$#"
+			count: 1
+			path: headless-api-suite/src/PushNotifications/Test/Unit/Model/Fcm/FcmTransportTest.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Store\\\\Api\\\\Data\\\\StoreInterface\\:\\:getCurrentCurrencyCode\\(\\)\\.$#"
+			count: 1
+			path: headless-api-suite/src/SearchAutocomplete/Model/Provider/ProductProvider.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\GraphQl\\\\Query\\\\Resolver\\\\ContextInterface\\:\\:getExtensionAttributes\\(\\)\\.$#"
+			count: 1
+			path: headless-api-suite/src/SearchAutocomplete/Model/Resolver/SearchAutocomplete.php
+
+		-
+			message: "#^Parameter \\#2 \\$providers of class Scr1be\\\\SearchAutocomplete\\\\Model\\\\ProviderPool constructor expects array\\<Scr1be\\\\SearchAutocomplete\\\\Api\\\\SuggestionProviderInterface\\>, array\\<string, stdClass\\> given\\.$#"
+			count: 1
+			path: headless-api-suite/src/SearchAutocomplete/Test/Unit/Model/ProviderPoolTest.php
+
+		-
+			message: "#^Using nullsafe property access on non\\-nullable type Scr1be\\\\SearchAutocomplete\\\\Model\\\\SuggestionRequest\\. Use \\-\\> instead\\.$#"
+			count: 4
+			path: headless-api-suite/src/SearchAutocomplete/Test/Unit/Model/Resolver/SearchAutocompleteTest.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\GraphQl\\\\Query\\\\Resolver\\\\ContextInterface\\:\\:getExtensionAttributes\\(\\)\\.$#"
+			count: 1
+			path: headless-api-suite/src/SocialLogin/Model/Resolver/AvailableProviders.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\GraphQl\\\\Query\\\\Resolver\\\\ContextInterface\\:\\:getExtensionAttributes\\(\\)\\.$#"
+			count: 1
+			path: headless-api-suite/src/SocialLogin/Model/Resolver/SocialLogin.php
+
+		-
+			message: "#^Result of \\|\\| is always false\\.$#"
+			count: 1
+			path: headless-api-suite/src/SocialLogin/Model/ResourceModel/SocialLink.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between string and false will always evaluate to false\\.$#"
+			count: 1
+			path: headless-api-suite/src/SocialLogin/Model/ResourceModel/SocialLink.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between string and null will always evaluate to false\\.$#"
+			count: 1
+			path: headless-api-suite/src/SocialLogin/Model/ResourceModel/SocialLink.php
+
+		-
+			message: "#^Parameter \\#1 \\$verifiers of class Scr1be\\\\SocialLogin\\\\Model\\\\Verifier\\\\VerifierPool constructor expects array\\<Scr1be\\\\SocialLogin\\\\Model\\\\Verifier\\\\VerifierInterface\\>, array\\<string, stdClass\\> given\\.$#"
+			count: 1
+			path: headless-api-suite/src/SocialLogin/Test/Unit/Model/Verifier/VerifierPoolTest.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\GraphQl\\\\Query\\\\Resolver\\\\ContextInterface\\:\\:getExtensionAttributes\\(\\)\\.$#"
+			count: 1
+			path: headless-api-suite/src/WishlistShare/Model/Resolver/ShareWishlist.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\GraphQl\\\\Query\\\\Resolver\\\\ContextInterface\\:\\:getUserId\\(\\)\\.$#"
+			count: 1
+			path: headless-api-suite/src/WishlistShare/Model/Resolver/ShareWishlist.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Store\\\\Api\\\\Data\\\\StoreInterface\\:\\:getBaseUrl\\(\\)\\.$#"
+			count: 1
+			path: hyva-graphql-search/src/ViewModel/SearchConfig.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between non\\-falsy\\-string and '' will always evaluate to false\\.$#"
+			count: 1
+			path: hyva-lazy-images/src/ViewModel/LazyImage.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Store\\\\Api\\\\Data\\\\StoreInterface\\:\\:getBaseUrl\\(\\)\\.$#"
+			count: 1
+			path: hyva-media/src/Model/MediaUrl.php
+
+		-
+			message: "#^Else branch is unreachable because ternary operator condition is always true\\.$#"
+			count: 1
+			path: hyva-media/src/Model/PathValidator.php
+
+		-
+			message: "#^Offset 'mime' on array\\{0\\: int\\<0, max\\>, 1\\: int\\<0, max\\>, 2\\: int, 3\\: string, mime\\: string, channels\\?\\: int, bits\\?\\: int\\} on left side of \\?\\? always exists and is not nullable\\.$#"
+			count: 1
+			path: hyva-media/src/Test/Unit/Model/GdEncoderTest.php
+
+		-
+			message: "#^Anonymous function never returns null so it can be removed from the return type\\.$#"
+			count: 1
+			path: hyva-media/src/Test/Unit/Model/SrcsetBuilderTest.php
+
+		-
+			message: "#^Parameter \\#2 \\$condition of method Magento\\\\Eav\\\\Model\\\\Entity\\\\Collection\\\\AbstractCollection\\:\\:addAttributeToFilter\\(\\) expects array\\|string\\|null, int given\\.$#"
+			count: 1
+			path: hyva-mega-menu/src/Model/MenuTreeBuilder.php
+
+		-
+			message: "#^Else branch is unreachable because ternary operator condition is always true\\.$#"
+			count: 1
+			path: hyva-product-card/src/Controller/Stock/Status.php
+
+		-
+			message: "#^Method Scr1be\\\\HyvaProductCard\\\\Controller\\\\Stock\\\\Status\\:\\:readQty\\(\\) never returns null so it can be removed from the return type\\.$#"
+			count: 1
+			path: hyva-product-card/src/Controller/Stock/Status.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Store\\\\Api\\\\Data\\\\StoreInterface\\:\\:getCurrentCurrencyCode\\(\\)\\.$#"
+			count: 1
+			path: hyva-product-card/src/Model/ListContext.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between Magento\\\\Catalog\\\\Model\\\\Product and null will always evaluate to false\\.$#"
+			count: 1
+			path: hyva-product-card/src/Plugin/Checkout/MinicartDiscount.php
+
+		-
+			message: "#^Else branch is unreachable because ternary operator condition is always true\\.$#"
+			count: 1
+			path: hyva-product-card/src/Plugin/Checkout/MinicartQtyRules.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\CatalogInventory\\\\Api\\\\StockRegistryInterface\\:\\:expects\\(\\)\\.$#"
+			count: 1
+			path: hyva-product-card/src/Test/Unit/Model/Card/QtyRuleResolverTest.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\CatalogInventory\\\\Api\\\\StockRegistryInterface\\:\\:method\\(\\)\\.$#"
+			count: 1
+			path: hyva-product-card/src/Test/Unit/Model/Card/QtyRuleResolverTest.php
+
+		-
+			message: "#^Access to undefined constant Magento\\\\Framework\\\\Controller\\\\ResultFactory\\:\\:TYPE_PAGE\\.$#"
+			count: 1
+			path: hyva-product-slider/src/Controller/Adminhtml/Slider/Edit.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\View\\\\Result\\\\Page\\:\\:setActiveMenu\\(\\)\\.$#"
+			count: 1
+			path: hyva-product-slider/src/Controller/Adminhtml/Slider/Edit.php
+
+		-
+			message: "#^Access to undefined constant Magento\\\\Framework\\\\Controller\\\\ResultFactory\\:\\:TYPE_PAGE\\.$#"
+			count: 1
+			path: hyva-product-slider/src/Controller/Adminhtml/Slider/Index.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\View\\\\Result\\\\Page\\:\\:setActiveMenu\\(\\)\\.$#"
+			count: 1
+			path: hyva-product-slider/src/Controller/Adminhtml/Slider/Index.php
+
+		-
+			message: "#^Access to undefined constant Magento\\\\Framework\\\\Controller\\\\ResultFactory\\:\\:TYPE_PAGE\\.$#"
+			count: 1
+			path: hyva-product-slider/src/Controller/Adminhtml/Slider/NewAction.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\View\\\\Result\\\\Page\\:\\:setActiveMenu\\(\\)\\.$#"
+			count: 1
+			path: hyva-product-slider/src/Controller/Adminhtml/Slider/NewAction.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\App\\\\RequestInterface\\:\\:getPostValue\\(\\)\\.$#"
+			count: 1
+			path: hyva-product-slider/src/Controller/Adminhtml/Slider/Save.php
+
+		-
+			message: "#^Parameter \\#1 \\$exception of method Magento\\\\Framework\\\\Message\\\\ManagerInterface\\:\\:addExceptionMessage\\(\\) expects Exception, Throwable given\\.$#"
+			count: 1
+			path: hyva-product-slider/src/Controller/Adminhtml/Slider/Save.php
+
+		-
+			message: "#^Result of \\|\\| is always false\\.$#"
+			count: 1
+			path: hyva-product-slider/src/Model/ResourceModel/Slider.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between string and false will always evaluate to false\\.$#"
+			count: 1
+			path: hyva-product-slider/src/Model/ResourceModel/Slider.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between string and null will always evaluate to false\\.$#"
+			count: 1
+			path: hyva-product-slider/src/Model/ResourceModel/Slider.php
+
+		-
+			message: "#^Parameter \\#2 \\$value of method Magento\\\\Framework\\\\Data\\\\Collection\\:\\:addFilter\\(\\) expects string, array\\<string, array\\<int, int\\>\\> given\\.$#"
+			count: 1
+			path: hyva-product-slider/src/Model/ResourceModel/Slider/Collection.php
+
+		-
+			message: "#^Parameter \\#2 \\$cause of class Magento\\\\Framework\\\\Exception\\\\CouldNotDeleteException constructor expects Exception\\|null, Throwable given\\.$#"
+			count: 1
+			path: hyva-product-slider/src/Model/SliderRepository.php
+
+		-
+			message: "#^Parameter \\#2 \\$cause of class Magento\\\\Framework\\\\Exception\\\\CouldNotSaveException constructor expects Exception\\|null, Throwable given\\.$#"
+			count: 1
+			path: hyva-product-slider/src/Model/SliderRepository.php
+
+		-
+			message: "#^Parameter \\#1 \\$sources of class Scr1be\\\\HyvaProductSlider\\\\Model\\\\ProductSource\\\\Pool constructor expects array\\<string, Scr1be\\\\HyvaProductSlider\\\\Api\\\\ProductSourceInterface\\>, array\\<string, stdClass\\> given\\.$#"
+			count: 1
+			path: hyva-product-slider/src/Test/Unit/Model/ProductSource/PoolTest.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Catalog\\\\Api\\\\Data\\\\ProductInterface\\:\\:getFinalPrice\\(\\)\\.$#"
+			count: 1
+			path: hyva-quick-view/src/ViewModel/QuickView.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Catalog\\\\Api\\\\Data\\\\ProductInterface\\:\\:getWebsiteIds\\(\\)\\.$#"
+			count: 1
+			path: hyva-quick-view/src/ViewModel/QuickView.php
+
+		-
+			message: "#^Parameter \\#1 \\$product of method Magento\\\\Catalog\\\\Helper\\\\Product\\:\\:canShow\\(\\) expects int\\|Magento\\\\Catalog\\\\Model\\\\Product, Magento\\\\Catalog\\\\Api\\\\Data\\\\ProductInterface given\\.$#"
+			count: 1
+			path: hyva-quick-view/src/ViewModel/QuickView.php
+
+		-
+			message: "#^Parameter \\#1 \\$product of method Magento\\\\Checkout\\\\Helper\\\\Cart\\:\\:getAddUrl\\(\\) expects Magento\\\\Catalog\\\\Model\\\\Product, Magento\\\\Catalog\\\\Api\\\\Data\\\\ProductInterface given\\.$#"
+			count: 1
+			path: hyva-quick-view/src/ViewModel/QuickView.php
+
+		-
+			message: "#^Offset 'entity_id' on array\\{entity_id\\: int\\|string, group_value\\: string\\|null, variant_value\\: string\\|null\\} on left side of \\?\\? always exists and is not nullable\\.$#"
+			count: 1
+			path: product-families/src/Model/Grouper.php
+
+		-
+			message: "#^Method Scr1be\\\\ProductFamilies\\\\Model\\\\ProductLink\\\\FamilyCollectionProvider\\:\\:getLinkedProducts\\(\\) should return array\\<Magento\\\\Catalog\\\\Model\\\\Product\\> but returns array\\<int\\<0, max\\>, Magento\\\\Catalog\\\\Api\\\\Data\\\\ProductInterface\\>\\.$#"
+			count: 1
+			path: product-families/src/Model/ProductLink/FamilyCollectionProvider.php
+
+		-
+			message: "#^Negated boolean expression is always false\\.$#"
+			count: 1
+			path: product-families/src/Model/ResourceModel/OptionSortOrder.php
+
+		-
+			message: "#^Negated boolean expression is always false\\.$#"
+			count: 1
+			path: product-families/src/Model/ResourceModel/ProductScanner.php
+
+		-
+			message: "#^Result of && is always true\\.$#"
+			count: 3
+			path: product-families/src/Setup/Patch/Data/InstallFamilyLinkTypes.php
+
+		-
+			message: "#^Parameter \\#1 \\$families of method Scr1be\\\\ProductFamilies\\\\Model\\\\Grouper\\:\\:dropSingletons\\(\\) expects array\\<string, array\\<int, string\\>\\>, array\\<int, array\\<int, string\\>\\> given\\.$#"
+			count: 1
+			path: product-families/src/Test/Unit/Model/GrouperTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$rows of method Scr1be\\\\ProductFamilies\\\\Model\\\\Grouper\\:\\:group\\(\\) expects iterable\\<array\\{entity_id\\: int\\|string, group_value\\: string\\|null, variant_value\\: string\\|null\\}\\>, array\\{array\\{entity_id\\: 4, group_value\\: '40'\\}\\} given\\.$#"
+			count: 1
+			path: product-families/src/Test/Unit/Model/GrouperTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$desired of method Scr1be\\\\ProductFamilies\\\\Model\\\\LinkPlanner\\:\\:plan\\(\\) expects array\\<int, array\\<int, int\\>\\>, array\\<int, array\\<int, string\\>\\> given\\.$#"
+			count: 1
+			path: product-families/src/Test/Unit/Model/LinkPlannerTest.php
+
+		-
+			message: "#^Parameter \\#2 \\$current of method Scr1be\\\\ProductFamilies\\\\Model\\\\LinkPlanner\\:\\:plan\\(\\) expects array\\<int, array\\<int, array\\{link_id\\: int, position\\: int\\}\\>\\>, array\\{1\\: array\\{2\\: array\\{link_id\\: '55', position\\: '1'\\}\\}\\} given\\.$#"
+			count: 1
+			path: product-families/src/Test/Unit/Model/LinkPlannerTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$labels of method Scr1be\\\\ProductFamilies\\\\Test\\\\Unit\\\\ViewModel\\\\ProductFamiliesTest\\:\\:givenOptionLabels\\(\\) expects array\\<string, string\\>, array\\<int, string\\> given\\.$#"
+			count: 5
+			path: product-families/src/Test/Unit/ViewModel/ProductFamiliesTest.php
+
+		-
+			message: "#^Else branch is unreachable because ternary operator condition is always true\\.$#"
+			count: 1
+			path: product-families/src/ViewModel/ProductFamilies.php
+
+		-
+			message: "#^Negated boolean expression is always false\\.$#"
+			count: 1
+			path: product-families/src/ViewModel/ProductFamilies.php
+
+		-
+			message: "#^Offset 'value' on array\\{type\\: int\\|string, value\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#"
+			count: 1
+			path: product-families/src/ViewModel/ProductFamilies.php
+
+		-
+			message: "#^Method Magento\\\\Framework\\\\App\\\\Response\\\\Http\\\\FileFactory\\:\\:create\\(\\) invoked with 4 parameters, 0\\-1 required\\.$#"
+			count: 1
+			path: signed-document-delivery/src/Controller/Download/Index.php
+
+		-
+			message: "#^Parameter \\#1 \\$data of method Magento\\\\Framework\\\\App\\\\Response\\\\Http\\\\FileFactory\\:\\:create\\(\\) expects array, string given\\.$#"
+			count: 1
+			path: signed-document-delivery/src/Controller/Download/Index.php
+
+		-
+			message: "#^Parameter \\#2 \\$store of method Magento\\\\Sales\\\\Model\\\\Order\\\\Pdf\\\\AbstractPdf\\:\\:insertAddress\\(\\) expects string\\|null, Magento\\\\Store\\\\Model\\\\Store given\\.$#"
+			count: 1
+			path: signed-document-delivery/src/Model/Pdf/Order.php
+
+		-
+			message: "#^Parameter \\#2 \\$store of method Magento\\\\Sales\\\\Model\\\\Order\\\\Pdf\\\\AbstractPdf\\:\\:insertLogo\\(\\) expects string\\|null, Magento\\\\Store\\\\Model\\\\Store given\\.$#"
+			count: 1
+			path: signed-document-delivery/src/Model/Pdf/Order.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\GraphQl\\\\Model\\\\Query\\\\ContextExtensionInterface\\:\\:getIsCustomer\\(\\)\\.$#"
+			count: 1
+			path: signed-document-delivery/src/Model/Resolver/RequestSalesDocument.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\GraphQl\\\\Model\\\\Query\\\\ContextExtensionInterface\\:\\:getStore\\(\\)\\.$#"
+			count: 1
+			path: signed-document-delivery/src/Model/Resolver/RequestSalesDocument.php
+
+		-
+			message: "#^Parameter \\#1 \\$renderers of class Scr1be\\\\SignedDocumentDelivery\\\\Model\\\\Renderer\\\\RendererPool constructor expects array\\<string, Scr1be\\\\SignedDocumentDelivery\\\\Model\\\\Renderer\\\\DocumentRendererInterface\\>, array\\<string, stdClass\\> given\\.$#"
+			count: 1
+			path: signed-document-delivery/src/Test/Unit/Model/Renderer/RendererPoolTest.php
+
+		-
+			message: "#^Parameter \\#3 \\$value of method Magento\\\\Framework\\\\App\\\\ActionFlag\\:\\:set\\(\\) expects string, true given\\.$#"
+			count: 1
+			path: store-toolkit/src/StoreClosure/Observer/RedirectClosedRoutes.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Framework\\\\App\\\\RequestInterface\\:\\:getFullActionName\\(\\)\\.$#"
+			count: 1
+			path: store-toolkit/src/StoreSeo/Model/Entity/RequestEntityResolver.php
+
+		-
+			message: "#^Ternary operator condition is always true\\.$#"
+			count: 1
+			path: store-toolkit/src/StoreSeo/Model/Hreflang/XDefaultSelector.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Catalog\\\\Api\\\\Data\\\\ProductTierPriceExtensionInterface\\:\\:getPercentageValue\\(\\)\\.$#"
+			count: 2
+			path: tier-price-label/src/Model/LadderProvider.php
+
+		-
+			message: "#^Call to an undefined method Magento\\\\Catalog\\\\Api\\\\Data\\\\ProductTierPriceExtensionInterface\\:\\:getWebsiteId\\(\\)\\.$#"
+			count: 1
+			path: tier-price-label/src/Model/LadderProvider.php
