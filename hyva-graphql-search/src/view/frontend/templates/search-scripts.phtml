@@ -1,0 +1,21 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Scr1be\HyvaGraphqlSearch\Block\SearchScripts;
+
+/** @var SearchScripts $block */
+/** @var Escaper $escaper */
+
+/**
+ * Two tags: the endpoint configuration, and the entry module that reads it.
+ *
+ * Nothing inline is emitted, so there is no `HyvaCsp::registerInlineScript()` call — which is
+ * the point of the change that produced this file. `application/json` is a media type no
+ * engine executes and needs no CSP treatment, and the module script is external.
+ */
+?>
+<script type="application/json" data-scr1be-search-config>
+<?= /* @noEscape */ $block->getConfigJson() ?>
+</script>
+<script type="module" src="<?= $escaper->escapeUrl($block->getEntryScriptUrl()) ?>"></script>

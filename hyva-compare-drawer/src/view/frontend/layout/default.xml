@@ -2,9 +2,20 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
+        <!--
+            The store's configuration and entry module go in the head, because a
+            `<script type="module">` is deferred and deferred scripts run in document order —
+            and Hyvä's Alpine tag is the first block in `before.body.end`. Registering the store
+            from there would mean registering it after Alpine had already started.
+        -->
+        <referenceContainer name="head.additional">
+            <block class="Scr1be\HyvaCompareDrawer\Block\CompareScripts"
+                   name="scr1be.compare.scripts"
+                   template="Scr1be_HyvaCompareDrawer::compare-scripts.phtml"/>
+        </referenceContainer>
+        <!-- The drawer is markup and stays at the end of the document, so its fixed overlay is
+             not trapped inside a stacking context created further up the page. -->
         <referenceContainer name="before.body.end">
-            <block name="scr1be.compare.store"
-                   template="Scr1be_HyvaCompareDrawer::store.phtml"/>
             <block name="scr1be.compare.drawer"
                    template="Scr1be_HyvaCompareDrawer::drawer.phtml"/>
         </referenceContainer>
