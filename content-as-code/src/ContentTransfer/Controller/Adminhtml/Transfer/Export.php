@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace Scr1be\ContentTransfer\Controller\Adminhtml\Transfer;
 
+use Exception;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Backend\Model\View\Result\Redirect;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultFactory;
+use RuntimeException;
 use Scr1be\ContentTransfer\Block\Adminhtml\Transfer\Picker;
 use Scr1be\ContentTransfer\Model\BundleDownload;
 use Scr1be\ContentTransfer\Model\PorterPool;
@@ -55,7 +57,18 @@ class Export extends Action implements HttpPostActionInterface
         } catch (Throwable $exception) {
             // A failed export must land the operator back on the page with a message rather than on
             // a stack trace: the input came from a form, so a bad selection is a normal outcome.
-            $this->messageManager->addExceptionMessage($exception, __('The bundle could not be built.'));
+            //
+            // Which is why the catch is this wide, and why the value has to be narrowed again
+            // before it is handed on: addExceptionMessage() declares `\Exception` natively, so an
+            // `\Error` would raise a TypeError inside this block and produce exactly the stack
+            // trace the catch was written to prevent. Core wraps for the same reason in
+            // `Magento\Framework\Mview\View::update()`; `previous` keeps the original for the log.
+            $this->messageManager->addExceptionMessage(
+                $exception instanceof Exception
+                    ? $exception
+                    : new RuntimeException($exception->getMessage(), 0, $exception),
+                __('The bundle could not be built.')
+            );
 
             return $this->backToPicker();
         }

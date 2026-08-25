@@ -72,7 +72,14 @@ class Save extends AbstractSlider implements HttpPostActionInterface
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Throwable $e) {
-            $this->messageManager->addExceptionMessage($e, __('The slider could not be saved.'));
+            // addExceptionMessage() declares `\Exception` natively, so an `\Error` handed to it
+            // raises a TypeError inside this block — the broad catch would produce the fatal it
+            // exists to prevent, and the operator would lose both the message and the form data
+            // persisted below. Core wraps for the same reason in `Mview\View::update()`.
+            $this->messageManager->addExceptionMessage(
+                $e instanceof \Exception ? $e : new \RuntimeException($e->getMessage(), 0, $e),
+                __('The slider could not be saved.')
+            );
         }
 
         $this->dataPersistor->set(self::FORM_DATA_KEY, $formData);
