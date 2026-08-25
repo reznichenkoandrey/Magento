@@ -64,25 +64,17 @@ services:
         class: Magento\PhpStan\Reflection\Php\DataObjectClassReflectionExtension
         tags: {phpstan.broker.methodsClassReflectionExtension: {priority: 100}}
 
-# The baseline holds the 138 findings that existed when this config was added. It is a
-# starting line, not a verdict: nothing in it has been accepted as correct. New code is
-# held to level 5 from here.
+# The baseline holds the findings that existed when this config was added, minus the ones that
+# have since been fixed. It is a starting line, not a verdict: nothing in it has been accepted as
+# correct. New code is held to level 5 from here.
 #
-# Two groups in it are known to be real and are worth taking out first:
+# Fixed and gone from it: the six sites that caught `\Throwable` and handed the caught value to a
+# natively typed `\Exception` parameter. See `SliderRepositoryErrorCauseTest` and
+# `MassExportErrorCauseTest` for what that actually did.
 #
-#   1. Six sites catch `\Throwable` and hand the caught value to a parameter that is
-#      natively typed `\Exception` — `ManagerInterface::addExceptionMessage()` and the
-#      `CouldNotSaveException` / `CouldNotDeleteException` constructors. An `\Error`
-#      reaching one of those makes the handler itself fatal, which is the opposite of
-#      what the broad catch was written to do:
-#         content-as-code/src/ContentTransfer/Controller/Adminhtml/MassExport/AbstractMassExport.php:60,74
-#         content-as-code/src/ContentTransfer/Controller/Adminhtml/Transfer/Export.php:58
-#         hyva-product-slider/src/Controller/Adminhtml/Slider/Save.php:75
-#         hyva-product-slider/src/Model/SliderRepository.php:59,120
-#
-#   2. Sixteen "always true / always false / unreachable" reports. Each is either a
-#      redundant guard or a guard that does not do what it reads as; they need reading
-#      one at a time rather than a blanket answer.
+# Still in it and worth taking out next: the "always true / always false / unreachable" reports.
+# Each is either a redundant guard or a guard that does not do what it reads as, and they need
+# reading one at a time rather than a blanket answer.
 #
 # The rest is mostly the ecosystem: methods that exist on the concrete class Magento's DI
 # returns but not on the interface the constructor asks for, and mock properties in tests
