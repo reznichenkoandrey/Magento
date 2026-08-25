@@ -36,10 +36,24 @@ Rules for every Wave 2 project:
 | 16 | `headless-api-suite` | 2c | built · reviewed |
 | 17 | `content-as-code` | 2c | built · reviewed |
 | 18 | `signed-document-delivery` | 2c | built · reviewed |
+| — | `hyva-compare-drawer` | 1 | built · reviewed |
+| — | `hyva-graphql-search` | 1 | built · reviewed |
+| — | `hyva-lazy-images` | 1 | built · reviewed |
+| — | `hyva-quick-view` | 1 | built · reviewed |
 
-All eighteen are written and installed on the demo stand, where the thirty modules they
-add up to are enabled together, and all eighteen have now had the second pass described
-below.
+All eighteen Wave 2 projects are written and installed on the demo stand, where the thirty
+modules they add up to are enabled together, and all eighteen have had the second pass
+described below.
+
+The four Wave 1 projects are listed here too, because until now nothing recorded whether they
+had been through it — they had not. `hyva-mega-menu` was rewritten in Wave 2 and is row 8; the
+other four were reviewed on their own terms, twelve claims in total. Eleven held word for word,
+including the `Container::getChildHtml()` product push, the GraphQL `frontName`, and the pair of
+checks `Catalog\Helper\Product::initProduct()` runs before a product page renders. One did not:
+`hyva-quick-view` credited Hyvä's global `uenc` submit listener to
+`Magento_Theme::page/js/set-uenc.phtml`. It is `Hyva_Theme::` — the file ships in the
+`magento2-theme-module` package, and no `Magento_Theme` version exists anywhere in `vendor/`.
+The behaviour was described correctly; the address was not.
 
 Wave 2a = compact, high value-per-line. Wave 2b = full features with admin + frontend.
 Wave 2c = large suites. Order within a wave is the build order.
@@ -51,10 +65,10 @@ fabricated `price_id` contract that broke Alpine id scoping on Hyvä, a wrong ev
 that would have left a warning on screen forever, and a repeated bit of folklore about
 interceptors.
 
-Demo screenshots so far cover what is visible on the storefront — `demo-screenshots/w2-01`
-to `w2-05`, and of this wave that is `hyva-mega-menu` and `hyva-product-card`. The admin
-screens, CLI commands and GraphQL surfaces built in 2a–2c are not captured yet; each
-module's README says what would be worth showing.
+Every project in this repository now carries at least one frame — 23 of 23, storefront and
+admin, all from the demo stand. `demo-screenshots/w2-*` are the storefront ones and `cfg-*` the
+configuration sections; the root `README.md` says what each shows. CLI commands and the GraphQL
+surfaces are still text-only, and each module's README says what would be worth capturing.
 
 ---
 

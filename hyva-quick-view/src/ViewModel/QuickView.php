@@ -74,7 +74,9 @@ class QuickView implements ArgumentInterface
      * $urlBuilder->getCurrentUrl(), and "current" inside this module is the AJAX endpoint that
      * rendered the modal — so the post-add redirect would send the shopper to a JSON document.
      * The placeholder defers the decision to submit time, where Hyvä's global submit listener
-     * (Magento_Theme::page/js/set-uenc.phtml) swaps in the real page URL.
+     * (`Hyva_Theme::page/js/set-uenc.phtml`, in the `magento2-theme-module` package rather than
+     * in the theme) rewrites the form action: it listens for `submit` on the document and
+     * replaces `%25uenc%25` in `event.target.action` with `hyva.getUenc()`.
      */
     public function getAddToCartUrl(ProductInterface $product): string
     {
