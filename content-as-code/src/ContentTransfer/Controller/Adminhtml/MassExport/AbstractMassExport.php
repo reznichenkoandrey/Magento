@@ -10,6 +10,7 @@ use Magento\Backend\Model\View\Result\Redirect;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Ui\Component\MassAction\Filter;
 use RuntimeException;
 use Scr1be\ContentTransfer\Model\BundleDownload;
@@ -54,7 +55,7 @@ abstract class AbstractMassExport extends Action implements HttpPostActionInterf
      */
     abstract protected function collectKeys(Filter $filter): array;
 
-    public function execute(): ResponseInterface|Redirect
+    public function execute(): ResultInterface|ResponseInterface
     {
         try {
             $keys = $this->collectKeys($this->massActionFilter);

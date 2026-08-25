@@ -145,14 +145,22 @@ class MenuTreeBuilder
     {
         foreach ($node['children'] as $index => $child) {
             if ($child['children'] !== []) {
-                $island[$child['key']] = array_map(
+                // array_values, so the payload is a list: `$child['children']` is mixed to an
+                // analyser, and array_map alone preserves whatever keys it had.
+                $island[(string) $child['key']] = array_values(array_map(
+                    // `$node` is typed `array<string, mixed>`, so everything read out of it is
+                    // mixed to an analyser even though the tree builder put strings there. The
+                    // casts are what make the island actually match the shape this method
+                    // promises, rather than promising it and hoping.
                     static fn (array $grandChild): array => [
-                        'n' => $grandChild['name'],
-                        'u' => $grandChild['url'],
-                        'i' => $grandChild['icon']->toIslandArray(),
+                        'n' => (string) $grandChild['name'],
+                        'u' => (string) $grandChild['url'],
+                        'i' => $grandChild['icon'] instanceof Icon
+                            ? $grandChild['icon']->toIslandArray()
+                            : null,
                     ],
                     $child['children']
-                );
+                ));
             }
 
             $node['children'][$index]['has_children'] = $child['children'] !== [];

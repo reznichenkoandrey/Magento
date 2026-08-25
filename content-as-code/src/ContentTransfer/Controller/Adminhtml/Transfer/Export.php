@@ -10,6 +10,7 @@ use Magento\Backend\Model\View\Result\Redirect;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\ResultInterface;
 use RuntimeException;
 use Scr1be\ContentTransfer\Block\Adminhtml\Transfer\Picker;
 use Scr1be\ContentTransfer\Model\BundleDownload;
@@ -39,7 +40,7 @@ class Export extends Action implements HttpPostActionInterface
         parent::__construct($context);
     }
 
-    public function execute(): ResponseInterface|Redirect
+    public function execute(): ResultInterface|ResponseInterface
     {
         $identifiers = $this->selectedIdentifiers();
 
