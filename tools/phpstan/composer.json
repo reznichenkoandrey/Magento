@@ -7,5 +7,10 @@
     },
     "config": {
         "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Scr1be\\PHPStan\\": "src/"
+        }
     }
 }
