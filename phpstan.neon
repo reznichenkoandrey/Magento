@@ -73,6 +73,8 @@ parameters:
 
     bootstrapFiles:
         - ../vendor/autoload.php
+        # The runner's own autoloader, for the extension registered at the bottom of this file.
+        - tools/phpstan/vendor/autoload.php
 
     ignoreErrors:
         # `__()` returns Magento\Framework\Phrase, which has __toString(). The core methods that
@@ -90,19 +92,11 @@ parameters:
             identifier: phpDoc.parseError
             message: '#@SuppressWarnings has invalid value#'
 
-        # DataObject is a bag with magic accessors, and PHPStan cannot know them without an
-        # extension. Magento ships one, and it is 1.x-only: it reaches into
-        # `PHPStan\DependencyInjection\Container` for the internal
-        # `AnnotationsMethodsClassReflectionExtension`, which PHPStan's own upgrade guide says
-        # cannot survive a major bump.
-        #
-        # This is coarser than that extension was, and knowingly so: it checked the get/set/has/uns
-        # prefix and the DataObject relationship, so a genuine typo still failed. Here a typo in a
-        # magic accessor on one of these bases would pass. The alternative was writing a 2.x
-        # extension of our own, which is a component to maintain rather than a config line.
-        -
-            identifier: method.notFound
-            message: '#Call to an undefined method (Magento\\(Framework\\(DataObject|Model\\AbstractModel)|Backend\\Model\\Session|Sales\\Model\\Order\\Pdf\\Items\\AbstractItems)|Scr1be\\[A-Za-z]+\\Block\\)#'
+        # DataObject's magic accessors are handled by the extension registered at the bottom of
+        # this file, not suppressed. What is left here is the other half of the same story: a
+        # collection's `getItems()` is documented `DataObject[]`, so the objects are typed as the
+        # bag rather than as what the collection actually holds. The extension answers the
+        # accessors on them; it cannot change what the collection promises.
         -
             identifier: return.type
             message: '#returns (list<)?Magento\\Framework\\DataObject#'
@@ -162,8 +156,15 @@ parameters:
         - '#Magento\\Sales\\Model\\Order\\Pdf\\AbstractPdf::insert(Logo|Address)\(\) expects string\|null, Magento\\Store\\Model\\Store given#'
         - '#Magento\\Customer\\Model\\CustomerRegistry::retrieve\(\) expects string, int given#'
         - '#AdapterInterface::fetchCol\(\) expects Magento\\Framework\\DB\\Select\|string, Zend_Db_Select given#'
-        - '#Magento\\Widget\\Model\\Widget\\Instance::setStoreIds\(\) expects string, array<int> given#'
         - '#Magento\\Framework\\Data\\Collection::addFilter\(\) expects string, array#'
+        # `@method Instance setStoreIds(string $value)` contradicts the model it is written on:
+        # `Instance::beforeSave()` opens with `is_array($this->getData('store_ids'))` and implodes
+        # it, and `getStoreIds()` explodes the column back into an array. Core expects the array
+        # form and says otherwise in the annotation. Note this one is only visible *because* the
+        # extension defers to `@method` — under a blanket DataObject suppression it never appeared.
+        -
+            message: '#Magento\\Widget\\Model\\Widget\\Instance::setStoreIds\(\) expects string, array<int> given#'
+            path: 'content-as-code/src/ContentTransfer/Model/Widget/InstanceCodec.php'
         - '#Magento\\Framework\\App\\ActionFlag::set\(\) expects string, true given#'
         - '#Magento\\Framework\\Model\\ResourceModel\\Db\\AbstractDb::(save|delete)\(\) expects Magento\\Framework\\Model\\AbstractModel, Scr1be\\[A-Za-z]+\\Api\\Data\\[A-Za-z]+Interface given#'
 
@@ -180,3 +181,9 @@ parameters:
         -
             identifier: return.type
             path: '*/Test/*'
+
+services:
+    -
+        class: Scr1be\PHPStan\Reflection\MagicDataAccessorExtension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension

@@ -142,6 +142,20 @@ It is at level 5 with **no baseline**, and every suppression in `phpstan.neon` c
 that justifies it. Prefer `identifier:` over matching message text: the 1.x config matched English
 strings and six of those patterns died silently on the 2.x upgrade.
 
+`tools/phpstan/src/` holds one extension, `MagicDataAccessorExtension`, which teaches PHPStan the
+`get`/`set`/`uns`/`has` accessors that `DataObject::__call()` and `SessionManager::__call()`
+answer. It replaces the 1.x-only one Magento ships, and it defers to both native methods and
+`@method` annotations — Magento writes hundreds of the latter with real signatures, and answering
+over them would replace `string $value` with `mixed ...$args`. Any other prefix stays an error,
+because the runtime throws on it; that is the signal a blanket suppression would have destroyed.
+
+    php tools/phpstan/test/run.php
+
+Three assertions, and both ways of breaking the extension were checked against them before they
+were written down. Note the runner clears PHPStan's result cache first: the cache is keyed on the
+analysed files, and the extension's own source is not one of them, so without that the test passes
+against an implementation it should fail.
+
 **Do not pass `--standard=Magento2`.** `phpcs.xml` in this directory *is* the standard: it is the
 Magento2 standard with two rules excluded and the reason for each written into the file. Naming
 Magento2 on the command line bypasses it and reports 34 findings that have already been answered.

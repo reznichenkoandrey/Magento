@@ -1,0 +1,15 @@
+# Analyses the fixture with the extension registered and nothing else, so what comes back is
+# attributable to the extension rather than to the repo's own ignore rules.
+parameters:
+    level: 5
+    paths:
+        - fixture
+    bootstrapFiles:
+        - ../../../../vendor/autoload.php
+        - ../vendor/autoload.php
+
+services:
+    -
+        class: Scr1be\PHPStan\Reflection\MagicDataAccessorExtension
+        tags:
+            - phpstan.broker.methodsClassReflectionExtension
