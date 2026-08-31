@@ -6,9 +6,10 @@ The goal of this repo is not to bundle a "kitchen sink" — it's to show **how I
 
 ## Projects
 
-Twenty-three of them, in two waves. The first five take one slice of the stack each and go deep;
-the eighteen after them re-implement, from scratch, the patterns that hold up on a large
-multi-store build.
+Twenty-two of them, in two waves. The first five take one slice of the stack each and go deep;
+the wave after them re-implements, from scratch, the patterns that hold up on a large multi-store
+build — seventeen new projects, plus `hyva-mega-menu` rebuilt from the ground up, which is why the
+two waves add up to twenty-two folders rather than twenty-three.
 
 ### Wave 1 — one slice of the stack each
 
@@ -115,6 +116,17 @@ Two notes on how these were taken. Groups that ship collapsed were expanded, and
 that ship *off* were switched on **in the browser only, and never saved**, so that the fields they
 gate are visible — the frames show what each section offers, not what this demo has turned on, and
 the install's stored configuration is unchanged.
+
+### CLI and GraphQL
+
+Neither renders, so both are captured output rather than a photograph of a screen: the command
+was run on the same install and the query was posted to its `/graphql`, and what is inside each
+frame is the reply, pasted unaltered.
+
+| | Project | What's shown |
+|---|---|---|
+| ![Reconcile, dry run](demo-screenshots/cli-product-families.png) | product-families | The reconcile that a nightly cron runs, asked to explain itself first. Two of the three families refuse by name because they ship switched off — the kill switch is a merchant decision, not a default — and the third reports what it *would* do: 24 families, 435 members, nothing to change, because the run is idempotent and the catalogue is already in that state |
+| ![Autocomplete over GraphQL](demo-screenshots/gql-search-autocomplete.png) | headless-api-suite | One round trip for what a search drop-down needs: matching products, the categories they sit in with their counts, and the term itself with `is_exact_match` so a native app can tell "we found *bag*" from "we found something like it". Eight results, one category, one term — the whole reply, not an excerpt |
 
 
 ## Why this layout
