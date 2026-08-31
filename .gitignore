@@ -8,3 +8,7 @@ generated/
 var/
 pub/static/
 pub/media/
+
+# Local tooling. Never part of the project.
+.claude/
+.serena/
