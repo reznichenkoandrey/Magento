@@ -65,7 +65,7 @@ fabricated `price_id` contract that broke Alpine id scoping on Hyvä, a wrong ev
 that would have left a warning on screen forever, and a repeated bit of folklore about
 interceptors.
 
-Every project in this repository now carries at least one frame — 23 of 23, storefront and
+Every project in this repository now carries at least one frame — 22 of 22, storefront and
 admin, all from the demo stand. `demo-screenshots/w2-*` are the storefront ones and `cfg-*` the
 configuration sections; the root `README.md` says what each shows. CLI commands and the GraphQL
 surfaces are still text-only, and each module's README says what would be worth capturing.
