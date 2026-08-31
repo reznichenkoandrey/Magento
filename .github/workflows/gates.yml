@@ -169,10 +169,16 @@ jobs:
         working-directory: magento/Magento
         run: php tools/sync-to-app-code.php
 
+      # Magento registers Qameta's Allure extension and ships no config for it, so it aborts its
+      # own bootstrap and PHPUnit records a warning — which PHPUnit 10 exits non-zero for. The
+      # extension only needs the file to return an array. Satisfying it here beats passing
+      # `--do-not-fail-on-warning`, which would hide our own warnings along with this one.
       - name: Unit suite
         if: steps.creds.outputs.available == 'true'
         working-directory: magento
         run: |
+          mkdir -p allure
+          printf '<?php\n\nreturn [];\n' > allure/allure.config.php
           php -d memory_limit=2G vendor/bin/phpunit \
             -c dev/tests/unit/phpunit.xml.dist --no-coverage --do-not-cache-result \
             app/code/Scr1be
