@@ -6,9 +6,10 @@ The goal of this repo is not to bundle a "kitchen sink" — it's to show **how I
 
 ## Projects
 
-Twenty-three of them, in two waves. The first five take one slice of the stack each and go deep;
-the eighteen after them re-implement, from scratch, the patterns that hold up on a large
-multi-store build.
+Twenty-two of them, in two waves. The first five take one slice of the stack each and go deep;
+the wave after them re-implements, from scratch, the patterns that hold up on a large multi-store
+build — seventeen new projects, plus `hyva-mega-menu` rebuilt from the ground up, which is why the
+two waves add up to twenty-two folders rather than twenty-three.
 
 ### Wave 1 — one slice of the stack each
 
