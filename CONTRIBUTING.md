@@ -1,6 +1,6 @@
-# CLAUDE.md — working rules for this repository
+# Working rules for this repository
 
-Conventions for anyone — human or coding agent — writing code in this repo. What each project
+Conventions for anyone writing code in this repo. What each project
 *is* lives in [`README.md`](README.md); what each one had to do lives in [`ROADMAP.md`](ROADMAP.md).
 This file is the how.
 

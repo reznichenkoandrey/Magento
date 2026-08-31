@@ -187,7 +187,7 @@ jobs:
       # their constructors, and Hyvä ships from a licensed private Packagist that a public
       # repository has no credentials for — without it the analysis reports 80 unresolvable
       # classes and everything that cascades from them. It stays a manual gate, documented in
-      # CLAUDE.md, and so does the extension test that needs it.
+      # CONTRIBUTING.md, and so does the extension test that needs it.
 
       - name: Drift
         if: steps.creds.outputs.available == 'true'
