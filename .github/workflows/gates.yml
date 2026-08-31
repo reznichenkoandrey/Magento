@@ -110,7 +110,7 @@ jobs:
             $(ls -d */src)
 
   magento-suite:
-    name: phpunit + phpstan
+    name: phpunit
     runs-on: ubuntu-latest
     env:
       MAGENTO_VERSION: 2.4.8-p4
@@ -183,22 +183,11 @@ jobs:
             -c dev/tests/unit/phpunit.xml.dist --no-coverage --do-not-cache-result \
             app/code/Scr1be
 
-      - name: PHPStan
-        if: steps.creds.outputs.available == 'true'
-        working-directory: magento/Magento
-        run: |
-          # scanDirectories points at ../generated/code, which only exists after a compile. The
-          # compile is not run here: it needs every enabled module's dependencies present, and
-          # Hyvä is a licensed package this repository cannot pull. An empty directory is enough
-          # for the path to resolve.
-          mkdir -p ../generated/code
-          composer install --no-interaction --no-progress -d tools/phpstan
-          tools/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --no-progress --memory-limit=3G
-
-      - name: Extension test
-        if: steps.creds.outputs.available == 'true'
-        working-directory: magento/Magento
-        run: php tools/phpstan/test/run.php
+      # PHPStan is not here, and cannot be. Two of the modules type-hint `Hyva\Theme\…` in
+      # their constructors, and Hyvä ships from a licensed private Packagist that a public
+      # repository has no credentials for — without it the analysis reports 80 unresolvable
+      # classes and everything that cascades from them. It stays a manual gate, documented in
+      # CLAUDE.md, and so does the extension test that needs it.
 
       - name: Drift
         if: steps.creds.outputs.available == 'true'

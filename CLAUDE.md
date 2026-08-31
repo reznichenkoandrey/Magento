@@ -121,11 +121,19 @@ Design values become tokens rather than arbitrary literals, and a token is named
 ## Quality gates
 
 `.github/workflows/gates.yml` runs six jobs on every push and pull request, and all six block:
-`php -l`, `xmllint`, the schema gate, the JS suites, `phpcs`, and `magento-suite` — the unit suite
-plus phpstan, which need a Magento installation and therefore the `MAGENTO_PUBLIC_KEY` and
-`MAGENTO_PRIVATE_KEY` repository secrets. Without those two the job skips with a notice rather
-than failing, so a fork still gets the other five. Run them by hand before pushing anyway — CI
-tells you afterwards, which is later than you wanted to know.
+`php -l`, `xmllint`, the schema gate, the JS suites, `phpcs`, and `magento-suite` — the unit suite,
+which needs a Magento installation and therefore the `MAGENTO_PUBLIC_KEY` and `MAGENTO_PRIVATE_KEY`
+repository secrets. Without those two the job skips with a notice rather than failing, so a fork
+still gets the other five.
+
+**PHPStan is not in CI and cannot be.** Two modules type-hint `Hyva\Theme\…` in their
+constructors, and Hyvä ships from a licensed private Packagist a public repository has no
+credentials for; without it the analysis reports 80 unresolvable classes. Same reason
+`setup:di:compile` is not run there, which is why the twelve resolver tests that mock a generated
+extension-attribute interface skip on a clean checkout and run here.
+
+Run all of them by hand before pushing anyway — CI tells you afterwards, which is later than you
+wanted to know.
 
 ```bash
 php -l <file>                                  # every touched PHP/PHTML file
