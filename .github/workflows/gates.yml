@@ -1,11 +1,10 @@
-# The gates this repo can actually run on a clean runner.
+# The gates for this repo.
 #
-# These are Magento modules, and most of the project's checks only mean anything inside a
-# Magento installation: the unit suite needs the framework, and `phpstan.neon` needs both
-# `vendor/` and the generated interceptors. Installing Magento in CI needs authenticated
-# access to repo.magento.com, which a public repository cannot have. Those two therefore
-# stay manual, and are documented in CLAUDE.md — this workflow holds the line on
-# everything that does not need the framework present.
+# Five of them need nothing but a clean runner. The sixth, `magento-suite`, needs a Magento
+# installation — the unit suite needs the framework and `phpstan.neon` needs `vendor/` — and
+# installing Magento needs authenticated access to repo.magento.com. That means two repository
+# secrets, so the job checks for them first and skips with a reason rather than failing when they
+# are absent: a fork has no access to them and should still get the other five.
 name: gates
 
 on:
@@ -109,3 +108,92 @@ jobs:
           "$RUNNER_TEMP/phpcs/vendor/bin/phpcs" \
             --warning-severity=0 --report=full \
             $(ls -d */src)
+
+  magento-suite:
+    name: phpunit + phpstan
+    runs-on: ubuntu-latest
+    env:
+      MAGENTO_VERSION: 2.4.8-p4
+    steps:
+      # Secrets are unavailable to forked pull requests by design, and an absent secret is an
+      # empty string rather than an error. Deciding here keeps every later step honest about why
+      # it did nothing.
+      - name: Check for repo.magento.com credentials
+        id: creds
+        env:
+          PUBLIC_KEY: ${{ secrets.MAGENTO_PUBLIC_KEY }}
+          PRIVATE_KEY: ${{ secrets.MAGENTO_PRIVATE_KEY }}
+        run: |
+          if [ -n "$PUBLIC_KEY" ] && [ -n "$PRIVATE_KEY" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::MAGENTO_PUBLIC_KEY / MAGENTO_PRIVATE_KEY are not set, so Magento cannot be installed. The unit suite and phpstan are skipped; the other five gates still ran."
+          fi
+
+      - if: steps.creds.outputs.available == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - if: steps.creds.outputs.available == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-magento-${{ env.MAGENTO_VERSION }}-${{ hashFiles('**/tools/phpstan/composer.lock') }}
+          restore-keys: composer-magento-${{ env.MAGENTO_VERSION }}-
+
+      # The installation, and only the installation — no database, no `setup:install`. Everything
+      # below reads source and resolves classes; none of it queries anything.
+      - name: Install Magento
+        if: steps.creds.outputs.available == 'true'
+        env:
+          COMPOSER_AUTH: >-
+            {"http-basic":{"repo.magento.com":{"username":"${{ secrets.MAGENTO_PUBLIC_KEY }}","password":"${{ secrets.MAGENTO_PRIVATE_KEY }}"}}}
+        run: |
+          composer create-project --no-interaction --no-progress \
+            --repository-url=https://repo.magento.com/ \
+            magento/project-community-edition="$MAGENTO_VERSION" magento
+
+      # Into `magento/Magento`, because that is where the repo sits on the demo stand and every
+      # relative path in phpstan.neon is written from there.
+      - name: Check out the modules
+        if: steps.creds.outputs.available == 'true'
+        uses: actions/checkout@v4
+        with:
+          path: magento/Magento
+
+      - name: Lay the modules out where Magento expects them
+        if: steps.creds.outputs.available == 'true'
+        working-directory: magento/Magento
+        run: php tools/sync-to-app-code.php
+
+      - name: Unit suite
+        if: steps.creds.outputs.available == 'true'
+        working-directory: magento
+        run: |
+          php -d memory_limit=2G vendor/bin/phpunit \
+            -c dev/tests/unit/phpunit.xml.dist --no-coverage --do-not-cache-result \
+            app/code/Scr1be
+
+      - name: PHPStan
+        if: steps.creds.outputs.available == 'true'
+        working-directory: magento/Magento
+        run: |
+          # scanDirectories points at ../generated/code, which only exists after a compile. An
+          # empty directory is enough for the path to resolve; what it would have held is
+          # suppressed by name in phpstan.neon.
+          mkdir -p ../generated/code
+          composer install --no-interaction --no-progress -d tools/phpstan
+          tools/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --no-progress --memory-limit=3G
+
+      - name: Extension test
+        if: steps.creds.outputs.available == 'true'
+        working-directory: magento/Magento
+        run: php tools/phpstan/test/run.php
+
+      - name: Drift
+        if: steps.creds.outputs.available == 'true'
+        working-directory: magento/Magento
+        run: php tools/sync-to-app-code.php --check
