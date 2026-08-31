@@ -120,9 +120,20 @@ Design values become tokens rather than arbitrary literals, and a token is named
 
 ## Quality gates
 
-`.github/workflows/gates.yml` runs five of these on every push and pull request, and all five
-block: `php -l`, `xmllint`, the schema gate, the JS suites and `phpcs`. Run them by hand before
-pushing anyway — CI tells you afterwards, which is later than you wanted to know.
+`.github/workflows/gates.yml` runs six jobs on every push and pull request, and all six block:
+`php -l`, `xmllint`, the schema gate, the JS suites, `phpcs`, and `magento-suite` — the unit suite,
+which needs a Magento installation and therefore the `MAGENTO_PUBLIC_KEY` and `MAGENTO_PRIVATE_KEY`
+repository secrets. Without those two the job skips with a notice rather than failing, so a fork
+still gets the other five.
+
+**PHPStan is not in CI and cannot be.** Two modules type-hint `Hyva\Theme\…` in their
+constructors, and Hyvä ships from a licensed private Packagist a public repository has no
+credentials for; without it the analysis reports 80 unresolvable classes. Same reason
+`setup:di:compile` is not run there, which is why the twelve resolver tests that mock a generated
+extension-attribute interface skip on a clean checkout and run here.
+
+Run all of them by hand before pushing anyway — CI tells you afterwards, which is later than you
+wanted to know.
 
 ```bash
 php -l <file>                                  # every touched PHP/PHTML file
@@ -130,7 +141,15 @@ xmllint --noout <file>.xml                     # every touched XML file
 ../vendor/bin/phpcs <path>                     # from this directory; see below
 php tools/check-graphql-schemas.php            # whenever a .graphqls file changed
 tools/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 3G
+php tools/sync-to-app-code.php                # repo -> app/code/Scr1be
+php tools/sync-to-app-code.php --check        # drift gate, non-zero when they differ
 ```
+
+**The repo and the installation are separate files, not symlinks.** `tools/sync-to-app-code.php`
+is what keeps them the same: it reads the module name out of each `registration.php` — the only
+place it is actually declared, and not derivable from the folder name, since three projects ship
+several modules — then copies and prunes. Edit under `Magento/`, sync, and let `--check` tell you
+when something was edited on the wrong side.
 
 **PHPStan runs from its own binary, not the installation's.** Magento 2.4.8 pins
 `phpstan/phpstan: ^1.9` and `rector` holds it at `^1.12.5`, so 2.x cannot live in the stand's
