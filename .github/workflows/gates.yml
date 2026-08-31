@@ -169,6 +169,24 @@ jobs:
         working-directory: magento/Magento
         run: php tools/sync-to-app-code.php
 
+      # Both of the steps below need this and neither says so obviously.
+      #
+      # The unit framework registers an on-demand generator for extension-attribute interfaces,
+      # which is why a fresh install gets *an* interface — but a stub one, with none of the methods
+      # a merged `extension_attributes.xml` declares. `ContextExtensionInterface::getIsCustomer()`
+      # is the one that bites: twelve tests mock it, and PHPUnit refuses to configure a method that
+      # is not on the interface it was handed. CLAUDE.md records this as a stand trap; it is the
+      # same trap, with the compile never having happened rather than having been wiped.
+      #
+      # `--all` rather than a list, because `Scr1be_*` have to be enabled too or their own
+      # interceptors are never generated.
+      - name: Enable modules and compile
+        if: steps.creds.outputs.available == 'true'
+        working-directory: magento
+        run: |
+          php bin/magento module:enable --all --no-interaction
+          php -d memory_limit=4G bin/magento setup:di:compile --no-interaction
+
       - name: Unit suite
         if: steps.creds.outputs.available == 'true'
         working-directory: magento
@@ -181,10 +199,6 @@ jobs:
         if: steps.creds.outputs.available == 'true'
         working-directory: magento/Magento
         run: |
-          # scanDirectories points at ../generated/code, which only exists after a compile. An
-          # empty directory is enough for the path to resolve; what it would have held is
-          # suppressed by name in phpstan.neon.
-          mkdir -p ../generated/code
           composer install --no-interaction --no-progress -d tools/phpstan
           tools/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --no-progress --memory-limit=3G
 
