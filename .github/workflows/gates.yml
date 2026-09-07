@@ -183,11 +183,76 @@ jobs:
             -c dev/tests/unit/phpunit.xml.dist --no-coverage --do-not-cache-result \
             app/code/Scr1be
 
-      # PHPStan is not here, and cannot be. Two of the modules type-hint `Hyva\Theme\…` in
-      # their constructors, and Hyvä ships from a licensed private Packagist that a public
-      # repository has no credentials for — without it the analysis reports 80 unresolvable
-      # classes and everything that cascades from them. It stays a manual gate, documented in
-      # CONTRIBUTING.md, and so does the extension test that needs it.
+      # The analyser is its own two-line composer project rather than the installation's, because
+      # Magento 2.4.8 pins `phpstan/phpstan: ^1.9` and this repository's config is written for 2.x.
+      - name: Install the analyser
+        if: steps.creds.outputs.available == 'true'
+        working-directory: magento/Magento
+        run: composer install -d tools/phpstan --no-interaction --no-progress
+
+      # The repo ships a PHPStan extension that teaches it Magento's magic `get`/`set`/`uns`/`has`
+      # accessors. It is checked before it is relied on: the run below would be equally green with
+      # the extension broken in either direction — answering for methods it should defer on, or
+      # not answering at all — because both failures only ever remove findings.
+      - name: Analyser extension
+        if: steps.creds.outputs.available == 'true'
+        working-directory: magento/Magento
+        run: php tools/phpstan/test/run.php
+
+      # Hyvä is commercial — a licensed private Packagist a public workflow has no credentials
+      # for — and exactly one of its classes is in the way: `hyva-product-slider` takes
+      # `Hyva\Theme\ViewModel\ProductListItem` in its constructor. Two things here need that name
+      # to resolve, so the stub goes on the autoloader rather than into any one tool's config:
+      #
+      #   - the code generator below, which reflects that constructor to build the block's
+      #     interceptor and fails with "Class ... does not exist" without it;
+      #   - PHPStan, which then resolves it the same way it resolves everything else.
+      #
+      # Because it is autoloaded, CI runs `phpstan.neon` — the same file used on the stand, with
+      # no CI-only variant to drift from it. The stub is never executed: its one method throws,
+      # and nothing here instantiates it.
+      - name: Make the Hyvä stub resolvable
+        if: steps.creds.outputs.available == 'true'
+        working-directory: magento
+        run: |
+          php -r '
+            $file = "composer.json";
+            $composer = json_decode(file_get_contents($file), true);
+            $composer["autoload"]["classmap"][] = "Magento/tools/phpstan/stubs/";
+            file_put_contents(
+              $file,
+              json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+            );
+          '
+          composer dump-autoload
+
+      # The analysis needs `generated/code` — the `*Factory` classes and extension-attribute
+      # interfaces Magento generates rather than ships. Without it PHPStan reports 348
+      # `class.notFound` and nothing else in the output is legible.
+      #
+      # Compiling needs no database, only `app/etc/config.php`, which is what `module:enable`
+      # writes: `DiCompileCommand::checkEnvironment()` asks the deployment config for its modules
+      # key and nothing more. Nine of these modules name `Hyva_Theme` in `<sequence>` and Hyvä is
+      # not installed here; that is tolerated rather than fatal — `ModuleList\Loader` reads an
+      # absent module's sequence as `?? []`.
+      #
+      # Deliberately after the unit suite rather than before it. Compiling first would also
+      # un-skip the twelve resolver tests that mock a generated extension-attribute interface,
+      # which is a change worth making on its own terms and not as a side effect of this one.
+      - name: Compile generated code
+        if: steps.creds.outputs.available == 'true'
+        working-directory: magento
+        run: |
+          bin/magento module:enable --all
+          bin/magento setup:di:compile
+
+      # What CI cannot check is whether the stub still matches the real Hyvä — everything here
+      # resolves against the copy, so a wrong copy is invisible. `tools/phpstan/test/stub-drift.php`
+      # answers that, on a machine that has Hyvä to compare against.
+      - name: PHPStan
+        if: steps.creds.outputs.available == 'true'
+        working-directory: magento/Magento
+        run: tools/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --no-progress --memory-limit 3G
 
       - name: Drift
         if: steps.creds.outputs.available == 'true'

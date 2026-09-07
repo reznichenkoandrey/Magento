@@ -121,16 +121,41 @@ Design values become tokens rather than arbitrary literals, and a token is named
 ## Quality gates
 
 `.github/workflows/gates.yml` runs six jobs on every push and pull request, and all six block:
-`php -l`, `xmllint`, the schema gate, the JS suites, `phpcs`, and `magento-suite` — the unit suite,
-which needs a Magento installation and therefore the `MAGENTO_PUBLIC_KEY` and `MAGENTO_PRIVATE_KEY`
-repository secrets. Without those two the job skips with a notice rather than failing, so a fork
-still gets the other five.
+`php -l`, `xmllint`, the schema gate, the JS suites, `phpcs`, and `magento-suite` — which needs a
+Magento installation and therefore the `MAGENTO_PUBLIC_KEY` and `MAGENTO_PRIVATE_KEY` repository
+secrets. Without those two that job skips with a notice rather than failing, so a fork still gets
+the other five. It carries the unit suite, the analyser extension's test, PHPStan, and the drift
+check.
 
-**PHPStan is not in CI and cannot be.** Two modules type-hint `Hyva\Theme\…` in their
-constructors, and Hyvä ships from a licensed private Packagist a public repository has no
-credentials for; without it the analysis reports 80 unresolvable classes. Same reason
-`setup:di:compile` is not run there, which is why the twelve resolver tests that mock a generated
-extension-attribute interface skip on a clean checkout and run here.
+**PHPStan runs in CI against a stub, and the difference matters.** Hyvä is commercial — a licensed
+private Packagist that a public repository has no credentials for, and putting them in one is not
+a trade worth making. Exactly one class is in the way: `hyva-product-slider` takes
+`Hyva\Theme\ViewModel\ProductListItem` in its constructor. (Every other `Hyva\…` reference in the
+repo is in a `.phtml` or an XML file, neither of which PHPStan reads.)
+
+`tools/phpstan/stubs/…/ProductListItem.php` declares that one method's signature — no body, and
+none of Hyvä's other methods, which nothing here calls. CI puts it on the autoloader (a classmap
+entry, added to the throwaway installation's `composer.json`) rather than into PHPStan's config,
+because **two** things need the name to resolve: the code generator reflects that constructor to
+build the block's interceptor and dies with `Class … does not exist` without it, and PHPStan
+resolves it afterwards like anything else. The upshot is that **CI runs `phpstan.neon`** — the same
+file you run — with no CI-only variant to drift from it.
+
+CI also compiles: `module:enable --all` then `setup:di:compile`. That is not optional — without
+`generated/code` the analysis reports 348 `class.notFound`, almost all on the `*Factory` classes
+Magento generates rather than ships. It needs no database, only `app/etc/config.php`, which
+`module:enable` writes.
+
+A stub is a claim about somebody else's code, and CI cannot check it — analysing against a copy is
+the whole point, so the copy being wrong is invisible there. `tools/phpstan/test/stub-drift.php`
+is what checks it, by reflecting both and comparing; it only answers on a machine that has Hyvä
+installed, and skips cleanly on one that does not. **Run it after any Hyvä upgrade.** Without it,
+the first time Hyvä changes a parameter, CI stays green — and so does the interceptor it compiled
+against the wrong signature — while the storefront is what breaks.
+
+On the stand Hyvä is really installed, so the local run checks `hyva-product-slider` against the
+real signature rather than against our copy of it. That is the difference the drift check exists to
+keep meaningful.
 
 Run all of them by hand before pushing anyway — CI tells you afterwards, which is later than you
 wanted to know.
@@ -141,6 +166,8 @@ xmllint --noout <file>.xml                     # every touched XML file
 ../vendor/bin/phpcs <path>                     # from this directory; see below
 php tools/check-graphql-schemas.php            # whenever a .graphqls file changed
 tools/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 3G
+php tools/phpstan/test/run.php                 # the analyser extension's own test
+php tools/phpstan/test/stub-drift.php          # after any Hyvä upgrade; skips without Hyvä
 php tools/sync-to-app-code.php                # repo -> app/code/Scr1be
 php tools/sync-to-app-code.php --check        # drift gate, non-zero when they differ
 ```
