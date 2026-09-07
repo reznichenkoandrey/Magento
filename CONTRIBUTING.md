@@ -131,25 +131,31 @@ check.
 private Packagist that a public repository has no credentials for, and putting them in one is not
 a trade worth making. Exactly one class is in the way: `hyva-product-slider` takes
 `Hyva\Theme\ViewModel\ProductListItem` in its constructor. (Every other `Hyva\…` reference in the
-repo is in a `.phtml` or an XML file, neither of which PHPStan reads.) So CI uses `phpstan-ci.neon`,
-which differs from `phpstan.neon` in exactly one way.
+repo is in a `.phtml` or an XML file, neither of which PHPStan reads.)
 
-`scanFiles` supplies `tools/phpstan/stubs/…/ProductListItem.php` — that one method's signature, no
-body and none of Hyvä's other methods. Nothing else differs; `scanDirectories: ../generated/code`
-carries over unchanged, and CI compiles it with `module:enable --all` and `setup:di:compile` first.
-That compile is not optional: without it the analysis reports 348 `class.notFound`, almost all on
-the `*Factory` classes Magento generates rather than ships. It needs no database — only
-`app/etc/config.php`, which `module:enable` writes.
+`tools/phpstan/stubs/…/ProductListItem.php` declares that one method's signature — no body, and
+none of Hyvä's other methods, which nothing here calls. CI puts it on the autoloader (a classmap
+entry, added to the throwaway installation's `composer.json`) rather than into PHPStan's config,
+because **two** things need the name to resolve: the code generator reflects that constructor to
+build the block's interceptor and dies with `Class … does not exist` without it, and PHPStan
+resolves it afterwards like anything else. The upshot is that **CI runs `phpstan.neon`** — the same
+file you run — with no CI-only variant to drift from it.
+
+CI also compiles: `module:enable --all` then `setup:di:compile`. That is not optional — without
+`generated/code` the analysis reports 348 `class.notFound`, almost all on the `*Factory` classes
+Magento generates rather than ships. It needs no database, only `app/etc/config.php`, which
+`module:enable` writes.
 
 A stub is a claim about somebody else's code, and CI cannot check it — analysing against a copy is
 the whole point, so the copy being wrong is invisible there. `tools/phpstan/test/stub-drift.php`
 is what checks it, by reflecting both and comparing; it only answers on a machine that has Hyvä
 installed, and skips cleanly on one that does not. **Run it after any Hyvä upgrade.** Without it,
-the first time Hyvä changes a parameter, CI stays green and the storefront is what breaks.
+the first time Hyvä changes a parameter, CI stays green — and so does the interceptor it compiled
+against the wrong signature — while the storefront is what breaks.
 
-Locally, run `phpstan.neon` — not the CI file. On the stand Hyvä is really installed, and checking
-`hyva-product-slider` against the real signature instead of our copy of it is the point of having
-both.
+On the stand Hyvä is really installed, so the local run checks `hyva-product-slider` against the
+real signature rather than against our copy of it. That is the difference the drift check exists to
+keep meaningful.
 
 Run all of them by hand before pushing anyway — CI tells you afterwards, which is later than you
 wanted to know.

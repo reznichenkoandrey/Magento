@@ -199,9 +199,36 @@ jobs:
         working-directory: magento/Magento
         run: php tools/phpstan/test/run.php
 
+      # Hyvä is commercial — a licensed private Packagist a public workflow has no credentials
+      # for — and exactly one of its classes is in the way: `hyva-product-slider` takes
+      # `Hyva\Theme\ViewModel\ProductListItem` in its constructor. Two things here need that name
+      # to resolve, so the stub goes on the autoloader rather than into any one tool's config:
+      #
+      #   - the code generator below, which reflects that constructor to build the block's
+      #     interceptor and fails with "Class ... does not exist" without it;
+      #   - PHPStan, which then resolves it the same way it resolves everything else.
+      #
+      # Because it is autoloaded, CI runs `phpstan.neon` — the same file used on the stand, with
+      # no CI-only variant to drift from it. The stub is never executed: its one method throws,
+      # and nothing here instantiates it.
+      - name: Make the Hyvä stub resolvable
+        if: steps.creds.outputs.available == 'true'
+        working-directory: magento
+        run: |
+          php -r '
+            $file = "composer.json";
+            $composer = json_decode(file_get_contents($file), true);
+            $composer["autoload"]["classmap"][] = "Magento/tools/phpstan/stubs/";
+            file_put_contents(
+              $file,
+              json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+            );
+          '
+          composer dump-autoload
+
       # The analysis needs `generated/code` — the `*Factory` classes and extension-attribute
       # interfaces Magento generates rather than ships. Without it PHPStan reports 348
-      # `class.notFound` and nothing else is legible.
+      # `class.notFound` and nothing else in the output is legible.
       #
       # Compiling needs no database, only `app/etc/config.php`, which is what `module:enable`
       # writes: `DiCompileCommand::checkEnvironment()` asks the deployment config for its modules
@@ -219,15 +246,13 @@ jobs:
           bin/magento module:enable --all
           bin/magento setup:di:compile
 
-      # `phpstan-ci.neon`, not `phpstan.neon`: same analysis, plus a stub for the one Hyvä class
-      # this repository names in PHP, because Hyvä is commercial and its credentials are not going
-      # into a public workflow. What CI cannot check is whether that stub still matches the real
-      # Hyvä — analysing against the copy is the point, so a wrong copy is invisible here.
-      # `tools/phpstan/test/stub-drift.php` answers that, on a machine that has Hyvä to compare to.
+      # What CI cannot check is whether the stub still matches the real Hyvä — everything here
+      # resolves against the copy, so a wrong copy is invisible. `tools/phpstan/test/stub-drift.php`
+      # answers that, on a machine that has Hyvä to compare against.
       - name: PHPStan
         if: steps.creds.outputs.available == 'true'
         working-directory: magento/Magento
-        run: tools/phpstan/vendor/bin/phpstan analyse -c phpstan-ci.neon --no-progress --memory-limit 3G
+        run: tools/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --no-progress --memory-limit 3G
 
       - name: Drift
         if: steps.creds.outputs.available == 'true'
