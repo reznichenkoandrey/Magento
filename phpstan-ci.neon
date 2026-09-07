@@ -1,0 +1,31 @@
+# PHPStan as CI runs it, where two things the demo stand has are missing.
+#
+# `phpstan.neon` is the real configuration and this file changes nothing about the analysis
+# itself — same level, same paths, same suppressions. It exists because a public workflow installs
+# less than a working storefront does, and both gaps are fatal rather than noisy:
+#
+#   1. Hyvä is not installed. It is commercial, served from a licensed private Packagist, and the
+#      credentials for it are not going into a public repository. `hyva-product-slider` takes
+#      `Hyva\Theme\ViewModel\ProductListItem` in its constructor, so without the class the module
+#      cannot be analysed at all. `scanFiles` supplies the signature instead — see the stub for
+#      what is and is not reproduced, and `tools/phpstan/test/stub-drift.php` for what stops it
+#      from drifting into fiction.
+#
+#   2. `generated/code` does not exist. It is what `setup:di:compile` writes, and compiling needs
+#      an installed application — CI installs the source tree and no database. A scanned directory
+#      that is not there is a hard error, not a warning, so it is cleared rather than left to fail.
+#      Verified before writing this: the analysis is clean without it, because the interceptors and
+#      extension-attribute interfaces it holds only ever produced findings the `method.notFound`
+#      suppressions in `phpstan.neon` already cover.
+#
+# Run locally with `phpstan.neon`, not this file. On the stand Hyvä is installed, and analysing
+# `hyva-product-slider` against a copy of somebody else's signature instead of the real one is
+# exactly the check this pair is meant to keep.
+includes:
+    - phpstan.neon
+
+parameters:
+    scanDirectories!: []
+
+    scanFiles:
+        - tools/phpstan/stubs/Hyva/Theme/ViewModel/ProductListItem.php

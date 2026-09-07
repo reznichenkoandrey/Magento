@@ -183,11 +183,32 @@ jobs:
             -c dev/tests/unit/phpunit.xml.dist --no-coverage --do-not-cache-result \
             app/code/Scr1be
 
-      # PHPStan is not here, and cannot be. Two of the modules type-hint `Hyva\Theme\…` in
-      # their constructors, and Hyvä ships from a licensed private Packagist that a public
-      # repository has no credentials for — without it the analysis reports 80 unresolvable
-      # classes and everything that cascades from them. It stays a manual gate, documented in
-      # CONTRIBUTING.md, and so does the extension test that needs it.
+      # The analyser is its own two-line composer project rather than the installation's, because
+      # Magento 2.4.8 pins `phpstan/phpstan: ^1.9` and this repository's config is written for 2.x.
+      - name: Install the analyser
+        if: steps.creds.outputs.available == 'true'
+        working-directory: magento/Magento
+        run: composer install -d tools/phpstan --no-interaction --no-progress
+
+      # The repo ships a PHPStan extension that teaches it Magento's magic `get`/`set`/`uns`/`has`
+      # accessors. It is checked before it is relied on: the run below would be equally green with
+      # the extension broken in either direction — answering for methods it should defer on, or
+      # not answering at all — because both failures only ever remove findings.
+      - name: Analyser extension
+        if: steps.creds.outputs.available == 'true'
+        working-directory: magento/Magento
+        run: php tools/phpstan/test/run.php
+
+      # `phpstan-ci.neon`, not `phpstan.neon`: the analysis is identical, but a public workflow has
+      # no Hyvä (commercial, licensed private Packagist) and no `generated/code` (needs an
+      # installed application to compile). That file explains both, and `tools/phpstan/stubs/`
+      # holds the one signature standing in for the first. What CI cannot check is whether that
+      # stub still matches the real Hyvä — `tools/phpstan/test/stub-drift.php` answers that, and
+      # only on a machine that has Hyvä to compare against.
+      - name: PHPStan
+        if: steps.creds.outputs.available == 'true'
+        working-directory: magento/Magento
+        run: tools/phpstan/vendor/bin/phpstan analyse -c phpstan-ci.neon --no-progress --memory-limit 3G
 
       - name: Drift
         if: steps.creds.outputs.available == 'true'

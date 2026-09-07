@@ -121,16 +121,35 @@ Design values become tokens rather than arbitrary literals, and a token is named
 ## Quality gates
 
 `.github/workflows/gates.yml` runs six jobs on every push and pull request, and all six block:
-`php -l`, `xmllint`, the schema gate, the JS suites, `phpcs`, and `magento-suite` — the unit suite,
-which needs a Magento installation and therefore the `MAGENTO_PUBLIC_KEY` and `MAGENTO_PRIVATE_KEY`
-repository secrets. Without those two the job skips with a notice rather than failing, so a fork
-still gets the other five.
+`php -l`, `xmllint`, the schema gate, the JS suites, `phpcs`, and `magento-suite` — which needs a
+Magento installation and therefore the `MAGENTO_PUBLIC_KEY` and `MAGENTO_PRIVATE_KEY` repository
+secrets. Without those two that job skips with a notice rather than failing, so a fork still gets
+the other five. It carries the unit suite, the analyser extension's test, PHPStan, and the drift
+check.
 
-**PHPStan is not in CI and cannot be.** Two modules type-hint `Hyva\Theme\…` in their
-constructors, and Hyvä ships from a licensed private Packagist a public repository has no
-credentials for; without it the analysis reports 80 unresolvable classes. Same reason
-`setup:di:compile` is not run there, which is why the twelve resolver tests that mock a generated
-extension-attribute interface skip on a clean checkout and run here.
+**PHPStan runs in CI against a stub, and the difference matters.** Hyvä is commercial — a licensed
+private Packagist that a public repository has no credentials for, and putting them in one is not
+a trade worth making. Exactly one class is in the way: `hyva-product-slider` takes
+`Hyva\Theme\ViewModel\ProductListItem` in its constructor. (Every other `Hyva\…` reference in the
+repo is in a `.phtml` or an XML file, neither of which PHPStan reads.) So CI uses `phpstan-ci.neon`,
+which differs from `phpstan.neon` in two ways and no others:
+
+- `scanFiles` supplies `tools/phpstan/stubs/…/ProductListItem.php` — the signature of that one
+  method, no body and none of Hyvä's other methods.
+- `scanDirectories` is cleared. `generated/code` is what `setup:di:compile` writes, compiling needs
+  an installed application, and CI installs no database. A scanned directory that is not there is
+  a hard error rather than a warning. Same reason the twelve resolver tests that mock a generated
+  extension-attribute interface skip on a clean checkout and run on the stand.
+
+A stub is a claim about somebody else's code, and CI cannot check it — analysing against a copy is
+the whole point, so the copy being wrong is invisible there. `tools/phpstan/test/stub-drift.php`
+is what checks it, by reflecting both and comparing; it only answers on a machine that has Hyvä
+installed, and skips cleanly on one that does not. **Run it after any Hyvä upgrade.** Without it,
+the first time Hyvä changes a parameter, CI stays green and the storefront is what breaks.
+
+Locally, run `phpstan.neon` — not the CI file. On the stand Hyvä is really installed, and checking
+`hyva-product-slider` against the real signature instead of our copy of it is the point of having
+both.
 
 Run all of them by hand before pushing anyway — CI tells you afterwards, which is later than you
 wanted to know.
@@ -141,6 +160,8 @@ xmllint --noout <file>.xml                     # every touched XML file
 ../vendor/bin/phpcs <path>                     # from this directory; see below
 php tools/check-graphql-schemas.php            # whenever a .graphqls file changed
 tools/phpstan/vendor/bin/phpstan analyse -c phpstan.neon --memory-limit 3G
+php tools/phpstan/test/run.php                 # the analyser extension's own test
+php tools/phpstan/test/stub-drift.php          # after any Hyvä upgrade; skips without Hyvä
 php tools/sync-to-app-code.php                # repo -> app/code/Scr1be
 php tools/sync-to-app-code.php --check        # drift gate, non-zero when they differ
 ```
