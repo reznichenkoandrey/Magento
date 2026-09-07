@@ -132,14 +132,14 @@ private Packagist that a public repository has no credentials for, and putting t
 a trade worth making. Exactly one class is in the way: `hyva-product-slider` takes
 `Hyva\Theme\ViewModel\ProductListItem` in its constructor. (Every other `Hyva\…` reference in the
 repo is in a `.phtml` or an XML file, neither of which PHPStan reads.) So CI uses `phpstan-ci.neon`,
-which differs from `phpstan.neon` in two ways and no others:
+which differs from `phpstan.neon` in exactly one way.
 
-- `scanFiles` supplies `tools/phpstan/stubs/…/ProductListItem.php` — the signature of that one
-  method, no body and none of Hyvä's other methods.
-- `scanDirectories` is cleared. `generated/code` is what `setup:di:compile` writes, compiling needs
-  an installed application, and CI installs no database. A scanned directory that is not there is
-  a hard error rather than a warning. Same reason the twelve resolver tests that mock a generated
-  extension-attribute interface skip on a clean checkout and run on the stand.
+`scanFiles` supplies `tools/phpstan/stubs/…/ProductListItem.php` — that one method's signature, no
+body and none of Hyvä's other methods. Nothing else differs; `scanDirectories: ../generated/code`
+carries over unchanged, and CI compiles it with `module:enable --all` and `setup:di:compile` first.
+That compile is not optional: without it the analysis reports 348 `class.notFound`, almost all on
+the `*Factory` classes Magento generates rather than ships. It needs no database — only
+`app/etc/config.php`, which `module:enable` writes.
 
 A stub is a claim about somebody else's code, and CI cannot check it — analysing against a copy is
 the whole point, so the copy being wrong is invisible there. `tools/phpstan/test/stub-drift.php`

@@ -1,31 +1,26 @@
-# PHPStan as CI runs it, where two things the demo stand has are missing.
+# PHPStan as CI runs it. One difference from `phpstan.neon`, and it is the only one.
 #
-# `phpstan.neon` is the real configuration and this file changes nothing about the analysis
-# itself — same level, same paths, same suppressions. It exists because a public workflow installs
-# less than a working storefront does, and both gaps are fatal rather than noisy:
+# Hyvä is commercial — served from a licensed private Packagist that a public repository has no
+# credentials for, and putting them in a public workflow is not a trade worth making. Exactly one
+# class stands in the way: `hyva-product-slider` takes `Hyva\Theme\ViewModel\ProductListItem` in
+# its constructor. Every other `Hyva\` reference in the repo is in a `.phtml` or an XML file, and
+# PHPStan reads neither. `scanFiles` supplies that one signature instead.
 #
-#   1. Hyvä is not installed. It is commercial, served from a licensed private Packagist, and the
-#      credentials for it are not going into a public repository. `hyva-product-slider` takes
-#      `Hyva\Theme\ViewModel\ProductListItem` in its constructor, so without the class the module
-#      cannot be analysed at all. `scanFiles` supplies the signature instead — see the stub for
-#      what is and is not reproduced, and `tools/phpstan/test/stub-drift.php` for what stops it
-#      from drifting into fiction.
+# Everything else — level, paths, suppressions, the magic-accessor extension — comes from
+# `phpstan.neon` unchanged, `scanDirectories: ../generated/code` included. CI compiles that
+# directory with `setup:di:compile` before running this, and it is not optional: without it the
+# analysis reports 348 `class.notFound`, almost all of them on the `*Factory` classes Magento
+# generates rather than ships. An earlier version of this file cleared `scanDirectories` on the
+# theory that the suppressions already covered what it held. They do not, and the local run that
+# appeared to show otherwise was misleading — on the stand those classes resolve through the
+# installation's autoloader whether or not PHPStan is told to scan for them.
 #
-#   2. `generated/code` does not exist. It is what `setup:di:compile` writes, and compiling needs
-#      an installed application — CI installs the source tree and no database. A scanned directory
-#      that is not there is a hard error, not a warning, so it is cleared rather than left to fail.
-#      Verified before writing this: the analysis is clean without it, because the interceptors and
-#      extension-attribute interfaces it holds only ever produced findings the `method.notFound`
-#      suppressions in `phpstan.neon` already cover.
-#
-# Run locally with `phpstan.neon`, not this file. On the stand Hyvä is installed, and analysing
-# `hyva-product-slider` against a copy of somebody else's signature instead of the real one is
-# exactly the check this pair is meant to keep.
+# Run `phpstan.neon` locally, not this file. On the stand Hyvä is really installed, and checking
+# `hyva-product-slider` against the real signature instead of our copy of it is the point of
+# keeping both. `tools/phpstan/test/stub-drift.php` is what compares the two.
 includes:
     - phpstan.neon
 
 parameters:
-    scanDirectories!: []
-
     scanFiles:
         - tools/phpstan/stubs/Hyva/Theme/ViewModel/ProductListItem.php

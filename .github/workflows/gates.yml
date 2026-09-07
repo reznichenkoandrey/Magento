@@ -199,12 +199,31 @@ jobs:
         working-directory: magento/Magento
         run: php tools/phpstan/test/run.php
 
-      # `phpstan-ci.neon`, not `phpstan.neon`: the analysis is identical, but a public workflow has
-      # no Hyvä (commercial, licensed private Packagist) and no `generated/code` (needs an
-      # installed application to compile). That file explains both, and `tools/phpstan/stubs/`
-      # holds the one signature standing in for the first. What CI cannot check is whether that
-      # stub still matches the real Hyvä — `tools/phpstan/test/stub-drift.php` answers that, and
-      # only on a machine that has Hyvä to compare against.
+      # The analysis needs `generated/code` — the `*Factory` classes and extension-attribute
+      # interfaces Magento generates rather than ships. Without it PHPStan reports 348
+      # `class.notFound` and nothing else is legible.
+      #
+      # Compiling needs no database, only `app/etc/config.php`, which is what `module:enable`
+      # writes: `DiCompileCommand::checkEnvironment()` asks the deployment config for its modules
+      # key and nothing more. Nine of these modules name `Hyva_Theme` in `<sequence>` and Hyvä is
+      # not installed here; that is tolerated rather than fatal — `ModuleList\Loader` reads an
+      # absent module's sequence as `?? []`.
+      #
+      # Deliberately after the unit suite rather than before it. Compiling first would also
+      # un-skip the twelve resolver tests that mock a generated extension-attribute interface,
+      # which is a change worth making on its own terms and not as a side effect of this one.
+      - name: Compile generated code
+        if: steps.creds.outputs.available == 'true'
+        working-directory: magento
+        run: |
+          bin/magento module:enable --all
+          bin/magento setup:di:compile
+
+      # `phpstan-ci.neon`, not `phpstan.neon`: same analysis, plus a stub for the one Hyvä class
+      # this repository names in PHP, because Hyvä is commercial and its credentials are not going
+      # into a public workflow. What CI cannot check is whether that stub still matches the real
+      # Hyvä — analysing against the copy is the point, so a wrong copy is invisible here.
+      # `tools/phpstan/test/stub-drift.php` answers that, on a machine that has Hyvä to compare to.
       - name: PHPStan
         if: steps.creds.outputs.available == 'true'
         working-directory: magento/Magento
