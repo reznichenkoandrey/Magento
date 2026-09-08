@@ -63,10 +63,10 @@ Every Wave 2 module has had a second pass in which each claim it makes about Mag
 checked against the source in `vendor/` rather than against recollection — see the status table in
 [`ROADMAP.md`](ROADMAP.md).
 
-## Live demo (Magento 2.4.8-p4 + Hyvä 1.4)
+## Screenshots (Magento 2.4.8-p4 + Hyvä 1.4)
 
-The portfolio runs on a real Magento storefront with sample data (Luma catalog, 2,046 products),
-all thirty modules enabled. Screenshots are from that install, not mockups:
+Photographed from a real Magento storefront — Luma sample data, 2,046 products, all thirty modules
+enabled — rather than mocked up:
 
 | | Module | What's shown |
 |---|---|---|
