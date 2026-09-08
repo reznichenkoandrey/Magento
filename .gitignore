@@ -9,6 +9,3 @@ var/
 pub/static/
 pub/media/
 
-# Local tooling. Never part of the project.
-.local-tooling/
-.serena/
