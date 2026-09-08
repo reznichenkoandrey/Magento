@@ -127,11 +127,11 @@ secrets. Without those two that job skips with a notice rather than failing, so 
 the other five. It carries the unit suite, the analyser extension's test, PHPStan, and the drift
 check.
 
-**PHPStan runs in CI against a stub, and the difference matters.** Hyvä is commercial — a licensed
-private Packagist that a public repository has no credentials for, and putting them in one is not
-a trade worth making. Exactly one class is in the way: `hyva-product-slider` takes
-`Hyva\Theme\ViewModel\ProductListItem` in its constructor. (Every other `Hyva\…` reference in the
-repo is in a `.phtml` or an XML file, neither of which PHPStan reads.)
+**PHPStan runs in CI against a stub, and the difference matters.** Hyvä ships from a private
+Packagist that this repository has no credentials for. Exactly one class is in the way:
+`hyva-product-slider` takes `Hyva\Theme\ViewModel\ProductListItem` in its constructor. (Every
+other `Hyva\…` reference in the repo is in a `.phtml` or an XML file, neither of which PHPStan
+reads.)
 
 `tools/phpstan/stubs/…/ProductListItem.php` declares that one method's signature — no body, and
 none of Hyvä's other methods, which nothing here calls. CI puts it on the autoloader (a classmap
